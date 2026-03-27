@@ -74,6 +74,33 @@
     .gradient-bg {
       background: radial-gradient(circle at top right, #fdf4ff, #ffffff, #f5f3ff);
     }
+    .dark #problem {
+  background:rgba(20, 20, 22, 0.6) !important;
+}
+/* Dark mode specific button styling */
+.dark .btn-light-text {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #e5e7eb !important;
+}
+
+/* Hover state */
+.dark .btn-light-text:hover {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+.dark .card-lavender {
+  background: rgba(40, 30, 80, 0.6) !important;
+  color: #ffffff !important;
+}
+
+.dark .card-lavender span {
+  color: #c4b5fd !important; /* soft purple accent */
+}
+
+.dark .card-lavender:hover {
+  background: rgba(60, 40, 120, 0.7) !important;
+}
   </style>
 </head>
 <body class="font-sans text-slate-900 gradient-bg selection:bg-clinical-mauve/30">
@@ -94,8 +121,7 @@
 <div class="flex items-center gap-4">
 
 <!-- Dark Mode Toggle -->
-<div id="themeToggle" class="relative w-20 h-9 bg-slate-200 rounded-full cursor-pointer flex items-center px-1 transition">
-  <div id="toggleCircle" class="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center transform transition">
+<div id="themeToggle" class="relative w-20 h-9 bg-gradient-to-r from-yellow-200 to-slate-300 rounded-full cursor-pointer flex items-center px-1 transition-all duration-300 shadow-inner"> <div id="toggleCircle" class="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center transform transition-all duration-300">
     🌞
   </div>
 </div>
@@ -127,10 +153,10 @@
           Revolutionizing diabetic retinopathy screening with state-of-the-art neural networks. Reduce human error and provide results in real-time.
         </p>
 <div class="flex flex-col sm:flex-row gap-4">
-<a href="{{ url_for('scanner') }}" class="bg-slate-900 text-white px-8 py-4  rounded-theme font-bold hover:bg-slate-800 transition-all text-center inline-block hover:scale-105 active:scale-95">
+<a href="{{ url_for('scanner') }}" class="bg-slate-900 text-white px-8 py-4 rounded-theme font-bold hover:bg-slate-800 transition-all text-center inline-block hover:scale-105 active:scale-95 shadow-md hover:shadow-xl">
             Launch Scanner
 </a>
-<a href="{{ url_for('dashboard') }}" class="glass-morphism border border-slate-200 text-slate-900 px-8 py-4 rounded-theme font-bold hover:bg-white transition-all text-center inline-block">
+<a href="{{ url_for('dashboard') }}" class="glass-morphism border border-slate-200 text-slate-900 btn-light-text px-8 py-4 rounded-theme font-bold hover:bg-white transition-all text-center inline-block shadow-sm hover:shadow-lg hover:scale-105 active:scale-95">
             View Analytics Dashboard
 </a>
 </div>
@@ -139,7 +165,7 @@
 <!-- Abstract AI representation -->
 <div class="relative z-10 glass-morphism p-4 rounded-2xl shadow-2xl border border-white/50">
 <div class="absolute left-0 w-full h-1 bg-clinical-accent/40 shadow-[0_0_15px_#1713ec] animate-[scan_4s_ease-in-out_infinite]"></div>
-<img alt="AI Retina Scan Visualization" class="w-full h-auto rounded-lg opacity-80" data-purpose="abstract-visual" src="{{ url_for('static', filename='gradcam_overlay.png') }}"/>
+<img alt="AI Retina Scan Visualization" class="w-full h-auto rounded-lg opacity-90 shadow-[0_0_40px_rgba(23,19,236,0.25)]" data-purpose="abstract-visual" src="{{ url_for('static', filename='gradcam_overlay.png') }}"/>
 </div>
 
 <div class="absolute inset-0 flex items-center justify-center">
@@ -251,7 +277,7 @@
 </div>
 </div>
 <div class="lg:w-1/2 grid grid-cols-2 gap-4">
-<div class="bg-clinical-lavender/30 p-8 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-clinical-lavender/40 transition-colors">
+<div class="bg-clinical-lavender/30 card-lavender p-8 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-clinical-lavender/40 transition-colors">
 <span class="text-4xl font-black text-clinical-deep mb-2">98%+</span>
 <span class="text-xs uppercase font-bold tracking-widest text-slate-500">Accuracy</span>
 </div>
@@ -280,10 +306,10 @@
           Join leading ophthalmology clinics in pioneering the future of automated diagnostic imaging. 
         </p>
 <div class="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
-<a href="{{ url_for('scanner') }}" class="bg-clinical-accent text-white px-10 py-4 rounded-theme font-bold text-lg hover:shadow-xl hover:shadow-clinical-accent/30 transition-all inline-block">
+<a href="{{ url_for('scanner') }}" class="bg-clinical-accent text-white px-10 py-4 rounded-theme font-bold text-lg hover:shadow-xl hover:shadow-clinical-accent/30 transition-all inline-block shadow-md hover:shadow-xl hover:scale-105 active:scale-95">
             Launch Scanner
 </a>
-<a href="{{ url_for('dashboard') }}" class="bg-white border border-slate-200 text-slate-900 px-10 py-4 rounded-theme font-bold text-lg hover:bg-slate-50 transition-all inline-block">
+<a href="{{ url_for('dashboard') }}" class="bg-white border border-slate-200 text-slate-900 px-10 py-4 rounded-theme font-bold text-lg hover:bg-slate-50 transition-all inline-block shadow-sm hover:shadow-lg hover:scale-105 active:scale-95">
             View Analytics
 </a>
 </div>
@@ -326,13 +352,16 @@ toggle.addEventListener("click", () => {
   if (document.documentElement.classList.contains("dark")) {
     circle.style.transform = "translateX(40px)";
     circle.textContent = "🌙";
-    toggle.classList.remove("bg-slate-200");
-    toggle.classList.add("bg-slate-700");
+
+    toggle.classList.remove("from-yellow-200", "to-slate-300");
+    toggle.classList.add("from-slate-700", "to-slate-900");
+
   } else {
     circle.style.transform = "translateX(0px)";
     circle.textContent = "🌞";
-    toggle.classList.remove("bg-slate-700");
-    toggle.classList.add("bg-slate-200");
+
+    toggle.classList.remove("from-slate-700", "to-slate-900");
+    toggle.classList.add("from-yellow-200", "to-slate-300");
   }
 });
 </script>
