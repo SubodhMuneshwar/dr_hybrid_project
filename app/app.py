@@ -12,7 +12,9 @@ from src.infer import infer_image
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
-app.secret_key = "dr-secret"  # set your own
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dr-secret-dev-only")
+# Limit upload size to 10MB to prevent abuse
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
 
 def allowed_file(filename):
@@ -70,20 +72,25 @@ def index():
 
 @app.route("/dashboard")
 def dashboard():
-    # Show analysis artifacts if they exist
-    cm = "model_accuracy_bar_chart.png"
-    f1 = "normalized_cm_votingclassifier.png"
-    radar = "model_radar_chart.png"
+    # Support both legacy names and new pipeline-generated names
+    # Legacy expected: model_accuracy_bar_chart.png, normalized_cm_votingclassifier.png, model_radar_chart.png
+    # Current pipeline generates: stacking_confusion_matrix.png, stacking_f1_scores.png
+    def find_first(candidates):
+        for name in candidates:
+            p = os.path.join(config.OUTPUTS_DIR, name)
+            if os.path.exists(p):
+                return name
+        return None
 
-    cm_exists = os.path.exists(os.path.join(config.OUTPUTS_DIR, cm))
-    f1_exists = os.path.exists(os.path.join(config.OUTPUTS_DIR, f1))
-    radar_exists = os.path.exists(os.path.join(config.OUTPUTS_DIR, radar))
+    cm_name = find_first(["stacking_confusion_matrix.png", "stacking_reval_confusion_matrix.png", "normalized_cm_votingclassifier.png", "model_accuracy_bar_chart.png"])
+    f1_name = find_first(["stacking_f1_scores.png", "stacking_reval_f1_scores.png", "model_accuracy_bar_chart.png", "normalized_cm_votingclassifier.png"])
+    radar_name = find_first(["model_radar_chart.png", "stacking_radar.png"])
 
     return render_template(
         "dashboard.html",
-        cm_url=url_for("outputs_file", filename=cm) if cm_exists else None,
-        f1_url=url_for("outputs_file", filename=f1) if f1_exists else None,
-        radar_url=url_for("outputs_file", filename=radar) if radar_exists else None,
+        cm_url=url_for("outputs_file", filename=cm_name) if cm_name else None,
+        f1_url=url_for("outputs_file", filename=f1_name) if f1_name else None,
+        radar_url=url_for("outputs_file", filename=radar_name) if radar_name else None,
     )
 
 
@@ -96,4 +103,5 @@ def outputs_file(filename):
 if __name__ == "__main__":
     # For direct python app/app.py runs
     port = int(os.environ.get("PORT", 5001))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() in ("1", "true", "yes")
+    app.run(debug=debug, host="0.0.0.0", port=port)

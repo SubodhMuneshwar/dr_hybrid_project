@@ -9,14 +9,22 @@ from .features import get_deep_feature_model, extract_deep_features, extract_lbp
 from .explain import grad_cam
 
 def _load_classifier():
-    path = os.path.join(config.MODELS_DIR, "votingclassifier_model.pkl")
-    if not os.path.exists(path):
-        raise FileNotFoundError("Trained model not found.")
-    return joblib.load(path)
+    # Prefer new stacking model, fallback to legacy voting model for backward compatibility
+    candidates = [
+        os.path.join(config.MODELS_DIR, "stacking_calibrated.pkl"),
+        os.path.join(config.MODELS_DIR, "votingclassifier_model.pkl"),
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return joblib.load(path)
+    raise FileNotFoundError(
+        f"Trained model not found. Checked: {candidates}. "
+        "Download from Drive (README) or run: python -m src.pipeline --train"
+    )
 
 def infer_image(image_path):
     clf = _load_classifier()
-    img_bgr, img_clahe = advanced_preprocess_image(image_path, target_size=(256, 256))
+    img_bgr, img_clahe = advanced_preprocess_image(image_path, target_size=config.TARGET_SIZE)
     deep_model, preprocess_fn = get_deep_feature_model(config.FEATURE_EXTRACTOR_MODEL)
 
     deep_feat = extract_deep_features(img_bgr, deep_model, preprocess_fn)

@@ -2,7 +2,7 @@
 
 A professional, clinical-grade medical diagnostic system for detecting Diabetic Retinopathy using retinal fundus images and a Hybrid Feature Fusion ensemble.
 
-![Medical UI](https://raw.githubusercontent.com/your-username/dr-hybrid-project/main/app/static/preview.png) *(Add a screenshot here later)*
+![Medical UI](https://raw.githubusercontent.com/SubodhMuneshwar/dr_hybrid_project/main/app/static/preview.png) *(Add a screenshot here later)*
 
 ---
 
@@ -35,7 +35,7 @@ Follow these steps to set up the project on your local machine:
 ### 2. Clone and Environment Setup
 ```bash
 # Clone the repository
-git clone https://github.com/Nihar0001/dr_hybrid_project.git
+git clone https://github.com/SubodhMuneshwar/dr_hybrid_project.git
 cd dr_hybrid_project
 
 # Create a virtual environment

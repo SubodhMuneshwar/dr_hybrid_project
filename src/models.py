@@ -13,14 +13,16 @@ from imblearn.over_sampling import SMOTE
 
 from . import config
 
-def split_and_scale(X, y, test_size=0.2, random_state=42):
+def split_and_scale(X, y, test_size=0.2, random_state=42, save_scaler=True):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state, stratify=y
     )
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test  = scaler.transform(X_test)
-    # save scaler with model? (not needed since we scale before model pipelines, but keep if desired)
+    if save_scaler:
+        os.makedirs(config.MODELS_DIR, exist_ok=True)
+        joblib.dump(scaler, os.path.join(config.MODELS_DIR, "scaler.pkl"))
     return X_train, X_test, y_train, y_test
 
 def get_base_pipelines():

@@ -17,6 +17,8 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 # ---------- Feature extractor ----------
 # Options: 'mobilenetv2', 'densenet121', 'inceptionresnetv2', 'vgg16'
 FEATURE_EXTRACTOR_MODEL = "vgg16"
+TARGET_SIZE = (224, 224)  # unified for training and inference
+# Derived feature dimensions: VGG16 GAP=512, DenseNet121=1024, MobileNetV2=1280, InceptionResNetV2=1536; + LBP 26 + Haralick 24
 
 # ---------- Classes ----------
 # Diabetic Retinopathy Classification Levels

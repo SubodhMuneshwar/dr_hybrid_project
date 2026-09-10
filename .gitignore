@@ -15,6 +15,10 @@ outputs/*
 data/*
 !data/*.csv
 !data/.gitkeep
+!data/train_images/
+!data/train_images/.gitkeep
+models/*
+!models/.gitkeep
 
 # Large models
 models/*.pkl

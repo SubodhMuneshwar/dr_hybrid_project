@@ -23,7 +23,7 @@ def _build_or_load_features(labels_df):
         p = image_path(row["id_code"])
         if not os.path.exists(p):
             continue
-        img_bgr, img_clahe = advanced_preprocess_image(p, target_size=(224, 224))
+        img_bgr, img_clahe = advanced_preprocess_image(p, target_size=config.TARGET_SIZE)
         deep_feat = extract_deep_features(img_bgr, deep_model, preprocess_fn)
         lbp_feat = extract_lbp(img_clahe)
         haralick_feat = extract_haralick(img_clahe)

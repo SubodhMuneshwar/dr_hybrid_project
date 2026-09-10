@@ -1,7 +1,7 @@
 numpy
 pandas
 scikit-learn
-imblearn
+imbalanced-learn
 opencv-python
 matplotlib
 seaborn
@@ -11,3 +11,4 @@ joblib
 scikit-image
 flask
 werkzeug
+tqdm
