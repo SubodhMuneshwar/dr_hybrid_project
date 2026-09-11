@@ -1,4 +1,5 @@
 import os
+import logging
 import argparse
 import numpy as np
 import joblib
@@ -7,6 +8,8 @@ from . import config
 from .data import advanced_preprocess_image
 from .features import get_deep_feature_model, extract_deep_features, extract_deep_features_fallback, extract_lbp, extract_haralick, TF_AVAILABLE
 from .explain import grad_cam
+
+logger = logging.getLogger(__name__)
 
 def _load_classifier():
     candidates = [
@@ -32,8 +35,9 @@ def _expected_dims():
                 # LBP 26 + Haralick 24 = 50
                 deep = total - 50
                 return total, deep
-        except Exception:
-            pass
+        except (EOFError, ImportError, pickle.UnpicklingError) as e:
+            import logging
+            logging.warning(f"Could not load scaler: {e}")
     return None, None
 
 def _get_deep(extractor_name, expected_deep):
@@ -55,8 +59,29 @@ def _get_deep(extractor_name, expected_deep):
     return get_deep_feature_model(extractor_name, use_gap=True)
 
 def infer_image(image_path):
+    """
+    Predict DR severity from retinal image.
+
+    Args:
+        image_path (str): Path to fundus image
+
+    Returns:
+        tuple: (prediction_class, probabilities, heatmap_path, preprocessed_path)
+
+    Raises:
+        FileNotFoundError: If image not found
+        ValueError: If image format is invalid
+    """
+    # MAJOR: Validate image exists
+    if not os.path.exists(image_path):
+        raise FileNotFoundError(f"Image not found: {image_path}")
+
     clf = _load_classifier()
     img_bgr, img_clahe = advanced_preprocess_image(image_path, target_size=config.TARGET_SIZE)
+
+    # MAJOR: Validate image dimensions
+    if img_bgr is None or img_bgr.shape != (config.TARGET_SIZE[0], config.TARGET_SIZE[1], 3):
+        raise ValueError(f"Invalid image format. Expected shape {(config.TARGET_SIZE[0], config.TARGET_SIZE[1], 3)}, got {img_bgr.shape if img_bgr is not None else 'None'}")
 
     expected_total, expected_deep = _expected_dims()
 
@@ -72,8 +97,10 @@ def infer_image(image_path):
                     deep_feat = np.concatenate([deep_feat, pad])
                 else:
                     deep_feat = deep_feat[:expected_deep]
-        except Exception as e:
+        except (RuntimeError, ImportError, OSError) as e:
             # If TF model loading fails, fall back to pseudo features
+            import logging
+            logging.warning(f"TensorFlow model loading failed: {e}. Using fallback features.")
             if expected_deep is None:
                 expected_deep = 512
             deep_feat = extract_deep_features_fallback(img_bgr, expected_deep_dim=expected_deep)

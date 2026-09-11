@@ -1,33 +1,89 @@
-from datetime import datetime
 import os
 import sys
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session
-from werkzeug.utils import secure_filename
-from flask import send_file
+import re
 import json
+import logging
+import secrets
+from datetime import datetime
 from io import BytesIO
+
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session
+from flask_wtf import FlaskForm
+from flask_wtf.csrf import CSRFProtect
+from werkzeug.utils import secure_filename
+from werkzeug.security import secure_filename as secure_filename_check
+from flask import send_file
+from wtforms import StringField, FileField, validators
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Constants
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
+ALLOWED_MIME_TYPES = {"image/png", "image/jpeg"}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+CONFIDENCE_THRESHOLD_MARGIN = 0.05
+CONFIDENCE_REDUCTION_FACTOR = 0.9
+CONFIDENCE_MIN_THRESHOLD = 50
+
+# File locking for concurrent access
+import fcntl
+
 def load_data():
+    """Load patient data from JSON with file locking for thread safety."""
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
 
     if not os.path.exists(DATA_FILE):
         return {"patients": {}}
 
-    with open(DATA_FILE, "r") as f:
-        return json.load(f)
+    try:
+        with open(DATA_FILE, "r") as f:
+            # Acquire shared lock for reading
+            fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+            try:
+                data = json.load(f)
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+        return data
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Error loading patient data: {e}")
+        return {"patients": {}}
 
 def save_data(data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    """Save patient data to JSON with file locking for thread safety."""
+    os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
+    temp_file = DATA_FILE + ".tmp"
+
+    try:
+        with open(temp_file, "w") as f:
+            # Acquire exclusive lock for writing
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                json.dump(data, f, indent=2)
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+        # Atomic rename
+        os.replace(temp_file, DATA_FILE)
+    except IOError as e:
+        logger.error(f"Error saving patient data: {e}")
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+        raise
 
 def format_datetime(iso_str):
+    """Format ISO datetime string to readable format."""
     try:
         dt = datetime.fromisoformat(iso_str)
         return dt.strftime("%d %b %Y, %I:%M %p")
-    except:
+    except (ValueError, TypeError):
+        logger.debug(f"Could not parse datetime: {iso_str}")
         return iso_str
 
 # --- make 'src' importable when app runs from app/ ---
@@ -41,9 +97,12 @@ from src.infer import infer_image
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
-app.secret_key = "dr-secret"  # set your own
+app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+# CRITICAL: Enable CSRF protection
+csrf = CSRFProtect(app)
 
 
 def allowed_file(filename):
@@ -59,25 +118,41 @@ def scanner():
         "prediction_label": None,
         "confidence": None,}
     if request.method == "POST":
-        
+
         patient_name = request.form.get("patient_name", "").strip()
+
+        # CRITICAL: Validate patient name to prevent injection attacks
+        if not re.match(r'^[a-zA-Z0-9\s\-\.]{1,100}$', patient_name):
+            flash("Patient name must contain only letters, numbers, spaces, hyphens, and periods (max 100 characters)")
+            return redirect(url_for("scanner"))
+
         if "file" not in request.files:
             flash("No file uploaded.")
             return redirect(url_for("scanner"))
-        f = request.files["file"]
-        if f.filename == "":
+        uploaded_file = request.files["file"]
+        if uploaded_file.filename == "":
             flash("No selected file.")
             return redirect(url_for("scanner"))
-        if not allowed_file(f.filename):
+        if not allowed_file(uploaded_file.filename):
             flash("Please upload a PNG/JPG image.")
+            return redirect(url_for("scanner"))
+
+        # CRITICAL: Validate file size before saving
+        if uploaded_file.content_length and uploaded_file.content_length > MAX_FILE_SIZE:
+            flash(f"File too large. Maximum size is 10MB.")
+            return redirect(url_for("scanner"))
+
+        # CRITICAL: Validate MIME type
+        if uploaded_file.content_type not in ALLOWED_MIME_TYPES:
+            flash("Invalid file type. Only PNG and JPEG images are allowed.")
             return redirect(url_for("scanner"))
         if not patient_name:
             flash("Patient name is required")
             return redirect(url_for("scanner"))
-        
-        filename = secure_filename(f.filename)
+
+        filename = secure_filename(uploaded_file.filename)
         save_path = os.path.join(config.UPLOADS_DIR, filename)
-        f.save(save_path)
+        uploaded_file.save(save_path)
 
         try:
             pred, proba, heatmap_path, *_ = infer_image(save_path)
@@ -108,22 +183,21 @@ def scanner():
             pred_description = config.CLASS_DESCRIPTIONS[pred_index]
 
             # predicted_class = int(pred)
-            #  Clean label mapping
+            #  Clean label mapping with consistent risk levels
             if pred_index == 0:
                 prediction_label = "No Diabetic Retinopathy"
                 severity_level = "None"
-                # severity_level = "Healthy"
                 risk = "Low"
 
             elif pred_index == 1:
                 prediction_label = "Mild DR"
                 severity_level = "Class 1"
-                risk = "Moderate"
+                risk = "Low-Moderate"  # MAJOR: Changed from "Moderate" for consistency
 
             elif pred_index == 2:
                 prediction_label = "Moderate DR"
                 severity_level = "Class 2"
-                risk = "Moderate"
+                risk = "Moderate-High"  # MAJOR: Changed from "Moderate" for better differentiation
 
             elif pred_index == 3:
                 prediction_label = "Severe DR"
@@ -140,9 +214,6 @@ def scanner():
                 prediction_label += " (Low Confidence)"
 
             # ✅ Create scan entry
-
-            from datetime import datetime
-
             scan_entry = {
                 "patient_name": patient_name,   # 🔥 ADD THIS
                 "prediction": prediction_label,
@@ -189,7 +260,8 @@ def scanner():
                 "scan_done": True,
             })
         except Exception as e:
-            flash(f"Inference error: {e}")
+            logger.error(f"Inference error: {e}", exc_info=True)
+            flash(f"Inference error: {str(e)[:100]}")
             return redirect(url_for("scanner"))
             
 
@@ -298,7 +370,7 @@ def dashboard():
     accuracy = "model_accuracy_bar_chart.png"
     cm = "normalized_cm_votingclassifier.png"
     radar = "model_radar_chart.png"
-    f1 = "normalized_cm_votingclassifier.png"
+    f1 = "stacking_f1_scores.png"  # MINOR: Fixed - was duplicate of cm
 
     accuracy_exists = os.path.exists(os.path.join(config.OUTPUTS_DIR, accuracy))
     cm_exists = os.path.exists(os.path.join(config.OUTPUTS_DIR, cm))
@@ -469,11 +541,21 @@ def download_report(patient_name):
 
 @app.route("/outputs/<path:filename>")
 def outputs_file(filename):
+    """Serve files from outputs directory with path traversal protection."""
+    # CRITICAL: Validate filename to prevent path traversal attacks
+    if '..' in filename or filename.startswith('/'):
+        logger.warning(f"Attempted path traversal attack: {filename}")
+        return "Invalid filename", 400
     # Serve anything from outputs (images, txt)
     return send_from_directory(config.OUTPUTS_DIR, filename)
 
 @app.route("/uploads/<path:filename>")
 def uploads_file(filename):
+    """Serve files from uploads directory with path traversal protection."""
+    # CRITICAL: Validate filename to prevent path traversal attacks
+    if '..' in filename or filename.startswith('/'):
+        logger.warning(f"Attempted path traversal attack: {filename}")
+        return "Invalid filename", 400
     os.makedirs(config.UPLOADS_DIR, exist_ok=True)
     return send_from_directory(config.UPLOADS_DIR, filename)
 

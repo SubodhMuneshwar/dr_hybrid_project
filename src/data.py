@@ -5,19 +5,38 @@ import pandas as pd
 from . import config
 
 def _sanitize_id_code(id_code):
-    """Handle Excel-corrupted scientific notation (e.g., '7.10E+10') and float ids."""
+    """
+    Handle Excel-corrupted scientific notation (e.g., '7.10E+10') and float ids.
+
+    Args:
+        id_code: Raw ID code that may be corrupted
+
+    Returns:
+        str: Sanitized ID code as string
+    """
     s = str(id_code).strip()
+
+    # Validate that id_code contains only expected characters
+    if not s or len(s) > 20:
+        raise ValueError(f"Invalid ID code format: {id_code}")
+
     # Detect scientific notation or float-like ids (common Excel corruption)
     if "e+" in s.lower() or "e-" in s.lower():
         try:
             # Try to recover integer representation (lossy but better than FileNotFound)
             # e.g., '7.10E+10' -> 71000000000
             s = str(int(float(s)))
-        except Exception:
-            pass
+        except (ValueError, OverflowError) as e:
+            raise ValueError(f"Could not parse corrupted ID code: {id_code}") from e
+
     # Remove trailing .0 if pandas inferred float
     if s.endswith(".0"):
         s = s[:-2]
+
+    # Final validation: must be digits only
+    if not s.isdigit():
+        raise ValueError(f"Invalid ID code (non-numeric after sanitization): {id_code}")
+
     return s
 
 def load_labels():
@@ -36,8 +55,18 @@ def image_path(id_code):
 
 def advanced_preprocess_image(image_data, target_size=None, from_numpy=False):
     """
-    Read image path or array, resize, BGR->GRAY -> CLAHE.
-    Returns: (img_bgr_resized, gray_clahe)
+    Read and preprocess image: resize, BGR->GRAY, apply CLAHE.
+
+    Args:
+        image_data (str or ndarray): Path to image file or numpy array
+        target_size (tuple): Target size (width, height). Defaults to config.TARGET_SIZE
+        from_numpy (bool): If True, treat image_data as numpy array instead of path
+
+    Returns:
+        tuple: (img_bgr_resized, gray_clahe) processed images
+
+    Raises:
+        FileNotFoundError: If image path doesn't exist or image cannot be read
     """
     if target_size is None:
         target_size = config.TARGET_SIZE

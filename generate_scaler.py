@@ -12,7 +12,7 @@ def main():
     # Try cached features first, then legacy path for backward compat
     candidates = [
         config.FEATURES_CACHE,
-        "D:/all mini projects(codes)/Enhancing-diabetic-retinopathy-detection/data/X_train.npy",
+        os.path.join(config.DATA_DIR, "X_train.npy"),
         os.path.join(config.OUTPUTS_DIR, "features_cache.npz"),
     ]
     # Also allow X_train.npy in project root data/
