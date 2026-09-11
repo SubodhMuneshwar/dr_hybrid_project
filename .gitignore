@@ -2,25 +2,48 @@
 .venv/
 venv/
 env/
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
+.pytest_cache/
 .env
+.vscode/
+.idea/
 
-# Project specific
+# Logs
+*.log
+app_stdout.log
+app_stderr.log
+logs/
+
+# Project runtime
 uploads/*
 !uploads/.gitkeep
+app/static/uploads/*
+!app/static/uploads/.gitkeep
 outputs/*
 !outputs/.gitkeep
 data/*
 !data/*.csv
 !data/.gitkeep
 !data/train_images/
+!data/train_images/**
 !data/train_images/.gitkeep
-models/*
-!models/.gitkeep
+data/patient_scans.json
+*.npz
+
+# Test / local assets
+test imgs/
+test_imgs/
+test_script.py
+
+# Generated reports
+model_quality_report.md
 
 # Large models
+models/*
+!models/.gitkeep
 models/*.pkl
 models/*.h5
 models/vgg16_weights*
@@ -28,3 +51,5 @@ models/vgg16_weights*
 # OS files
 .DS_Store
 Thumbs.db
+
+*.log

@@ -1,0 +1,82 @@
+<div class="glass-card p-6">
+  {% if history and history|length > 0 %}
+  <div class="space-y-4">
+    {% for scan in history %}
+    <div
+      class="flex justify-between items-center border-b pb-3 last:border-none"
+    >
+      <!-- Left -->
+      <div>
+        <div class="font-semibold text-slate-800 dark:text-white">
+          {{ scan.prediction }}
+        </div>
+        <div class="text-sm text-slate-500 dark:text-gray-400">
+          Confidence: {{ scan.confidence }}%
+        </div>
+        <div class="text-xs text-slate-400 dark:text-gray-500 mt-1">
+          {{ scan.timestamp if scan.timestamp else "Recently" }}
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="flex gap-4 items-center">
+        <!-- Severity -->
+        <span
+          class="text-sm font-medium {% if scan.risk == 'Low' %} text-green-600 {% elif scan.risk == 'Moderate' %} text-yellow-600 {% else %} text-red-600 {% endif %}"
+        >
+          {{ scan.severity }}
+        </span>
+
+        <!-- Risk -->
+        <span
+          class="px-3 py-1 rounded-full text-xs font-semibold {% if scan.risk == 'Low' %} bg-green-100 text-green-600 {% elif scan.risk == 'Moderate' %} bg-yellow-100 text-yellow-600 {% else %} bg-red-100 text-red-600 {% endif %}"
+        >
+          {{ scan.risk }}
+        </span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center text-slate-400 dark:text-gray-500">
+    No scan history yet. Start by analyzing a retina image.
+  </div>
+  {% endif %}
+</div>
+<!-- 🔢 Pagination -->
+{% if total_pages > 1 %}
+<div class="flex justify-center mt-6 gap-2">
+  <!-- Previous -->
+  {% if page > 1 %}
+  <a
+    onclick="loadScans({page: {{ page-1 }}, search: '{{ search_query }}', risk: '{{ filter_risk }}', sort: '{{ sort_by }}'})"
+    class="px-4 py-2 bg-slate-200 dark:bg-gray-700 rounded"
+  >
+    Prev
+  </a>
+  {% endif %}
+
+  <!-- Page Numbers -->
+  {% for p in range(1, total_pages + 1) %}
+  <a
+    onclick="loadScans({page: {{ p }}, search: '{{ search_query }}', risk: '{{ filter_risk }}', sort: '{{ sort_by }}'})"
+    class="px-3 py-1 rounded {% if p == page %} bg-brand text-white {% else %} bg-slate-200 dark:bg-gray-700 {% endif %}"
+  >
+    {{ p }}
+  </a>
+  {% endfor %}
+
+  <!-- Next -->
+  {% if page < total_pages %}
+  <a
+    onclick="loadScans({page: {{ page+1 }}, search: '{{ search_query }}', risk: '{{ filter_risk }}', sort: '{{ sort_by }}'})"
+    class="px-4 py-2 bg-slate-200 dark:bg-gray-700 rounded"
+  >
+    Next
+  </a>
+  {% endif %}
+</div>
+<!-- <a href="{{ url_for('reset') }}" class="text-red-500 text-sm underline">
+  Reset All Data
+</a> -->
+{% endif %}

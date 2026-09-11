@@ -12,3 +12,5 @@ scikit-image
 flask
 werkzeug
 tqdm
+reportlab
+waitress

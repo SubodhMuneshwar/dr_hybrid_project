@@ -1,0 +1,82 @@
+/* RetinaScan — shared theme (light + dark) */
+:root {
+  --bg-light-grad: radial-gradient(circle at top right, #fdf4ff, #ffffff, #f5f3ff);
+  --bg-dark: #0a0a0b;
+  --card-light: rgba(255,255,255,0.6);
+  --card-dark: rgba(20,20,22,0.7);
+  --border-light: rgba(255,255,255,0.3);
+  --border-dark: rgba(255,255,255,0.08);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+}
+
+/* light defaults */
+.gradient-bg {
+  background: var(--bg-light-grad);
+  min-height: 100vh;
+}
+.glass-morphism {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.glass-card {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.07);
+}
+
+/* dark overrides — html.dark is set by theme.js */
+html.dark body {
+  background: var(--bg-dark) !important;
+  color: #f1f1f1 !important;
+}
+html.dark .gradient-bg {
+  background: radial-gradient(circle at 50% -20%, #1e1e24 0%, var(--bg-dark) 70%) !important;
+}
+html.dark .glass-morphism {
+  background: var(--card-dark) !important;
+  border-color: var(--border-dark) !important;
+}
+html.dark .glass-card {
+  background: var(--card-dark) !important;
+  border-color: var(--border-dark) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35) !important;
+}
+html.dark .text-slate-900 { color: #f1f1f1 !important; }
+html.dark .text-slate-800 { color: #e5e7eb !important; }
+html.dark .text-slate-700 { color: #d1d5db !important; }
+html.dark .text-slate-600 { color: #9ca3af !important; }
+html.dark .text-slate-500 { color: #9ca3af !important; }
+html.dark .bg-white { background: #141416 !important; }
+html.dark .bg-white\/50 { background: rgba(20,20,22,0.5) !important; }
+html.dark .bg-white\/80 { background: rgba(20,20,22,0.7) !important; }
+html.dark .bg-slate-100 { background: #1a1a1e !important; }
+html.dark .border-white { border-color: rgba(255,255,255,0.08) !important; }
+html.dark .border-slate-100 { border-color: rgba(255,255,255,0.08) !important; }
+html.dark .border-slate-200 { border-color: rgba(255,255,255,0.1) !important; }
+html.dark #problem { background: rgba(20,20,22,0.6) !important; }
+html.dark footer { background: #0f0f11 !important; border-color: #1e1e24 !important; }
+html.dark nav { border-color: rgba(255,255,255,0.06) !important; }
+
+/* buttons in dark */
+html.dark .btn-light-text {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #e5e7eb !important;
+}
+html.dark .btn-light-text:hover {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+html.dark .card-lavender {
+  background: rgba(40,30,80,0.6) !important;
+  color: #ffffff !important;
+}
+html.dark .card-lavender span { color: #c4b5fd !important; }
+
+/* toggle specific */
+[data-theme-toggle] { user-select: none; }

@@ -9,7 +9,11 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+  if (localStorage.getItem("theme") === "dark") {
+  document.documentElement.classList.add("dark");
+}
+</script>
 <!-- Tailwind Configuration -->
 <script data-purpose="tailwind-config">
     tailwind.config = {
@@ -35,6 +39,17 @@
     }
   </script>
 <style data-purpose="custom-animations">
+
+        * {
+         transition: background-color 0.3s ease, color 0.3s ease;
+      }
+        body{
+        animation: formFade 1s ease forwards;
+      }
+      @keyframes formFade {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
   .dark body {
   background: #0a0a0b;
   color: #f1f1f1;
@@ -114,9 +129,9 @@
 <span class="text-xl font-bold tracking-tight text-clinical-deep">RetinaScan <span class="text-clinical-accent">AI</span></span>
 </div>
 <div class="hidden md:flex space-x-8 text-sm font-medium">
-<a class="hover:text-clinical-accent transition-colors" href="#problem">The Challenge</a>
+<a style="padding-left: 100px;" class="hover:text-clinical-accent transition-colors" href="#problem">The Challenge</a>
 <a class="hover:text-clinical-accent transition-colors" href="#solution">Technology</a>
-<a class="hover:text-clinical-accent transition-colors" href="#clinical">Clinical Data</a>
+<!-- <a class="hover:text-clinical-accent transition-colors" href="#clinical">Clinical Data</a> -->
 </div>
 <div class="flex items-center gap-4">
 
@@ -137,7 +152,7 @@
 <!-- BEGIN: Hero Section -->
 <section class="relative pt-32 pb-20 overflow-hidden min-h-screen flex items-center">
 <!-- Decorative Elements -->
-<div class="absolute top-40 right-[-10%] w-96 h-96 bg-clinical-lavender rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+<div class="absolute top-40 right-[-10%] w-96 h-96 bg-clinical-lavender rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float z-index:1"></div>
 <div class="absolute bottom-20 left-[-5%] w-72 h-72 bg-clinical-mauve rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
 <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
 <div data-purpose="hero-content">
@@ -318,7 +333,7 @@
 </section>
 <!-- END: Call to Action -->
 <!-- BEGIN: Footer -->
-<footer class="py-12 border-t border-slate-100 bg-white">
+<!-- <footer class="py-12 border-t border-slate-100 bg-white">
 <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
 <div class="flex items-center space-x-2 mb-6 md:mb-0">
 <div class="w-6 h-6 bg-clinical-accent rounded-full"></div>
@@ -333,7 +348,7 @@
 <a class="hover:text-clinical-accent transition-colors" href="#">Contact</a>
 </div>
 </div>
-</footer>
+</footer> -->
 <!-- END: Footer -->
 <style data-purpose="animations-extra">
     @keyframes scan {
@@ -346,23 +361,43 @@
 const toggle = document.getElementById("themeToggle");
 const circle = document.getElementById("toggleCircle");
 
-toggle.addEventListener("click", () => {
-  document.documentElement.classList.toggle("dark");
-
-  if (document.documentElement.classList.contains("dark")) {
+// APPLY SAVED THEME ON LOAD
+if (localStorage.getItem("theme") === "dark") {
+  document.documentElement.classList.add("dark");
+  if (circle) {
     circle.style.transform = "translateX(40px)";
     circle.textContent = "🌙";
-
+  }
+  if (toggle) {
     toggle.classList.remove("from-yellow-200", "to-slate-300");
     toggle.classList.add("from-slate-700", "to-slate-900");
-
-  } else {
-    circle.style.transform = "translateX(0px)";
-    circle.textContent = "🌞";
-
-    toggle.classList.remove("from-slate-700", "to-slate-900");
-    toggle.classList.add("from-yellow-200", "to-slate-300");
   }
-});
+}
+
+// TOGGLE FUNCTION
+if (toggle) {
+  toggle.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+
+    if (document.documentElement.classList.contains("dark")) {
+      localStorage.setItem("theme", "dark");
+
+      circle.style.transform = "translateX(40px)";
+      circle.textContent = "🌙";
+
+      toggle.classList.remove("from-yellow-200", "to-slate-300");
+      toggle.classList.add("from-slate-700", "to-slate-900");
+
+    } else {
+      localStorage.setItem("theme", "light");
+
+      circle.style.transform = "translateX(0px)";
+      circle.textContent = "🌞";
+
+      toggle.classList.remove("from-slate-700", "to-slate-900");
+      toggle.classList.add("from-yellow-200", "to-slate-300");
+    }
+  });
+}
 </script>
 </body></html>
