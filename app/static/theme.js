@@ -464,67 +464,142 @@
     });
   }
 
-  // Dashboard Live Search & Filter
+  // Dashboard Live Search, Filter & Static Client-Side Pagination
   function initDashboardFilters() {
-    const searchInput = document.getElementById("patientSearch");
+    const searchInput = document.getElementById("patientSearchInput") || document.getElementById("patientSearch");
     const filterButtons = document.querySelectorAll("[data-filter-risk]");
-    const patientCards = document.querySelectorAll(".patient-record-card");
+    const patientCards = Array.from(document.querySelectorAll("[data-patient-card], .patient-record-card"));
     const exportBtn = document.getElementById("exportCsvBtn");
-    const recordCountEl = document.getElementById("visibleRecordCount");
+    const noResults = document.getElementById("noFilterResults");
+    const paginationControls = document.getElementById("paginationControls");
+    const prevBtn = document.getElementById("prevPageBtn");
+    const nextBtn = document.getElementById("nextPageBtn");
+    const pageIndicator = document.getElementById("pageIndicator");
 
     if (!patientCards.length) return;
 
+    const PAGE_SIZE = 3;
     let currentRiskFilter = "all";
     let searchQuery = "";
+    let currentPage = 1;
 
-    function filterCards() {
-      let visible = 0;
-      patientCards.forEach((card) => {
+    function getFilteredCards() {
+      return patientCards.filter((card) => {
         const name = (card.getAttribute("data-patient-name") || "").toLowerCase();
         const risk = (card.getAttribute("data-patient-risk") || "").toLowerCase();
         const diag = (card.getAttribute("data-patient-diag") || "").toLowerCase();
+        const sev = (card.getAttribute("data-patient-sev") || "").toLowerCase();
 
         const matchesSearch = !searchQuery || name.includes(searchQuery) || diag.includes(searchQuery);
-        const matchesRisk = currentRiskFilter === "all" || risk === currentRiskFilter;
 
-        if (matchesSearch && matchesRisk) {
-          card.classList.remove("hidden");
-          visible++;
-        } else {
-          card.classList.add("hidden");
+        let matchesRisk = currentRiskFilter === "all";
+        if (!matchesRisk) {
+          if (currentRiskFilter === "healthy") {
+            matchesRisk = risk === "healthy" || risk === "low" || sev.includes("none") || sev.includes("healthy") || diag.includes("no dr");
+          } else if (currentRiskFilter === "moderate") {
+            matchesRisk = risk === "moderate" || risk === "mild" || sev.includes("moderate") || sev.includes("mild");
+          } else if (currentRiskFilter === "severe") {
+            matchesRisk = risk === "severe" || risk === "high" || risk === "critical" || sev.includes("severe") || sev.includes("proliferative");
+          }
         }
-      });
 
-      if (recordCountEl) {
-        recordCountEl.textContent = `${visible} records`;
+        return matchesSearch && matchesRisk;
+      });
+    }
+
+    function render() {
+      const filtered = getFilteredCards();
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIndex = (currentPage - 1) * PAGE_SIZE;
+      const endIndex = startIndex + PAGE_SIZE;
+
+      // Hide all cards first
+      patientCards.forEach((card) => card.classList.add("hidden"));
+
+      // Show cards in current slice
+      const currentSlice = filtered.slice(startIndex, endIndex);
+      currentSlice.forEach((card) => card.classList.remove("hidden"));
+
+      // Toggle no results box
+      if (noResults) {
+        noResults.classList.toggle("hidden", filtered.length > 0);
+      }
+
+      // Update pagination UI
+      if (paginationControls) {
+        paginationControls.classList.toggle("hidden", filtered.length === 0);
+      }
+      if (pageIndicator) {
+        pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+      }
+      if (prevBtn) {
+        prevBtn.disabled = (currentPage <= 1);
+      }
+      if (nextBtn) {
+        nextBtn.disabled = (currentPage >= totalPages);
       }
     }
 
-    if (searchInput) {
-      searchInput.addEventListener("input", (e) => {
-        searchQuery = e.target.value.trim().toLowerCase();
-        filterCards();
-      });
-    }
-
+    // Filter Buttons Click
     filterButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
         filterButtons.forEach((b) => {
-          b.classList.remove("bg-indigo-600", "text-white");
-          b.classList.add("glass-card", "text-slate-600", "dark:text-slate-300");
+          b.classList.remove("bg-indigo-600", "text-white", "font-bold");
+          b.classList.add("glass-card", "text-slate-600", "dark:text-slate-300", "font-semibold");
         });
-        btn.classList.add("bg-indigo-600", "text-white");
-        btn.classList.remove("glass-card", "text-slate-600", "dark:text-slate-300");
+        btn.classList.add("bg-indigo-600", "text-white", "font-bold");
+        btn.classList.remove("glass-card", "text-slate-600", "dark:text-slate-300", "font-semibold");
 
         currentRiskFilter = btn.getAttribute("data-filter-risk").toLowerCase();
-        filterCards();
+        currentPage = 1;
+        render();
       });
     });
 
+    // Search Input
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        searchQuery = e.target.value.trim().toLowerCase();
+        currentPage = 1;
+        render();
+      });
+    }
+
+    // Pagination Buttons
+    if (prevBtn) {
+      prevBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+          currentPage--;
+          render();
+        }
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const filtered = getFilteredCards();
+        const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+        if (currentPage < totalPages) {
+          currentPage++;
+          render();
+        }
+      });
+    }
+
+    // Export CSV
     if (exportBtn) {
-      exportBtn.addEventListener("click", () => {
+      exportBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const filtered = getFilteredCards();
         const rows = [["Patient Name", "Scan Count", "Diagnosis", "Severity", "Confidence (%)", "Captured At"]];
-        patientCards.forEach((card) => {
+        filtered.forEach((card) => {
           const name = card.getAttribute("data-patient-name") || "";
           const count = card.getAttribute("data-patient-scans") || "1";
           const diag = card.getAttribute("data-patient-diag") || "";
@@ -544,6 +619,9 @@
         document.body.removeChild(link);
       });
     }
+
+    // Initial render
+    render();
   }
 
   // Global DOM Loaded Handler

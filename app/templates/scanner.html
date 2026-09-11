@@ -419,130 +419,77 @@
     </div>
   </main>
 
-  <!-- Holographic Retinal Diagnostic HUD Loading Overlay -->
-  <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/85 backdrop-blur-xl flex items-center justify-center z-[999] hidden p-4 select-none">
-    <div class="relative glass-card p-6 sm:p-7 rounded-3xl flex flex-col items-center max-w-sm sm:max-w-md w-full text-center border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.18)] bg-slate-900/90 dark:bg-slate-950/95 backdrop-blur-2xl overflow-hidden">
+  <!-- Minimalist Holographic Retinal Diagnostic Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/80 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-[9999] hidden p-4 select-none cursor-wait" style="pointer-events: auto;">
+    <div class="relative glass-card p-5 rounded-2xl flex flex-col items-center max-w-[290px] w-full text-center border border-cyan-500/30 shadow-[0_0_35px_rgba(6,182,212,0.15)] bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-2xl">
       
-      <!-- Cybernetic Corner Brackets -->
-      <div class="absolute top-2.5 left-2.5 w-3.5 h-3.5 border-t-2 border-l-2 border-cyan-400/80 rounded-tl pointer-events-none"></div>
-      <div class="absolute top-2.5 right-2.5 w-3.5 h-3.5 border-t-2 border-r-2 border-cyan-400/80 rounded-tr pointer-events-none"></div>
-      <div class="absolute bottom-2.5 left-2.5 w-3.5 h-3.5 border-b-2 border-l-2 border-cyan-400/80 rounded-bl pointer-events-none"></div>
-      <div class="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 border-b-2 border-r-2 border-cyan-400/80 rounded-br pointer-events-none"></div>
+      <!-- Compact Holographic Retinal Eye Scanner (w-20 h-20) -->
+      <div class="relative w-20 h-20 mx-auto flex items-center justify-center my-0.5 pointer-events-none">
+        <!-- Soft glowing aura -->
+        <div class="absolute inset-0 rounded-full bg-cyan-500/20 blur-xl animate-pulse"></div>
 
-      <!-- Top Telemetry Header Strip -->
-      <div class="w-full flex items-center justify-between pb-2.5 mb-3 border-b border-cyan-500/20 text-[10px] uppercase font-mono tracking-wider">
-        <div class="flex items-center gap-1.5 text-cyan-400 font-bold">
-          <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-          <span>NEURAL_CORE // INFERENCE_ACTIVE</span>
-        </div>
-        <div class="flex items-center gap-2 text-slate-400">
-          <span id="hudTelemetryBadge" class="px-1.5 py-0.5 rounded bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 font-bold text-[9px]">CLAHE_NORM</span>
-          <span class="text-emerald-400 flex items-center gap-1 text-[9px]">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            60 FPS
-          </span>
-        </div>
-      </div>
-
-      <!-- Holographic Retinal Scanner Centerpiece -->
-      <div class="relative w-40 h-40 sm:w-44 sm:h-44 mx-auto flex items-center justify-center my-1">
-        <!-- Ambient Glowing Aura -->
-        <div class="absolute inset-0 rounded-full bg-cyan-500/20 blur-2xl animate-pulse"></div>
-
-        <!-- Sonar Pulse Ripples -->
-        <div class="absolute w-36 h-36 rounded-full border border-cyan-400/40 hud-sonar-wave pointer-events-none"></div>
-        <div class="absolute w-36 h-36 rounded-full border border-indigo-400/30 hud-sonar-wave pointer-events-none" style="animation-delay: 1.2s;"></div>
+        <!-- Sonar pulse ripple -->
+        <div class="absolute w-18 h-18 rounded-full border border-cyan-400/30 hud-sonar-wave"></div>
 
         <!-- Outer Segmented Ring (Rotates CW) -->
-        <svg class="absolute inset-0 w-full h-full hud-spin-cw text-cyan-400/60 pointer-events-none" viewBox="0 0 200 200" fill="none">
-          <circle cx="100" cy="100" r="95" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 8" />
-          <circle cx="100" cy="100" r="88" stroke="currentColor" stroke-width="1" stroke-opacity="0.35" />
-          <!-- 4 Cardinal Angle Markers -->
-          <line x1="100" y1="2" x2="100" y2="10" stroke="currentColor" stroke-width="2.5" />
-          <line x1="100" y1="190" x2="100" y2="198" stroke="currentColor" stroke-width="2.5" />
-          <line x1="2" y1="100" x2="10" y2="100" stroke="currentColor" stroke-width="2.5" />
-          <line x1="190" y1="100" x2="198" y2="100" stroke="currentColor" stroke-width="2.5" />
-          <circle cx="100" cy="6" r="2" fill="currentColor" />
-          <circle cx="100" cy="194" r="2" fill="currentColor" />
-          <circle cx="6" cy="100" r="2" fill="currentColor" />
-          <circle cx="194" cy="100" r="2" fill="currentColor" />
+        <svg class="absolute inset-0 w-full h-full hud-spin-cw text-cyan-400/60" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="46" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 5" />
+          <circle cx="50" cy="50" r="41" stroke="currentColor" stroke-width="1" stroke-opacity="0.3" />
+          <circle cx="50" cy="4" r="1.5" fill="currentColor" />
+          <circle cx="50" cy="96" r="1.5" fill="currentColor" />
+          <circle cx="4" cy="50" r="1.5" fill="currentColor" />
+          <circle cx="96" cy="50" r="1.5" fill="currentColor" />
         </svg>
 
-        <!-- Middle Counter-Rotating Brackets (Rotates CCW) -->
-        <svg class="absolute inset-3 w-[calc(100%-24px)] h-[calc(100%-24px)] hud-spin-ccw text-indigo-400/70 pointer-events-none" viewBox="0 0 180 180" fill="none">
-          <circle cx="90" cy="90" r="76" stroke="currentColor" stroke-width="2" stroke-dasharray="28 16 8 16" />
-          <circle cx="90" cy="90" r="68" stroke="currentColor" stroke-width="1" stroke-dasharray="3 6" stroke-opacity="0.5" />
+        <!-- Inner Counter-Rotating Bracket Ring -->
+        <svg class="absolute inset-1.5 w-[calc(100%-12px)] h-[calc(100%-12px)] hud-spin-ccw text-indigo-400/70" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="34" stroke="currentColor" stroke-width="1.5" stroke-dasharray="14 10 4 10" />
         </svg>
 
         <!-- 360-Degree Conic Radar Sweeper -->
-        <div class="absolute inset-6 rounded-full overflow-hidden pointer-events-none">
+        <div class="absolute inset-2.5 rounded-full overflow-hidden">
           <div class="w-full h-full rounded-full hud-radar-sweep opacity-75"></div>
         </div>
 
-        <!-- Central Retinal Aperture & Vascular Mesh -->
-        <div class="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-slate-950/90 border border-cyan-500/50 shadow-[inset_0_0_20px_rgba(6,182,212,0.35)] flex items-center justify-center overflow-hidden">
-          <!-- Fine Grid Background -->
-          <div class="absolute inset-0 bg-[radial-gradient(rgba(6,182,212,0.2)_1px,transparent_1px)] [background-size:8px_8px]"></div>
-
-          <!-- Stylized Retinal Fundus Vascular Tree (SVG) -->
-          <svg class="relative w-24 h-24 text-cyan-300 hud-retina-pulse" viewBox="0 0 100 100" fill="none">
-            <!-- Optic Disc & Cup -->
-            <circle cx="34" cy="50" r="9" fill="rgba(6, 182, 212, 0.25)" stroke="#06b6d4" stroke-width="1.5" />
-            <circle cx="34" cy="50" r="4" fill="#38bdf8" />
-            
-            <!-- Superior & Inferior Retinal Vascular Arcades -->
-            <path d="M34 41 C 36 26, 48 18, 68 16 M68 16 C 76 15, 85 20, 90 25 M55 22 C 62 14, 72 11, 84 9" stroke="#06b6d4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-            <path d="M34 59 C 38 74, 52 82, 72 84 M72 84 C 80 85, 88 82, 92 77 M54 77 C 64 86, 74 90, 86 92" stroke="#06b6d4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-            <path d="M25 50 C 15 50, 9 44, 7 36 M25 50 C 17 53, 11 59, 8 66" stroke="#06b6d4" stroke-width="1.2" stroke-linecap="round" opacity="0.75"/>
-            
-            <!-- Macular Avascular Zone / Fovea Center -->
-            <circle cx="62" cy="50" r="7.5" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="3 3" />
-            <circle cx="62" cy="50" r="2.5" fill="#c084fc" />
-
-            <!-- Reticle Target Lines -->
-            <line x1="50" y1="6" x2="50" y2="94" stroke="rgba(148, 163, 184, 0.25)" stroke-width="0.8" stroke-dasharray="2 2" />
-            <line x1="6" y1="50" x2="94" y2="50" stroke="rgba(148, 163, 184, 0.25)" stroke-width="0.8" stroke-dasharray="2 2" />
+        <!-- Central Retinal Core & Vascular Stylization -->
+        <div class="relative w-12 h-12 rounded-full bg-slate-950/90 border border-cyan-500/50 shadow-[inset_0_0_12px_rgba(6,182,212,0.4)] flex items-center justify-center overflow-hidden">
+          <svg class="w-9 h-9 text-cyan-300 hud-retina-pulse" viewBox="0 0 60 60" fill="none">
+            <!-- Optic disc -->
+            <circle cx="20" cy="30" r="5" fill="rgba(6,182,212,0.3)" stroke="#06b6d4" stroke-width="1.2" />
+            <circle cx="20" cy="30" r="2" fill="#38bdf8" />
+            <!-- Branching vessels -->
+            <path d="M20 25 C 22 17, 30 13, 44 12 M35 15 C 40 10, 48 9, 54 8" stroke="#06b6d4" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M20 35 C 22 43, 30 47, 44 48 M35 45 C 40 50, 48 51, 54 52" stroke="#06b6d4" stroke-width="1.2" stroke-linecap="round"/>
+            <!-- Macula center -->
+            <circle cx="38" cy="30" r="4" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="2 2" />
+            <circle cx="38" cy="30" r="1.5" fill="#c084fc" />
           </svg>
-
-          <!-- Oscillating Vertical Laser Scan Beam -->
-          <div class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#06b6d4] hud-laser-scan"></div>
+          <!-- Vertical oscillating laser scan beam -->
+          <div class="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#06b6d4] hud-laser-scan"></div>
         </div>
-
-        <!-- Central High-Precision Pip -->
-        <div class="absolute w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4] pointer-events-none"></div>
       </div>
 
-      <!-- Live Pipeline Diagnostic Telemetry Ticker -->
-      <div class="mt-3.5 w-full">
-        <h4 id="hudStepTitle" class="font-bold text-white text-sm sm:text-base tracking-tight transition-opacity duration-200">
-          Phase 1/4: Retinal Pre-processing
+      <!-- Minimalist Dynamic Telemetry Text -->
+      <div class="mt-2.5 w-full">
+        <h4 id="hudStepTitle" class="font-bold text-white text-sm tracking-tight transition-opacity duration-150">
+          Running Neural Inference
         </h4>
-        <p id="hudStepDesc" class="text-[11px] sm:text-xs text-cyan-200/80 min-h-[34px] max-w-sm mx-auto mt-1 leading-relaxed transition-opacity duration-200">
-          Applying CLAHE adaptive histogram equalization &amp; multi-scale vascular artifact suppression...
+        <p id="hudStepDesc" class="text-[11px] text-cyan-300/90 font-mono mt-0.5 transition-opacity duration-150 truncate">
+          Phase 1/4: CLAHE Normalization
         </p>
 
-        <!-- Segmented Laser Progress Bar -->
-        <div class="mt-3">
-          <div class="flex items-center justify-between text-[10px] font-mono mb-1.5">
-            <span class="text-slate-400 uppercase tracking-wider">Processing Telemetry</span>
-            <span id="hudPercentNum" class="font-bold text-cyan-400">12%</span>
+        <!-- Compact Slim Laser Progress Bar -->
+        <div class="mt-2.5">
+          <div class="w-full bg-slate-800/90 rounded-full h-1.5 overflow-hidden p-0 border border-cyan-500/30">
+            <div id="hudProgressBar" class="h-full rounded-full hud-laser-progress-bar transition-all duration-200" style="width: 15%;"></div>
           </div>
-          <div class="w-full bg-slate-800/90 rounded-full h-2 overflow-hidden p-0.5 border border-cyan-500/30">
-            <div id="hudProgressBar" class="h-full rounded-full hud-laser-progress-bar transition-all duration-300" style="width: 12%;"></div>
+          <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 mt-1.5">
+            <span class="flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+              <span id="hudTelemetryBadge" class="text-slate-300">512-D FUSION</span>
+            </span>
+            <span id="hudPercentNum" class="font-bold text-cyan-400">15%</span>
           </div>
-        </div>
-
-        <!-- Real-time Diagnostic Telemetry Badges -->
-        <div class="mt-3 pt-2.5 border-t border-cyan-500/15 flex items-center justify-center gap-2 flex-wrap text-[10px] font-mono text-slate-400">
-          <span class="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 text-slate-300">
-            <i class="fas fa-brain text-indigo-400 mr-1"></i>HYBRID_512D
-          </span>
-          <span class="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 text-slate-300">
-            <i class="fas fa-bullseye text-cyan-400 mr-1"></i>GRAD_CAM_ATTN
-          </span>
-          <span class="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 text-slate-300">
-            <i class="fas fa-network-wired text-purple-400 mr-1"></i>ENSEMBLE_5CLASS
-          </span>
         </div>
       </div>
 
@@ -615,33 +562,33 @@
     // Holographic Retinal HUD Pipeline Ticker
     const pipelinePhases = [
       {
-        title: "Phase 1/4: Retinal Pre-processing",
-        desc: "Applying CLAHE adaptive histogram equalization, Green-channel extraction & artifact filtering...",
+        title: "Running Neural Inference",
+        desc: "Phase 1/4: CLAHE Normalization",
         targetPct: 28,
-        badge: "CLAHE_NORM"
+        badge: "PRE_PROCESS"
       },
       {
-        title: "Phase 2/4: Deep Feature Fusion",
-        desc: "Extracting 512-D deep latent embeddings via hybrid convolutional neural backbone...",
-        targetPct: 58,
-        badge: "LATENT_512D"
+        title: "Extracting Deep Features",
+        desc: "Phase 2/4: Hybrid 512-D Latent Fusion",
+        targetPct: 62,
+        badge: "512D_FUSION"
       },
       {
-        title: "Phase 3/4: Texture Synthesis",
-        desc: "Computing Local Binary Patterns (LBP) micro-vascular spatial texture descriptors...",
-        targetPct: 82,
-        badge: "LBP_DESCR"
+        title: "Synthesizing Descriptors",
+        desc: "Phase 3/4: LBP Texture Analysis",
+        targetPct: 86,
+        badge: "LBP_TEXTURE"
       },
       {
-        title: "Phase 4/4: Attention Heatmap",
-        desc: "Synthesizing Grad-CAM attention weights & executing 5-class severity grading...",
-        targetPct: 100,
+        title: "Generating Attention Map",
+        desc: "Phase 4/4: Grad-CAM Saliency Weights",
+        targetPct: 98,
         badge: "GRAD_CAM"
       }
     ];
 
     let hudInterval = null;
-    function startHudScanner(onComplete) {
+    function startHudScanner(isLiveSubmission = false, onComplete = null) {
       const stepTitle = document.getElementById('hudStepTitle');
       const stepDesc = document.getElementById('hudStepDesc');
       const percentNum = document.getElementById('hudPercentNum');
@@ -649,57 +596,54 @@
       const telemetryBadge = document.getElementById('hudTelemetryBadge');
 
       let currentPhaseIdx = 0;
-      let currentPct = 10;
+      let currentPct = 12;
 
-      if (progressBar) progressBar.style.width = '10%';
-      if (percentNum) percentNum.textContent = '10%';
+      if (progressBar) progressBar.style.width = '12%';
+      if (percentNum) percentNum.textContent = '12%';
 
       clearInterval(hudInterval);
       hudInterval = setInterval(() => {
         const curPhase = pipelinePhases[currentPhaseIdx];
         if (currentPct < curPhase.targetPct) {
-          currentPct += Math.floor(Math.random() * 4) + 1;
+          currentPct += Math.floor(Math.random() * 3) + 1;
           if (currentPct > curPhase.targetPct) currentPct = curPhase.targetPct;
           if (percentNum) percentNum.textContent = currentPct + '%';
           if (progressBar) progressBar.style.width = currentPct + '%';
         } else if (currentPhaseIdx < pipelinePhases.length - 1) {
           currentPhaseIdx++;
           const nextPhase = pipelinePhases[currentPhaseIdx];
-          if (stepTitle) {
-            stepTitle.style.opacity = '0';
-            setTimeout(() => {
-              stepTitle.textContent = nextPhase.title;
-              stepTitle.style.opacity = '1';
-            }, 120);
-          }
-          if (stepDesc) {
-            stepDesc.style.opacity = '0';
-            setTimeout(() => {
-              stepDesc.textContent = nextPhase.desc;
-              stepDesc.style.opacity = '1';
-            }, 120);
-          }
-          if (telemetryBadge) {
-            telemetryBadge.textContent = nextPhase.badge;
-          }
-        } else if (currentPct >= 100) {
+          if (stepTitle) stepTitle.textContent = nextPhase.title;
+          if (stepDesc) stepDesc.textContent = nextPhase.desc;
+          if (telemetryBadge) telemetryBadge.textContent = nextPhase.badge;
+        } else if (!isLiveSubmission && currentPct >= 98) {
+          // Preview mode: advance to 100% and auto-close
+          currentPct = 100;
+          if (percentNum) percentNum.textContent = '100%';
+          if (progressBar) progressBar.style.width = '100%';
+          if (stepTitle) stepTitle.textContent = "Analysis Complete";
+          if (stepDesc) stepDesc.textContent = "Finalizing diagnostic metrics...";
+          if (telemetryBadge) telemetryBadge.textContent = "READY";
           clearInterval(hudInterval);
-          if (stepTitle) stepTitle.textContent = "Analysis Complete • Finalizing Report";
-          if (stepDesc) stepDesc.textContent = "Telemetry verified. Rendering diagnostic heatmap & clinical metrics...";
-          if (telemetryBadge) telemetryBadge.textContent = "COMPLETE";
-          
+
           setTimeout(() => {
             if (typeof onComplete === 'function') {
               onComplete();
             } else {
               window.dismissHudLoading();
             }
-          }, 600);
+          }, 800);
+        } else if (isLiveSubmission && currentPct >= 98) {
+          // Real form submission: HOLD at 98% while backend finishes and page navigates
+          // NEVER dismiss early during real scan!
+          clearInterval(hudInterval);
+          if (stepTitle) stepTitle.textContent = "Finalizing Diagnosis";
+          if (stepDesc) stepDesc.textContent = "Synthesizing final diagnostic report...";
+          if (telemetryBadge) telemetryBadge.textContent = "FINALIZING";
         }
-      }, 70);
+      }, 95);
     }
 
-    // Form submit loading animation
+    // Form submit loading animation (stays locked until server returns page)
     if (uploadForm) {
       uploadForm.addEventListener('submit', () => {
         if (submitBtn) {
@@ -708,7 +652,7 @@
         }
         if (loadingOverlay) {
           loadingOverlay.classList.remove('hidden');
-          startHudScanner();
+          startHudScanner(true, null); // isLiveSubmission = true (NEVER auto-dismisses early)
         }
       });
     }
@@ -717,7 +661,7 @@
     window.previewHudLoading = () => {
       if (loadingOverlay) {
         loadingOverlay.classList.remove('hidden');
-        startHudScanner(() => {
+        startHudScanner(false, () => {
           window.dismissHudLoading();
         });
       }
@@ -730,14 +674,13 @@
       }
     };
 
-    // Modal is strictly non-dismissable by clicking outside or anywhere on overlay
+    // STRICT LOCK: Absolutely prevent any clicks, mousedown, or touch events on the overlay from closing it or propagating
     if (loadingOverlay) {
-      loadingOverlay.addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      });
-      loadingOverlay.addEventListener('mousedown', (e) => {
-        e.stopPropagation();
+      ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'touchend'].forEach(evt => {
+        loadingOverlay.addEventListener(evt, (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        }, true); // Capture phase to prevent any click-through or outside handling
       });
     }
 
