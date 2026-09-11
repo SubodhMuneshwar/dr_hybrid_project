@@ -801,3 +801,263 @@ html.dark .theme-ocular-btn:hover .eye-closed-state {
   box-shadow: 0 0 10px rgba(6, 182, 212, 0.6), 0 0 18px rgba(99, 102, 241, 0.35);
 }
 
+/* ==========================================================================
+   Scroll-Reveal Entrance Animations (GPU-accelerated)
+   ========================================================================== */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.from-left {
+  transform: translateX(-40px);
+}
+
+.reveal-on-scroll.from-right {
+  transform: translateX(40px);
+}
+
+.reveal-on-scroll.from-scale {
+  transform: scale(0.92);
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1);
+}
+
+/* Stagger delays for grouped elements */
+.reveal-delay-1 { transition-delay: 0.08s; }
+.reveal-delay-2 { transition-delay: 0.16s; }
+.reveal-delay-3 { transition-delay: 0.24s; }
+.reveal-delay-4 { transition-delay: 0.32s; }
+.reveal-delay-5 { transition-delay: 0.4s; }
+.reveal-delay-6 { transition-delay: 0.48s; }
+
+/* ==========================================================================
+   Page Entrance Animation
+   ========================================================================== */
+main {
+  animation: pageEnter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Animated Gradient Text (Slow Hue Shift)
+   ========================================================================== */
+.gradient-text-animated {
+  background-size: 200% auto;
+  animation: gradientTextShift 4s ease-in-out infinite alternate;
+}
+
+@keyframes gradientTextShift {
+  0% { background-position: 0% center; }
+  100% { background-position: 100% center; }
+}
+
+/* ==========================================================================
+   Enhanced Glass-Card Gradient Border Shimmer on Hover
+   ========================================================================== */
+.glass-card-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-shimmer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    transparent 20%,
+    rgba(99, 102, 241, 0.4) 40%,
+    rgba(6, 182, 212, 0.4) 60%,
+    transparent 80%
+  );
+  background-size: 300% 300%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.glass-card-shimmer:hover::before {
+  opacity: 1;
+  animation: borderShimmer 2.5s ease infinite;
+}
+
+@keyframes borderShimmer {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+/* ==========================================================================
+   Marching Dashed Border Animation (Upload Dropzone Idle)
+   ========================================================================== */
+@keyframes marchingAnts {
+  to { stroke-dashoffset: -20; }
+}
+
+.upload-dropzone-animated {
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%234f46e5' stroke-width='2.5' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+  border: none !important;
+}
+
+/* ==========================================================================
+   Dark-Mode Auto-Inversion for Static Chart Images (matplotlib, etc.)
+   ========================================================================== */
+html.dark .eval-artifact-img {
+  filter: invert(0.88) hue-rotate(180deg) contrast(0.95) brightness(1.1);
+  border-radius: 0.75rem;
+}
+
+/* ==========================================================================
+   Stat Card Accent Top Borders
+   ========================================================================== */
+.stat-accent-indigo { border-top: 3px solid #6366f1; }
+.stat-accent-emerald { border-top: 3px solid #10b981; }
+.stat-accent-amber { border-top: 3px solid #f59e0b; }
+.stat-accent-rose { border-top: 3px solid #f43f5e; }
+.stat-accent-violet { border-top: 3px solid #8b5cf6; }
+
+/* ==========================================================================
+   Animated Counter Digits (tabular nums for smooth counter)
+   ========================================================================== */
+.counter-value {
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
+
+/* ==========================================================================
+   Connecting Progress Track Between Workflow Steps
+   ========================================================================== */
+.workflow-step-track {
+  position: relative;
+}
+
+.workflow-step-track::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 0.25rem);
+  width: calc(100% - 0.5rem);
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(99, 102, 241, 0.35) 0px,
+    rgba(99, 102, 241, 0.35) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.workflow-step-track:last-child::after {
+  display: none;
+}
+
+/* ==========================================================================
+   Animated Scanner Eye (Awaiting State) - Pulse Ring
+   ========================================================================== */
+@keyframes scannerEyePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(99, 102, 241, 0);
+  }
+}
+
+.scanner-eye-pulse {
+  animation: scannerEyePulse 2.5s ease-in-out infinite;
+}
+
+@keyframes scannerEyeSweep {
+  0% { left: 15%; opacity: 0.4; }
+  50% { left: 75%; opacity: 1; }
+  100% { left: 15%; opacity: 0.4; }
+}
+
+.scanner-eye-sweep {
+  position: absolute;
+  width: 2px;
+  top: 20%;
+  bottom: 20%;
+  background: linear-gradient(to bottom, transparent, #06b6d4, transparent);
+  box-shadow: 0 0 8px #06b6d4;
+  animation: scannerEyeSweep 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   CTA Banner Animated Background Gradient
+   ========================================================================== */
+@keyframes ctaGradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.cta-animated-bg {
+  background: linear-gradient(-45deg, #1e1b4b, #312e81, #0f172a, #1e293b) !important;
+  background-size: 300% 300% !important;
+  animation: ctaGradientShift 8s ease infinite;
+}
+
+/* ==========================================================================
+   Preset Button Severity Accent Borders
+   ========================================================================== */
+.preset-accent-green {
+  border-left: 3px solid #10b981 !important;
+}
+
+.preset-accent-amber {
+  border-left: 3px solid #f59e0b !important;
+}
+
+.preset-accent-rose {
+  border-left: 3px solid #f43f5e !important;
+}
+
+/* Preset click micro-animation */
+@keyframes presetPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+.preset-pulse {
+  animation: presetPulse 0.2s ease-out;
+}
+
+/* ==========================================================================
+   Number Bounce-In for Workflow Step Numbers
+   ========================================================================== */
+@keyframes bounceIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.bounce-in-visible {
+  animation: bounceIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+

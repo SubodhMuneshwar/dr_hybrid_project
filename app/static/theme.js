@@ -666,13 +666,114 @@
     initNeuralInspector();
     initSampleLoader();
     initDashboardFilters();
+    initScrollReveal();
+    initAnimatedCounters();
+    initPresetPulse();
   });
+
+  // ==========================================================================
+  // Scroll-Reveal Observer (IntersectionObserver-based)
+  // ==========================================================================
+  function initScrollReveal() {
+    const elements = document.querySelectorAll('.reveal-on-scroll');
+    if (!elements.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    elements.forEach(el => observer.observe(el));
+  }
+
+  // ==========================================================================
+  // Animated Counter Utility
+  // ==========================================================================
+  function animateCounter(el, target, duration = 1200) {
+    const start = 0;
+    const startTime = performance.now();
+
+    // If target is a string like "< 2.5s", extract number
+    let numericTarget = parseFloat(target);
+    if (isNaN(numericTarget)) {
+      el.textContent = target;
+      return;
+    }
+
+    const isFloat = String(target).includes('.');
+    const prefix = String(target).replace(/[\d.]+/, '').split(/[\d.]/)[0] || '';
+    const suffix = String(target).replace(/^[^0-9]*[\d.]+/, '') || '';
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = start + (numericTarget - start) * eased;
+
+      if (isFloat) {
+        el.textContent = prefix + current.toFixed(1) + suffix;
+      } else {
+        el.textContent = prefix + Math.round(current) + suffix;
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  function initAnimatedCounters() {
+    const counters = document.querySelectorAll('[data-counter]');
+    if (!counters.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = el.getAttribute('data-counter');
+          const duration = parseInt(el.getAttribute('data-counter-duration') || '1200', 10);
+          animateCounter(el, target, duration);
+          observer.unobserve(el);
+        }
+      });
+    }, {
+      threshold: 0.3
+    });
+
+    counters.forEach(el => observer.observe(el));
+  }
+
+  // ==========================================================================
+  // Preset Button Click Micro-Animation
+  // ==========================================================================
+  function initPresetPulse() {
+    document.querySelectorAll('[data-sample-url]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.remove('preset-pulse');
+        void btn.offsetWidth; // Force reflow to restart animation
+        btn.classList.add('preset-pulse');
+      });
+    });
+  }
 
   window.__retinascan = {
     applyTheme,
     currentTheme,
     initNeuralInspector,
     initSampleLoader,
-    initDashboardFilters
+    initDashboardFilters,
+    initScrollReveal,
+    initAnimatedCounters,
+    animateCounter
   };
 })();

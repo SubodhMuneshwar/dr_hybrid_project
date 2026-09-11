@@ -79,47 +79,47 @@
     <!-- Metric Stat Cards (5 Cards Responsive Grid) -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
       <!-- Total Scans -->
-      <div class="glass-card p-5 rounded-2xl">
+      <div class="glass-card glass-card-shimmer p-5 rounded-2xl stat-accent-indigo">
         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
           <span class="text-xs font-semibold uppercase tracking-wider">Total Scans</span>
           <i class="fas fa-folder-open text-indigo-500"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">{{ total_scans }}</div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white counter-value" data-counter="{{ total_scans }}" data-counter-duration="1400">0</div>
         <span class="text-[11px] text-slate-400 mt-1 block">Patient scan registry</span>
       </div>
 
       <!-- Healthy Cases -->
-      <div class="glass-card p-5 rounded-2xl">
+      <div class="glass-card glass-card-shimmer p-5 rounded-2xl stat-accent-emerald">
         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
           <span class="text-xs font-semibold uppercase tracking-wider">Healthy (No DR)</span>
           <i class="fas fa-check-circle text-emerald-500"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ healthy_count }}</div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 counter-value" data-counter="{{ healthy_count }}" data-counter-duration="1200">0</div>
         <span class="text-[11px] text-slate-400 mt-1 block">{{ healthy_percent }}% of total cohorts</span>
       </div>
 
       <!-- Moderate Risk -->
-      <div class="glass-card p-5 rounded-2xl">
+      <div class="glass-card glass-card-shimmer p-5 rounded-2xl stat-accent-amber">
         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
           <span class="text-xs font-semibold uppercase tracking-wider">Mild &amp; Moderate</span>
           <i class="fas fa-exclamation-triangle text-amber-500"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-extrabold text-amber-500 dark:text-amber-400">{{ moderate_count }}</div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-amber-500 dark:text-amber-400 counter-value" data-counter="{{ moderate_count }}" data-counter-duration="1100">0</div>
         <span class="text-[11px] text-slate-400 mt-1 block">{{ moderate_percent }}% of total cohorts</span>
       </div>
 
       <!-- Severe Risk -->
-      <div class="glass-card p-5 rounded-2xl">
+      <div class="glass-card glass-card-shimmer p-5 rounded-2xl stat-accent-rose">
         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
           <span class="text-xs font-semibold uppercase tracking-wider">Severe Cases</span>
           <i class="fas fa-exclamation-circle text-rose-500"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400">{{ high_risk_count }}</div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400 counter-value" data-counter="{{ high_risk_count }}" data-counter-duration="1000">0</div>
         <span class="text-[11px] text-slate-400 mt-1 block">{{ high_percent }}% of total cohorts</span>
       </div>
 
       <!-- Model Pipeline Status -->
-      <div class="col-span-2 sm:col-span-1 glass-card p-5 rounded-2xl">
+      <div class="col-span-2 sm:col-span-1 glass-card glass-card-shimmer p-5 rounded-2xl stat-accent-violet">
         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
           <span class="text-xs font-semibold uppercase tracking-wider">Model Status</span>
           <i class="fas fa-microchip text-indigo-500"></i>
@@ -243,7 +243,7 @@
           </div>
           <div class="w-full h-48 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-white/5 p-2">
             {% if accuracy_url %}
-            <img src="{{ accuracy_url }}" alt="Model Accuracy Chart" class="max-h-full max-w-full object-contain"/>
+            <img src="{{ accuracy_url }}" alt="Model Accuracy Chart" class="eval-artifact-img max-h-full max-w-full object-contain"/>
             {% else %}
             <div class="text-center text-xs text-slate-400">
               <i class="fas fa-chart-bar text-2xl mb-1 text-slate-300"></i>
@@ -264,7 +264,7 @@
           </div>
           <div class="w-full h-48 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-white/5 p-2">
             {% if cm_url %}
-            <img src="{{ cm_url }}" alt="Confusion Matrix" class="max-h-full max-w-full object-contain"/>
+            <img src="{{ cm_url }}" alt="Confusion Matrix" class="eval-artifact-img max-h-full max-w-full object-contain"/>
             {% else %}
             <div class="text-center text-xs text-slate-400">
               <i class="fas fa-border-all text-2xl mb-1 text-slate-300"></i>
@@ -285,7 +285,7 @@
           </div>
           <div class="w-full h-48 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-white/5 p-2">
             {% if radar_url %}
-            <img src="{{ radar_url }}" alt="Radar Chart" class="max-h-full max-w-full object-contain"/>
+            <img src="{{ radar_url }}" alt="Radar Chart" class="eval-artifact-img max-h-full max-w-full object-contain"/>
             {% else %}
             <div class="text-center text-xs text-slate-400">
               <i class="fas fa-spider text-2xl mb-1 text-slate-300"></i>

@@ -123,7 +123,7 @@
                   data-sample-url="/uploads/0.jpg"
                   data-sample-patient="Sample Case: Healthy Retina"
                   data-sample-filename="healthy_retina_sample.jpg"
-                  class="p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-emerald-500 bg-white dark:bg-slate-800 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/40 text-left transition-all group"
+                  class="preset-accent-green p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-emerald-500 bg-white dark:bg-slate-800 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/40 text-left transition-all group"
                 >
                   <div class="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">Normal</div>
                   <div class="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium">Stage 0</div>
@@ -134,7 +134,7 @@
                   data-sample-url="/outputs/Fundus_-_diabetic_retinopathy_input.png"
                   data-sample-patient="Sample Case: Moderate NPDR"
                   data-sample-filename="moderate_dr_sample.png"
-                  class="p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-amber-500 bg-white dark:bg-slate-800 hover:bg-amber-50/60 dark:hover:bg-amber-950/40 text-left transition-all group"
+                  class="preset-accent-amber p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-amber-500 bg-white dark:bg-slate-800 hover:bg-amber-50/60 dark:hover:bg-amber-950/40 text-left transition-all group"
                 >
                   <div class="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400">Moderate</div>
                   <div class="text-[9px] text-amber-600 dark:text-amber-400 font-medium">Stage 2</div>
@@ -145,7 +145,7 @@
                   data-sample-url="/uploads/4.jpg"
                   data-sample-patient="Sample Case: Proliferative DR"
                   data-sample-filename="proliferative_dr_sample.jpg"
-                  class="p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-rose-500 bg-white dark:bg-slate-800 hover:bg-rose-50/60 dark:hover:bg-rose-950/40 text-left transition-all group"
+                  class="preset-accent-rose p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-rose-500 bg-white dark:bg-slate-800 hover:bg-rose-50/60 dark:hover:bg-rose-950/40 text-left transition-all group"
                 >
                   <div class="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-rose-600 dark:group-hover:text-rose-400">Severe</div>
                   <div class="text-[9px] text-rose-600 dark:text-rose-400 font-medium">Stage 4</div>
@@ -401,15 +401,41 @@
 
           </div>
           {% else %}
-          <!-- Empty Awaiting State (Compact) -->
+          <!-- Empty Awaiting State (Animated Scanner Eye) -->
           <div class="flex-1 flex flex-col items-center justify-center text-center p-4 my-auto">
-            <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 dark:text-indigo-400 flex items-center justify-center text-lg mb-2.5 shadow-inner">
-              <i class="fas fa-eye-dropper"></i>
+            <div class="relative w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 dark:text-indigo-400 flex items-center justify-center mb-3 shadow-inner scanner-eye-pulse overflow-hidden">
+              <!-- Animated Retinal Eye SVG -->
+              <svg class="w-10 h-10" viewBox="0 0 40 40" fill="none">
+                <!-- Eye outline -->
+                <path d="M4 20s6-10 16-10 16 10 16 10-6 10-16 10-16-10-16-10z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.7"/>
+                <!-- Iris -->
+                <circle cx="20" cy="20" r="6" stroke="#06b6d4" stroke-width="1.5" fill="none">
+                  <animate attributeName="r" values="6;7;6" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <!-- Pupil -->
+                <circle cx="20" cy="20" r="2.5" fill="currentColor">
+                  <animate attributeName="r" values="2.5;3;2.5" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <!-- Glint -->
+                <circle cx="22" cy="18" r="1" fill="white" opacity="0.8"/>
+                <!-- Retinal vessels -->
+                <path d="M14 20 C16 16, 18 15, 20 14" stroke="#06b6d4" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/>
+                <path d="M14 20 C16 24, 18 25, 20 26" stroke="#06b6d4" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/>
+              </svg>
+              <!-- Scanning laser sweep -->
+              <div class="scanner-eye-sweep"></div>
             </div>
             <h3 class="text-sm sm:text-base font-bold text-slate-800 dark:text-white">Awaiting Retinal Image</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mt-1 leading-relaxed">
               Select a quick preset on the left or upload a fundus scan to run deep feature extraction and Grad-CAM interpretability.
             </p>
+            <div class="mt-3 flex items-center gap-1.5 text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+              </span>
+              <span>Scanner Ready</span>
+            </div>
           </div>
           {% endif %}
 
