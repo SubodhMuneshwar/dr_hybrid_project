@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Background Squircle Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+
+    <!-- Glowing Eye Contour Gradient -->
+    <linearGradient id="retinaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+
+    <!-- Core Pupil Radial Glow -->
+    <radialGradient id="pupilGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="65%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </radialGradient>
+    
+    <!-- Neon Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Frame -->
+  <rect x="6" y="6" width="116" height="116" rx="30" fill="url(#bgGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+
+  <!-- Concentric Tech Scanning Circles -->
+  <circle cx="64" cy="64" r="46" fill="none" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5" stroke-dasharray="5 5"/>
+  <circle cx="64" cy="64" r="33" fill="none" stroke="rgba(6, 182, 212, 0.45)" stroke-width="1.5"/>
+
+  <!-- Scanning Retinal Aperture Contours -->
+  <!-- Upper Retinal Curve -->
+  <path d="M 22 64 C 36 34, 92 34, 106 64" fill="none" stroke="url(#retinaGrad)" stroke-width="6.5" stroke-linecap="round" filter="url(#glow)"/>
+  <!-- Lower Retinal Curve -->
+  <path d="M 22 64 C 36 94, 92 94, 106 64" fill="none" stroke="url(#retinaGrad)" stroke-width="6.5" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- Precision Crosshair Indicators -->
+  <line x1="64" y1="12" x2="64" y2="24" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+  <line x1="64" y1="104" x2="64" y2="116" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+  <line x1="12" y1="64" x2="24" y2="64" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+  <line x1="104" y1="64" x2="116" y2="64" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Central Iris Aperture -->
+  <circle cx="64" cy="64" r="18" fill="url(#pupilGlow)" stroke="#38bdf8" stroke-width="2.5"/>
+  
+  <!-- Neural Pupil Core -->
+  <circle cx="64" cy="64" r="7.5" fill="#ffffff"/>
+  
+  <!-- High-Tech Light Specular Glint -->
+  <circle cx="59" cy="59" r="2.8" fill="#ffffff" opacity="0.9"/>
+</svg>

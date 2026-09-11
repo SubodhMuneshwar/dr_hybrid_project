@@ -1,82 +1,79 @@
-<div class="glass-card p-6">
+<div class="glass-card p-6 rounded-2xl">
   {% if history and history|length > 0 %}
   <div class="space-y-4">
     {% for scan in history %}
-    <div
-      class="flex justify-between items-center border-b pb-3 last:border-none"
-    >
-      <!-- Left -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-200/60 dark:border-white/10 pb-4 last:border-none">
+      <!-- Left Details -->
       <div>
-        <div class="font-semibold text-slate-800 dark:text-white">
+        <div class="font-bold text-slate-900 dark:text-white text-base">
           {{ scan.prediction }}
         </div>
-        <div class="text-sm text-slate-500 dark:text-gray-400">
-          Confidence: {{ scan.confidence }}%
+        <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          Confidence: <span class="font-semibold text-slate-700 dark:text-slate-200">{{ scan.confidence }}%</span>
         </div>
-        <div class="text-xs text-slate-400 dark:text-gray-500 mt-1">
-          {{ scan.timestamp if scan.timestamp else "Recently" }}
+        <div class="text-[11px] text-slate-400 mt-1 flex items-center gap-1.5">
+          <i class="far fa-clock"></i>
+          <span>{{ scan.timestamp if scan.timestamp else "Recently" }}</span>
         </div>
       </div>
 
-      <!-- Right -->
-      <div class="flex gap-4 items-center">
-        <!-- Severity -->
-        <span
-          class="text-sm font-medium {% if scan.risk == 'Low' %} text-green-600 {% elif scan.risk == 'Moderate' %} text-yellow-600 {% else %} text-red-600 {% endif %}"
-        >
+      <!-- Right Severity Badges -->
+      <div class="flex gap-2.5 items-center">
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg
+          {% if scan.risk == 'Low' %} bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40
+          {% elif scan.risk == 'Moderate' %} bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40
+          {% else %} bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40 {% endif %}
+        ">
           {{ scan.severity }}
         </span>
 
-        <!-- Risk -->
-        <span
-          class="px-3 py-1 rounded-full text-xs font-semibold {% if scan.risk == 'Low' %} bg-green-100 text-green-600 {% elif scan.risk == 'Moderate' %} bg-yellow-100 text-yellow-600 {% else %} bg-red-100 text-red-600 {% endif %}"
-        >
-          {{ scan.risk }}
+        <span class="px-2.5 py-1 rounded-full text-xs font-bold
+          {% if scan.risk == 'Low' %} bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200
+          {% elif scan.risk == 'Moderate' %} bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200
+          {% else %} bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200 {% endif %}
+        ">
+          {{ scan.risk }} Risk
         </span>
       </div>
     </div>
     {% endfor %}
   </div>
   {% else %}
-  <div class="text-center text-slate-400 dark:text-gray-500">
-    No scan history yet. Start by analyzing a retina image.
+  <div class="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
+    <i class="fas fa-folder-open text-2xl mb-2 block text-slate-300 dark:text-slate-600"></i>
+    No scan history recorded yet.
   </div>
   {% endif %}
 </div>
-<!-- 🔢 Pagination -->
+
 {% if total_pages > 1 %}
-<div class="flex justify-center mt-6 gap-2">
-  <!-- Previous -->
+<div class="flex justify-center items-center mt-6 gap-2">
   {% if page > 1 %}
-  <a
+  <button
     onclick="loadScans({page: {{ page-1 }}, search: '{{ search_query }}', risk: '{{ filter_risk }}', sort: '{{ sort_by }}'})"
-    class="px-4 py-2 bg-slate-200 dark:bg-gray-700 rounded"
+    class="px-3.5 py-1.5 text-xs font-semibold rounded-xl glass-card text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/10 transition-all"
   >
-    Prev
-  </a>
+    Previous
+  </button>
   {% endif %}
 
-  <!-- Page Numbers -->
   {% for p in range(1, total_pages + 1) %}
-  <a
+  <button
     onclick="loadScans({page: {{ p }}, search: '{{ search_query }}', risk: '{{ filter_risk }}', sort: '{{ sort_by }}'})"
-    class="px-3 py-1 rounded {% if p == page %} bg-brand text-white {% else %} bg-slate-200 dark:bg-gray-700 {% endif %}"
+    class="px-3 py-1.5 text-xs font-bold rounded-xl transition-all {% if p == page %} bg-indigo-600 text-white shadow-sm {% else %} glass-card text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/10 {% endif %}"
   >
     {{ p }}
-  </a>
+  </button>
   {% endfor %}
 
-  <!-- Next -->
   {% if page < total_pages %}
-  <a
+  <button
     onclick="loadScans({page: {{ page+1 }}, search: '{{ search_query }}', risk: '{{ filter_risk }}', sort: '{{ sort_by }}'})"
-    class="px-4 py-2 bg-slate-200 dark:bg-gray-700 rounded"
+    class="px-3.5 py-1.5 text-xs font-semibold rounded-xl glass-card text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/10 transition-all"
   >
     Next
-  </a>
+  </button>
   {% endif %}
 </div>
-<!-- <a href="{{ url_for('reset') }}" class="text-red-500 text-sm underline">
-  Reset All Data
-</a> -->
 {% endif %}
+

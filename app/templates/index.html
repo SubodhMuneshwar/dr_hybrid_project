@@ -1,403 +1,376 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>RetinaScan AI | Early Detection. Precise Care.</title>
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
-  if (localStorage.getItem("theme") === "dark") {
-  document.documentElement.classList.add("dark");
-}
-</script>
-<!-- Tailwind Configuration -->
-<script data-purpose="tailwind-config">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>RetinaScan AI | Early Detection. Precise Care.</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}"/>
+  <link rel="alternate icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}"/>
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.png') }}"/>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
     tailwind.config = {
+      darkMode: "class",
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
-            clinical: {
-              lavender: '#E9D5FF', // Soft lavender from reference image
-              mauve: '#C084FC',    // Mauve accent
-              glass: 'rgba(255, 255, 255, 0.7)',
-              deep: '#4C1D95',     // Deep purple for text
-              accent: '#1713ec',   // Custom theme color
+            brand: {
+              DEFAULT: '#4f46e5',
+              dark: '#4338ca',
+              light: '#e0e7ff',
+              cyan: '#06b6d4',
+              violet: '#8b5cf6'
             }
-          },
-          borderRadius: {
-            'theme': '8px', // ROUND_EIGHT
           }
         }
       }
+    };
+  </script>
+  <script>
+    if (localStorage.getItem("theme") === "dark" || (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
     }
   </script>
-<style data-purpose="custom-animations">
-
-        * {
-         transition: background-color 0.3s ease, color 0.3s ease;
-      }
-        body{
-        animation: formFade 1s ease forwards;
-      }
-      @keyframes formFade {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-  .dark body {
-  background: #0a0a0b;
-  color: #f1f1f1;
-}
-
-.dark .glass-morphism {
-  background: rgba(20, 20, 22, 0.7);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.dark .text-slate-900 {
-  color: #f1f1f1 !important;
-}
-
-.dark .text-slate-600,
-.dark .text-slate-500 {
-  color: #9ca3af !important;
-}
-
-.dark .bg-white {
-  background: #141416 !important;
-}
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
-      100% { transform: translateY(0px); }
-    }
-    .animate-float {
-      animation: float 6s ease-in-out infinite;
-    }
-    .glass-morphism {
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-    .gradient-bg {
-      background: radial-gradient(circle at top right, #fdf4ff, #ffffff, #f5f3ff);
-    }
-    .dark #problem {
-  background:rgba(20, 20, 22, 0.6) !important;
-}
-/* Dark mode specific button styling */
-.dark .btn-light-text {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border-color: #e5e7eb !important;
-}
-
-/* Hover state */
-.dark .btn-light-text:hover {
-  background: #000000 !important;
-  color: #ffffff !important;
-}
-.dark .card-lavender {
-  background: rgba(40, 30, 80, 0.6) !important;
-  color: #ffffff !important;
-}
-
-.dark .card-lavender span {
-  color: #c4b5fd !important; /* soft purple accent */
-}
-
-.dark .card-lavender:hover {
-  background: rgba(60, 40, 120, 0.7) !important;
-}
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
 </head>
-<body class="font-sans text-slate-900 gradient-bg selection:bg-clinical-mauve/30">
-<!-- BEGIN: Navigation -->
-<nav class="fixed top-0 w-full z-50 glass-morphism border-b border-clinical-lavender/30">
-<div class="max-container mx-auto px-6 h-20 flex items-center justify-between max-w-7xl">
-<div class="flex items-center space-x-2">
-<div class="w-8 h-8 bg-clinical-accent rounded-full flex items-center justify-center">
-<div class="w-4 h-4 bg-white rounded-full"></div>
-</div>
-<span class="text-xl font-bold tracking-tight text-clinical-deep">RetinaScan <span class="text-clinical-accent">AI</span></span>
-</div>
-<div class="hidden md:flex space-x-8 text-sm font-medium">
-<a style="padding-left: 100px;" class="hover:text-clinical-accent transition-colors" href="#problem">The Challenge</a>
-<a class="hover:text-clinical-accent transition-colors" href="#solution">Technology</a>
-<!-- <a class="hover:text-clinical-accent transition-colors" href="#clinical">Clinical Data</a> -->
-</div>
-<div class="flex items-center gap-4">
+<body class="gradient-bg text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
 
-<!-- Dark Mode Toggle -->
-<div id="themeToggle" class="relative w-20 h-9 bg-gradient-to-r from-yellow-200 to-slate-300 rounded-full cursor-pointer flex items-center px-1 transition-all duration-300 shadow-inner"> <div id="toggleCircle" class="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center transform transition-all duration-300">
-    🌞
-  </div>
-</div>
+  <!-- Navigation -->
+  {% set active_page = 'home' %}
+  {% include '_navbar.html' %}
 
-<a href="{{ url_for('scanner') }}" class="bg-clinical-accent text-white px-6 py-2.5 rounded-theme text-sm font-semibold hover:shadow-lg hover:shadow-clinical-accent/20 transition-all inline-block">
-  Launch Scanner
-</a>
+  <!-- Hero Section -->
+  <header class="relative pt-36 pb-20 lg:pt-44 lg:pb-32 overflow-hidden flex-1 flex items-center">
+    <!-- Ambient Radial Blurs -->
+    <div class="absolute -top-20 right-0 w-96 h-96 bg-indigo-400/20 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+    <div class="absolute top-1/2 -left-20 w-80 h-80 bg-cyan-400/20 dark:bg-cyan-600/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" style="animation-delay: 2s;"></div>
 
-</div>
-</div>
-</nav>
-<!-- END: Navigation -->
-<!-- BEGIN: Hero Section -->
-<section class="relative pt-32 pb-20 overflow-hidden min-h-screen flex items-center">
-<!-- Decorative Elements -->
-<div class="absolute top-40 right-[-10%] w-96 h-96 bg-clinical-lavender rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float z-index:1"></div>
-<div class="absolute bottom-20 left-[-5%] w-72 h-72 bg-clinical-mauve rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
-<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-<div data-purpose="hero-content">
-<span class="inline-block py-1 px-4 rounded-full bg-clinical-lavender/50 text-clinical-deep text-xs font-bold tracking-widest uppercase mb-6">
-          Next-Generation Screening
-        </span>
-<h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight mb-6">
-          Early Detection.<br/>
-<span class="text-clinical-accent">Precise Care.</span><br/>
-          Powered by AI.
-        </h1>
-<p class="text-lg text-slate-600 mb-10 max-w-lg leading-relaxed">
-          Revolutionizing diabetic retinopathy screening with state-of-the-art neural networks. Reduce human error and provide results in real-time.
-        </p>
-<div class="flex flex-col sm:flex-row gap-4">
-<a href="{{ url_for('scanner') }}" class="bg-slate-900 text-white px-8 py-4 rounded-theme font-bold hover:bg-slate-800 transition-all text-center inline-block hover:scale-105 active:scale-95 shadow-md hover:shadow-xl">
-            Launch Scanner
-</a>
-<a href="{{ url_for('dashboard') }}" class="glass-morphism border border-slate-200 text-slate-900 btn-light-text px-8 py-4 rounded-theme font-bold hover:bg-white transition-all text-center inline-block shadow-sm hover:shadow-lg hover:scale-105 active:scale-95">
-            View Analytics Dashboard
-</a>
-</div>
-</div>
-<div class="relative" data-purpose="hero-visual">
-<!-- Abstract AI representation -->
-<div class="relative z-10 glass-morphism p-4 rounded-2xl shadow-2xl border border-white/50">
-<div class="absolute left-0 w-full h-1 bg-clinical-accent/40 shadow-[0_0_15px_#1713ec] animate-[scan_4s_ease-in-out_infinite]"></div>
-<img alt="AI Retina Scan Visualization" class="w-full h-auto rounded-lg opacity-90 shadow-[0_0_40px_rgba(23,19,236,0.25)]" data-purpose="abstract-visual" src="{{ url_for('static', filename='gradcam_overlay.png') }}"/>
-</div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        
+        <!-- Left Hero Copy -->
+        <div class="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+            Hybrid Deep Learning &amp; Texture Fusion
+          </div>
 
-<div class="absolute inset-0 flex items-center justify-center">
-<div class="bg-white/80 p-8 rounded-xl shadow-inner backdrop-blur-sm text-center">
-<div class="text-4xl font-bold text-clinical-accent mb-1">98.4%</div>
-<div class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Model Accuracy</div>
-</div>
-</div>
-</div>
-<!-- Scanning animation overlay -->
-<!-- <div class="absolute top-0 left-0 w-full h-1 bg-clinical-accent/40 shadow-[0_0_15px_#1713ec] z-20 animate-[scan_4s_ease-in-out_infinite]"></div> -->
-</div>
-</div>
-</section>
-<!-- END: Hero Section -->
-<!-- BEGIN: The Problem -->
-<section class="py-24 bg-white/40" id="problem">
-<div class="max-w-7xl mx-auto px-6">
-<div class="text-center mb-16">
-<h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">The Challenge in Modern Diagnostics</h2>
-<p class="text-slate-600 max-w-2xl mx-auto">Manual retina scans are slow, labor-intensive, and susceptible to the natural fatigue of even the best specialists.</p>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-<!-- Human Comparison Card -->
-<div class="glass-morphism p-8 rounded-2xl border-l-4 border-red-200">
-<div class="flex items-center mb-4">
-<div class="p-3 bg-red-50 rounded-lg text-red-500 mr-4">
-<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-</div>
-<h3 class="text-xl font-bold">The Human Factor</h3>
-</div>
-<ul class="space-y-4 text-slate-600">
-<li class="flex items-start">
-<span class="mr-2 text-red-400">•</span>
-              Fatigue during long shifts leads to decreased sensitivity.
-            </li>
-<li class="flex items-start">
-<span class="mr-2 text-red-400">•</span>
-              Subjective interpretation creates inter-observer variability.
-            </li>
-<li class="flex items-start">
-<span class="mr-2 text-red-400">•</span>
-              Screening backlogs delay critical early-stage treatment.
-            </li>
-</ul>
-</div>
-<!-- AI Comparison Card -->
-<div class="glass-morphism p-8 rounded-2xl border-l-4 border-clinical-accent">
-<div class="flex items-center mb-4">
-<div class="p-3 bg-blue-50 rounded-lg text-clinical-accent mr-4">
-<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-</div>
-<h3 class="text-xl font-bold">The AI Consistency</h3>
-</div>
-<ul class="space-y-4 text-slate-600">
-<li class="flex items-start">
-<span class="mr-2 text-clinical-accent">•</span>
-              Zero fatigue — 24/7 peak performance without degradation.
-            </li>
-<li class="flex items-start">
-<span class="mr-2 text-clinical-accent">•</span>
-              Objective, data-driven analysis based on millions of data points.
-            </li>
-<li class="flex items-start">
-<span class="mr-2 text-clinical-accent">•</span>
-              Instant processing allows for immediate point-of-care results.
-            </li>
-</ul>
-</div>
-</div>
-</div>
-</section>
-<!-- END: The Problem -->
-<!-- BEGIN: The Solution -->
-<section class="py-24" id="solution">
-<div class="max-w-7xl mx-auto px-6">
-<div class="flex flex-col lg:flex-row items-center gap-16">
-<div class="lg:w-1/2">
-<h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Unrivaled Precision. Under a Minute.</h2>
-<p class="text-lg text-slate-600 mb-8 leading-relaxed">
-            Our proprietary deep learning architecture analyzes high-resolution fundus images to detect microaneurysms, hemorrhages, and exudates with superhuman speed.
+          <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.12]">
+            Early Detection.<br/>
+            <span class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 dark:from-indigo-400 dark:via-cyan-300 dark:to-teal-300 bg-clip-text text-transparent">
+              Precise Retinal Care.
+            </span><br/>
+            Powered by Hybrid AI.
+          </h1>
+
+          <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            Screening diabetic retinopathy across 5 clinical stages with deep transfer learning, LBP texture extraction, and GLCM Haralick descriptors. Instant inference with Grad-CAM visual interpretability.
           </p>
-<div class="space-y-6">
-<div class="flex items-center space-x-4">
-<div class="w-12 h-12 flex-shrink-0 bg-clinical-lavender rounded-full flex items-center justify-center text-clinical-deep font-bold">1</div>
-<div>
-<h4 class="font-bold text-slate-800">Advanced Segmentation</h4>
-<p class="text-sm text-slate-500">Isolates vascular structures with micron-level detail.</p>
-</div>
-</div>
-<div class="flex items-center space-x-4">
-<div class="w-12 h-12 flex-shrink-0 bg-clinical-lavender rounded-full flex items-center justify-center text-clinical-deep font-bold">2</div>
-<div>
-<h4 class="font-bold text-slate-800">Anomaly Identification</h4>
-<p class="text-sm text-slate-500">Flags early markers of DR that are often invisible to the eye.</p>
-</div>
-</div>
-<div class="flex items-center space-x-4">
-<div class="w-12 h-12 flex-shrink-0 bg-clinical-lavender rounded-full flex items-center justify-center text-clinical-deep font-bold">3</div>
-<div>
-<h4 class="font-bold text-slate-800">Grading &amp; Reporting</h4>
-<p class="text-sm text-slate-500">Automatic categorization based on clinical severity scales.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="lg:w-1/2 grid grid-cols-2 gap-4">
-<div class="bg-clinical-lavender/30 card-lavender p-8 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-clinical-lavender/40 transition-colors">
-<span class="text-4xl font-black text-clinical-deep mb-2">98%+</span>
-<span class="text-xs uppercase font-bold tracking-widest text-slate-500">Accuracy</span>
-</div>
-<div class="bg-clinical-accent p-8 rounded-2xl flex flex-col items-center justify-center text-center text-white">
-<span class="text-4xl font-black mb-2">&lt; 30s</span>
-<span class="text-xs uppercase font-bold tracking-widest opacity-80">Processing</span>
-</div>
-<div class="col-span-2 glass-morphism p-12 rounded-2xl flex flex-col items-center justify-center text-center">
-<span class="text-4xl font-black text-slate-900 mb-2">FDA Pending</span>
-<span class="text-xs uppercase font-bold tracking-widest text-slate-500">Clinical Validation Stage</span>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- END: The Solution -->
-<!-- BEGIN: Call to Action -->
-<section class="py-24">
-<div class="max-w-5xl mx-auto px-6">
-<div class="relative glass-morphism rounded-3xl p-12 overflow-hidden text-center border-2 border-white">
-<!-- Floating shapes inside CTA -->
-<div class="absolute -top-10 -left-10 w-40 h-40 bg-clinical-lavender rounded-full opacity-30"></div>
-<div class="absolute -bottom-10 -right-10 w-40 h-40 bg-clinical-mauve rounded-full opacity-30"></div>
-<h2 class="text-3xl md:text-4xl font-bold mb-6 relative z-10">Ready to transform your practice?</h2>
-<p class="text-lg text-slate-600 mb-10 max-w-2xl mx-auto relative z-10">
-          Join leading ophthalmology clinics in pioneering the future of automated diagnostic imaging. 
+
+          <!-- CTAs -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <a href="{{ url_for('scanner') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-7 py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-xl hover:shadow-indigo-600/40 hover:-translate-y-0.5 transition-all text-base">
+              <i class="fas fa-microscope text-sm"></i>
+              <span>Start Diagnostic Scan</span>
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 glass-card px-7 py-3.5 rounded-xl font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-white border border-slate-200 dark:border-white/10 hover:border-indigo-300 text-base">
+              <i class="fas fa-chart-line text-sm text-indigo-500"></i>
+              <span>View Analytics</span>
+            </a>
+          </div>
+
+          <!-- Quick Metrics Ribbons -->
+          <div class="grid grid-cols-3 gap-3 sm:gap-6 pt-6 border-t border-slate-200/80 dark:border-white/10 max-w-lg mx-auto lg:mx-0">
+            <div>
+              <div class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">5 Stages</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Clinical Classification</div>
+            </div>
+            <div>
+              <div class="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400">562 Dims</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Fused Feature Vector</div>
+            </div>
+            <div>
+              <div class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">&lt; 2.5s</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Inference Speed</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Hero Visual Card: Interactive Before/After Split Slider -->
+        <div class="lg:col-span-5 relative flex items-center justify-center">
+          <div class="w-full max-w-md mx-auto relative group">
+            <!-- Glow under card -->
+            <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/30 to-cyan-500/20 rounded-3xl blur-2xl transform group-hover:scale-105 transition-transform duration-500"></div>
+
+            <div class="glass-card p-4 sm:p-5 rounded-3xl relative overflow-hidden border border-white/60 dark:border-white/15 shadow-2xl">
+              <!-- Slider Instruction Header -->
+              <div class="flex items-center justify-between mb-3 px-1">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                  <i class="fas fa-sliders-h text-indigo-500"></i>
+                  <span>Drag to Reveal Neural Heatmap</span>
+                </span>
+                <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50">Interactive</span>
+              </div>
+
+              <!-- Interactive Before / After Split Slider Container -->
+              <div id="comparisonContainer" class="comparison-slider-container aspect-square rounded-2xl bg-slate-950 cursor-ew-resize relative">
+                <!-- Under Image: Raw Fundus -->
+                <img src="/outputs/Fundus_-_diabetic_retinopathy_input.png" alt="Raw Retinal Fundus Scan" class="w-full h-full object-cover select-none pointer-events-none"/>
+                
+                <!-- Floating Left Tag -->
+                <div class="absolute top-3 left-3 pointer-events-none z-10 px-2.5 py-1 rounded-md bg-slate-900/80 backdrop-blur text-[11px] font-semibold text-white border border-white/10 shadow-sm">
+                  Raw Fundus
+                </div>
+
+                <!-- Over Image: Grad-CAM Activation Heatmap -->
+                <div id="comparisonOverlay" class="comparison-overlay-img pointer-events-none" style="width: 50%;">
+                  <img src="/outputs/Fundus_-_diabetic_retinopathy_gradcam.png" alt="Grad-CAM Activation Heatmap" class="w-full h-full object-cover select-none pointer-events-none" style="min-width: 100%; height: 100%;"/>
+                  
+                  <!-- Floating Right Tag -->
+                  <div class="absolute top-3 right-3 pointer-events-none z-10 px-2.5 py-1 rounded-md bg-indigo-900/90 backdrop-blur text-[11px] font-semibold text-white border border-indigo-500/40 shadow-sm">
+                    Grad-CAM AI
+                  </div>
+                </div>
+
+                <!-- Draggable Divider Line & Button Handle -->
+                <div id="comparisonHandle" class="comparison-slider-handle pointer-events-none" style="left: 50%;">
+                  <div class="comparison-slider-button">
+                    <i class="fas fa-arrows-alt-h"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Meta Badge -->
+              <div class="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  VGG16 Neural Heatmap
+                </span>
+                <span>Lesion Localization</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Section: The Challenge -->
+  <section id="challenge" class="py-20 bg-slate-100/50 dark:bg-slate-900/40 border-y border-slate-200/60 dark:border-white/5 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Clinical Context</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mt-2">The Screening Bottleneck</h2>
+        <p class="text-slate-600 dark:text-slate-300 mt-3 text-base sm:text-lg leading-relaxed">
+          Over 400 million adults live with diabetes globally. Timely detection prevents up to 95% of vision loss, yet screening systems face severe challenges.
         </p>
-<div class="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
-<a href="{{ url_for('scanner') }}" class="bg-clinical-accent text-white px-10 py-4 rounded-theme font-bold text-lg hover:shadow-xl hover:shadow-clinical-accent/30 transition-all inline-block shadow-md hover:shadow-xl hover:scale-105 active:scale-95">
-            Launch Scanner
-</a>
-<a href="{{ url_for('dashboard') }}" class="bg-white border border-slate-200 text-slate-900 px-10 py-4 rounded-theme font-bold text-lg hover:bg-slate-50 transition-all inline-block shadow-sm hover:shadow-lg hover:scale-105 active:scale-95">
-            View Analytics
-</a>
-</div>
-</div>
-</div>
-</section>
-<!-- END: Call to Action -->
-<!-- BEGIN: Footer -->
-<!-- <footer class="py-12 border-t border-slate-100 bg-white">
-<div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
-<div class="flex items-center space-x-2 mb-6 md:mb-0">
-<div class="w-6 h-6 bg-clinical-accent rounded-full"></div>
-<span class="text-lg font-bold tracking-tight text-clinical-deep">RetinaScan AI</span>
-</div>
-<p class="text-slate-400 text-sm">
-        © 2026 RetinaScan AI Technologies. All rights reserved.
-      </p>
-<div class="flex space-x-6 mt-6 md:mt-0 text-sm text-slate-500 font-medium">
-<a class="hover:text-clinical-accent transition-colors" href="#">Privacy Policy</a>
-<a class="hover:text-clinical-accent transition-colors" href="#">Terms of Service</a>
-<a class="hover:text-clinical-accent transition-colors" href="#">Contact</a>
-</div>
-</div>
-</footer> -->
-<!-- END: Footer -->
-<style data-purpose="animations-extra">
-    @keyframes scan {
-      0%, 100% { top: 0%; }
-      50% { top: 100%; }
-    }
-  </style>
+      </div>
 
-  <script>
-const toggle = document.getElementById("themeToggle");
-const circle = document.getElementById("toggleCircle");
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Human Limitations -->
+        <div class="glass-card p-8 rounded-2xl border-l-4 border-rose-500">
+          <div class="flex items-center space-x-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-lg">
+              <i class="fas fa-user-clock"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">Manual Assessment Gaps</h3>
+          </div>
+          <ul class="space-y-3.5 text-slate-600 dark:text-slate-300 text-sm">
+            <li class="flex items-start gap-3">
+              <i class="fas fa-times-circle text-rose-500 mt-1"></i>
+              <span><strong>Diagnostic Fatigue:</strong> Reviewing hundreds of fundus images daily increases human error and micro-aneurysm oversight.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-times-circle text-rose-500 mt-1"></i>
+              <span><strong>Observer Variability:</strong> Differences in specialist grading thresholds lead to inconsistent stage categorization.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-times-circle text-rose-500 mt-1"></i>
+              <span><strong>Backlog Delays:</strong> Days or weeks between fundus capture and specialist review risk irreversible progression.</span>
+            </li>
+          </ul>
+        </div>
 
-// APPLY SAVED THEME ON LOAD
-if (localStorage.getItem("theme") === "dark") {
-  document.documentElement.classList.add("dark");
-  if (circle) {
-    circle.style.transform = "translateX(40px)";
-    circle.textContent = "🌙";
-  }
-  if (toggle) {
-    toggle.classList.remove("from-yellow-200", "to-slate-300");
-    toggle.classList.add("from-slate-700", "to-slate-900");
-  }
-}
+        <!-- AI Advantage -->
+        <div class="glass-card p-8 rounded-2xl border-l-4 border-indigo-600">
+          <div class="flex items-center space-x-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg">
+              <i class="fas fa-brain"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">RetinaScan AI Precision</h3>
+          </div>
+          <ul class="space-y-3.5 text-slate-600 dark:text-slate-300 text-sm">
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-indigo-500 mt-1"></i>
+              <span><strong>Consistent Triage:</strong> 24/7 reproducible, standardized classification across all 5 clinical stages.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-indigo-500 mt-1"></i>
+              <span><strong>Hybrid Feature Fusion:</strong> Combines deep neural representations with classical texture micro-descriptors.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-indigo-500 mt-1"></i>
+              <span><strong>Instant Explainability:</strong> Real-time Grad-CAM localization maps highlighting areas of interest immediately.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 
-// TOGGLE FUNCTION
-if (toggle) {
-  toggle.addEventListener("click", () => {
-    document.documentElement.classList.toggle("dark");
+  <!-- Section: Technology & Hybrid Pipeline -->
+  <section id="technology" class="py-24 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Architecture</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mt-2">Why Hybrid Features?</h2>
+        <p class="text-slate-600 dark:text-slate-300 mt-3 text-base sm:text-lg leading-relaxed">
+          Deep learning excels at high-level abstractions, while texture descriptors capture fine vascular changes. Our architecture fuses both for enhanced diagnostic sensitivity.
+        </p>
+      </div>
 
-    if (document.documentElement.classList.contains("dark")) {
-      localStorage.setItem("theme", "dark");
+      <!-- Feature Trio Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- 1. Deep Features -->
+        <div class="glass-card p-8 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl mb-6">
+              <i class="fas fa-network-wired"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Deep Embeddings</h3>
+            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
+              Pretrained ImageNet backbones (VGG16 with Global Average Pooling or DenseNet121) extract rich structural feature representations.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-200/60 dark:border-white/10 text-xs font-semibold text-indigo-600 dark:text-indigo-400 flex items-center justify-between">
+            <span>512 Deep Vectors</span>
+            <i class="fas fa-arrow-right"></i>
+          </div>
+        </div>
 
-      circle.style.transform = "translateX(40px)";
-      circle.textContent = "🌙";
+        <!-- 2. LBP Textures -->
+        <div class="glass-card p-8 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xl mb-6">
+              <i class="fas fa-fingerprint"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">LBP Descriptors</h3>
+            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
+              Uniform Local Binary Patterns (radius 3, 24 points) evaluate rotational micro-texture irregularities across retinal vessels.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-200/60 dark:border-white/10 text-xs font-semibold text-cyan-600 dark:text-cyan-400 flex items-center justify-between">
+            <span>26 Histogram Bins</span>
+            <i class="fas fa-arrow-right"></i>
+          </div>
+        </div>
 
-      toggle.classList.remove("from-yellow-200", "to-slate-300");
-      toggle.classList.add("from-slate-700", "to-slate-900");
+        <!-- 3. Haralick Features -->
+        <div class="glass-card p-8 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl mb-6">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">GLCM Haralick</h3>
+            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
+              Gray-Level Co-occurrence Matrix measures contrast, dissimilarity, homogeneity, energy, correlation, and angular second moment.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-200/60 dark:border-white/10 text-xs font-semibold text-purple-600 dark:text-purple-400 flex items-center justify-between">
+            <span>24 Spatial Angles</span>
+            <i class="fas fa-arrow-right"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    } else {
-      localStorage.setItem("theme", "light");
+  <!-- Section: Interactive Diagnostic Workflow -->
+  <section id="workflow" class="py-20 bg-slate-100/50 dark:bg-slate-900/40 border-t border-slate-200/60 dark:border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Process</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mt-2">Diagnostic Sequence</h2>
+      </div>
 
-      circle.style.transform = "translateX(0px)";
-      circle.textContent = "🌞";
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="glass-card p-6 rounded-2xl text-center">
+          <div class="w-12 h-12 rounded-full bg-indigo-600 text-white font-extrabold flex items-center justify-center mx-auto mb-4 text-lg">1</div>
+          <h4 class="font-bold text-slate-900 dark:text-white mb-1">Image Ingestion</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Upload retinal fundus images with secure client validation.</p>
+        </div>
 
-      toggle.classList.remove("from-slate-700", "to-slate-900");
-      toggle.classList.add("from-yellow-200", "to-slate-300");
-    }
-  });
-}
-</script>
-</body></html>
+        <div class="glass-card p-6 rounded-2xl text-center">
+          <div class="w-12 h-12 rounded-full bg-indigo-600 text-white font-extrabold flex items-center justify-center mx-auto mb-4 text-lg">2</div>
+          <h4 class="font-bold text-slate-900 dark:text-white mb-1">CLAHE Filtering</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Adaptive histogram equalization balances lighting and exposes micro-lesions.</p>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl text-center">
+          <div class="w-12 h-12 rounded-full bg-indigo-600 text-white font-extrabold flex items-center justify-center mx-auto mb-4 text-lg">3</div>
+          <h4 class="font-bold text-slate-900 dark:text-white mb-1">Ensemble Inference</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Classifiers output calibrated 5-class stage distributions.</p>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl text-center">
+          <div class="w-12 h-12 rounded-full bg-indigo-600 text-white font-extrabold flex items-center justify-center mx-auto mb-4 text-lg">4</div>
+          <h4 class="font-bold text-slate-900 dark:text-white mb-1">Explainable Report</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Grad-CAM visualization + downloadable clinical PDF report.</p>
+        </div>
+      </div>
+
+      <!-- CTA Banner -->
+      <div class="mt-16 glass-card p-8 sm:p-12 rounded-3xl text-center relative overflow-hidden bg-gradient-to-r from-indigo-900/90 to-slate-900/95 text-white border border-indigo-500/30">
+        <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready to test the diagnostic engine?</h3>
+        <p class="text-indigo-200 text-sm sm:text-base mt-2 max-w-xl mx-auto">
+          Upload any retinal fundus image to view stage prediction, risk assessment, and clinical heatmaps.
+        </p>
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="{{ url_for('scanner') }}" class="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition-all">
+            Launch Diagnostic Scanner
+          </a>
+          <a href="{{ url_for('dashboard') }}" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-3.5 rounded-xl border border-white/20 transition-all">
+            Open Analytics Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="mt-auto py-10 border-t border-slate-200/60 dark:border-white/5 bg-white/50 dark:bg-slate-950/50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs">
+          <i class="fas fa-eye"></i>
+        </div>
+        <span class="font-bold text-slate-800 dark:text-white">RetinaScan AI</span>
+        <span class="text-xs text-slate-400 ml-2">Educational &amp; Research Platform</span>
+      </div>
+      <div class="flex items-center space-x-6 text-sm text-slate-500 dark:text-slate-400">
+        <a href="{{ url_for('scanner') }}" class="hover:text-indigo-600 transition-colors">Scanner</a>
+        <a href="{{ url_for('dashboard') }}" class="hover:text-indigo-600 transition-colors">Dashboard</a>
+        <a href="https://github.com/SubodhMuneshwar/dr_hybrid_project" target="_blank" class="hover:text-indigo-600 transition-colors">
+          <i class="fab fa-github mr-1"></i> GitHub
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</body>
+</html>

@@ -1,82 +1,509 @@
-/* RetinaScan — shared theme (light + dark) */
+/* ==========================================================================
+   RetinaScan AI - Design System & Modern UI Styles
+   - Harmonious modern palette (Indigo / Violet clinical accents)
+   - Glassmorphism, card lifts, micro-interactions, responsive containers
+   - Seamless Light and Dark modes
+   - Interactive Before/After image comparison slider
+   - Animated SVG radial gauges
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
-  --bg-light-grad: radial-gradient(circle at top right, #fdf4ff, #ffffff, #f5f3ff);
-  --bg-dark: #0a0a0b;
-  --card-light: rgba(255,255,255,0.6);
-  --card-dark: rgba(20,20,22,0.7);
-  --border-light: rgba(255,255,255,0.3);
-  --border-dark: rgba(255,255,255,0.08);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff;
+  --accent-cyan: #06b6d4;
+  --accent-violet: #8b5cf6;
+  
+  --bg-light: #f8fafc;
+  --bg-dark: #080c15;
+  
+  --glass-light: rgba(255, 255, 255, 0.85);
+  --glass-light-border: rgba(226, 232, 240, 0.85);
+  --glass-dark: rgba(15, 23, 42, 0.75);
+  --glass-dark-border: rgba(255, 255, 255, 0.09);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.07), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 16px 36px -6px rgba(79, 70, 229, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 30px rgba(79, 70, 229, 0.25);
 }
 
-/* light defaults */
+/* Base resets & typography */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Subtle background mesh grid */
 .gradient-bg {
-  background: var(--bg-light-grad);
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+    linear-gradient(rgba(79, 70, 229, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 70, 229, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
   min-height: 100vh;
 }
-.glass-morphism {
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.3);
-}
-.glass-card {
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.3);
-  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.07);
-}
 
-/* dark overrides — html.dark is set by theme.js */
-html.dark body {
-  background: var(--bg-dark) !important;
-  color: #f1f1f1 !important;
-}
 html.dark .gradient-bg {
-  background: radial-gradient(circle at 50% -20%, #1e1e24 0%, var(--bg-dark) 70%) !important;
+  background-color: #080c15 !important;
+  background-image: 
+    radial-gradient(at 50% -10%, #1e1b4b 0%, #080c15 75%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 36px 36px, 36px 36px !important;
+  color: #f1f5f9 !important;
 }
-html.dark .glass-morphism {
-  background: var(--card-dark) !important;
-  border-color: var(--border-dark) !important;
+
+/* Glassmorphism Classes */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
 }
+
+html.dark .glass-nav {
+  background: rgba(8, 12, 21, 0.85) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Nav Link States */
+.nav-link {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+}
+
+.nav-link:hover {
+  color: #4f46e5;
+  background-color: rgba(241, 245, 249, 0.75);
+}
+
+html.dark .nav-link {
+  color: #94a3b8;
+}
+
+html.dark .nav-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.nav-link-active {
+  color: #4f46e5 !important;
+  background-color: rgba(238, 242, 255, 0.95) !important;
+  border-color: rgba(199, 210, 254, 0.8) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.1);
+}
+
+html.dark .nav-link-active {
+  color: #818cf8 !important;
+  background-color: rgba(30, 27, 75, 0.6) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.18);
+}
+
+
+.glass-card {
+  background: var(--glass-light);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-light-border);
+  box-shadow: var(--shadow-md);
+  border-radius: 18px;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
 html.dark .glass-card {
-  background: var(--card-dark) !important;
-  border-color: var(--border-dark) !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35) !important;
+  background: var(--glass-dark) !important;
+  border-color: var(--glass-dark-border) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
 }
-html.dark .text-slate-900 { color: #f1f1f1 !important; }
-html.dark .text-slate-800 { color: #e5e7eb !important; }
-html.dark .text-slate-700 { color: #d1d5db !important; }
-html.dark .text-slate-600 { color: #9ca3af !important; }
-html.dark .text-slate-500 { color: #9ca3af !important; }
-html.dark .bg-white { background: #141416 !important; }
-html.dark .bg-white\/50 { background: rgba(20,20,22,0.5) !important; }
-html.dark .bg-white\/80 { background: rgba(20,20,22,0.7) !important; }
-html.dark .bg-slate-100 { background: #1a1a1e !important; }
-html.dark .border-white { border-color: rgba(255,255,255,0.08) !important; }
-html.dark .border-slate-100 { border-color: rgba(255,255,255,0.08) !important; }
-html.dark .border-slate-200 { border-color: rgba(255,255,255,0.1) !important; }
-html.dark #problem { background: rgba(20,20,22,0.6) !important; }
-html.dark footer { background: #0f0f11 !important; border-color: #1e1e24 !important; }
-html.dark nav { border-color: rgba(255,255,255,0.06) !important; }
 
-/* buttons in dark */
-html.dark .btn-light-text {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border-color: #e5e7eb !important;
+html.dark .glass-card:hover {
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.5), 0 0 24px rgba(99, 102, 241, 0.18) !important;
 }
-html.dark .btn-light-text:hover {
-  background: #000000 !important;
-  color: #ffffff !important;
-}
-html.dark .card-lavender {
-  background: rgba(40,30,80,0.6) !important;
-  color: #ffffff !important;
-}
-html.dark .card-lavender span { color: #c4b5fd !important; }
 
-/* toggle specific */
-[data-theme-toggle] { user-select: none; }
+/* Typography Overrides in Dark Mode */
+html.dark .text-slate-900 { color: #f8fafc !important; }
+html.dark .text-slate-800 { color: #f1f5f9 !important; }
+html.dark .text-slate-700 { color: #e2e8f0 !important; }
+html.dark .text-slate-600 { color: #94a3b8 !important; }
+html.dark .text-slate-500 { color: #64748b !important; }
+html.dark .text-slate-400 { color: #64748b !important; }
+
+html.dark .bg-white { background-color: #0f172a !important; }
+html.dark .bg-slate-50 { background-color: #1e293b !important; }
+html.dark .bg-slate-100 { background-color: #1e293b !important; }
+html.dark .border-slate-100 { border-color: rgba(255, 255, 255, 0.07) !important; }
+html.dark .border-slate-200 { border-color: rgba(255, 255, 255, 0.1) !important; }
+
+/* Custom Keyframe Animations */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-10px) scale(1.015); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 7s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.05); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4.5s ease-in-out infinite;
+}
+
+@keyframes scanRay {
+  0%, 100% { top: 0%; opacity: 0.8; }
+  50% { top: 96%; opacity: 1; }
+}
+
+.animate-scan-ray {
+  animation: scanRay 3s ease-in-out infinite;
+}
+
+/* Form Upload Drag States */
+.upload-dropzone {
+  transition: all 0.25s ease;
+}
+
+.upload-dropzone.drag-active {
+  background: rgba(79, 70, 229, 0.1) !important;
+  border-color: #4f46e5 !important;
+  transform: scale(1.015);
+}
+
+/* Before / After Comparison Slider */
+.comparison-slider-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  user-select: none;
+}
+
+.comparison-slider-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.comparison-overlay-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.comparison-slider-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #ffffff;
+  cursor: ew-resize;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+  z-index: 25;
+}
+
+.comparison-slider-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: white;
+  border: 3px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+}
+
+/* SVG Radial Gauge */
+.gauge-svg {
+  transform: rotate(-90deg);
+}
+
+.gauge-circle-bg {
+  fill: none;
+  stroke: rgba(226, 232, 240, 0.8);
+}
+
+html.dark .gauge-circle-bg {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+.gauge-circle-val {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease-out;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.5);
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+/* ==========================================================================
+   Interactive Ocular Theme Button (Open Eye vs Closed Eye)
+   ========================================================================== */
+.theme-ocular-btn,
+.theme-aperture-btn {
+  position: relative;
+  width: 2.625rem;
+  height: 2.625rem;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  user-select: none;
+}
+
+.theme-ocular-btn:hover,
+.theme-aperture-btn:hover {
+  transform: translateY(-1.5px) scale(1.04);
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.18), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.theme-ocular-btn:active,
+.theme-aperture-btn:active {
+  transform: translateY(0) scale(0.93);
+}
+
+html.dark .theme-ocular-btn,
+html.dark .theme-aperture-btn {
+  background: rgba(15, 23, 42, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .theme-ocular-btn:hover,
+html.dark .theme-aperture-btn:hover {
+  border-color: rgba(129, 140, 248, 0.45) !important;
+  box-shadow: 0 6px 22px rgba(99, 102, 241, 0.28), 0 0 14px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Ambient Radial Glow Orb */
+.theme-glow-orb {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.875rem;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+html.dark .theme-glow-orb {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+}
+
+.theme-ocular-btn:hover .theme-glow-orb,
+.theme-aperture-btn:hover .theme-glow-orb {
+  opacity: 1;
+}
+
+/* Ocular SVG Container & Morphing Elements */
+.theme-eye-wrapper {
+  position: relative;
+  width: 1.45rem;
+  height: 1.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transform-origin: center center;
+}
+
+.theme-eye-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Open Eye State (Active in Light Mode) */
+.eye-open-state {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: center center;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #4f46e5;
+  stroke: #4f46e5;
+}
+
+.eye-open-state .eye-sclera {
+  stroke: #4f46e5;
+  stroke-width: 2;
+  transition: stroke 0.3s ease;
+}
+
+.eye-open-state .eye-iris {
+  stroke: #06b6d4;
+  stroke-width: 1.8;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s ease;
+  transform-origin: 12px 12px;
+}
+
+.theme-ocular-btn:hover .eye-open-state .eye-iris {
+  transform: scale(1.15);
+  stroke: #0891b2;
+}
+
+.eye-open-state .eye-pupil {
+  fill: #4f46e5;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: 12px 12px;
+}
+
+.theme-ocular-btn:hover .eye-open-state .eye-pupil {
+  transform: scale(0.9);
+}
+
+/* Closed Eye State (Active in Dark Mode) */
+.eye-closed-state {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(0.75) translateY(-2px);
+  transform-origin: center center;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #818cf8;
+  stroke: #818cf8;
+}
+
+.eye-closed-state .eyelid-arc {
+  stroke-width: 2;
+  transition: stroke 0.3s ease;
+}
+
+.eye-closed-state .eyelash {
+  stroke-width: 1.75;
+  transition: transform 0.3s ease, stroke 0.3s ease;
+  transform-origin: center top;
+}
+
+.theme-ocular-btn:hover .eye-closed-state .eyelash {
+  stroke: #c084fc;
+  transform: translateY(1px);
+}
+
+/* State switches in Dark Mode */
+html.dark .eye-open-state {
+  opacity: 0;
+  transform: scale(0.75) translateY(2px);
+  pointer-events: none;
+}
+
+html.dark .eye-closed-state {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  color: #a5b4fc;
+  stroke: #a5b4fc;
+}
+
+html.dark .theme-ocular-btn:hover .eye-closed-state {
+  color: #c084fc;
+  stroke: #c084fc;
+}
+
+/* Organic Eye Blink Animation on Toggle */
+@keyframes ocularBlinkCycle {
+  0% {
+    transform: scaleY(1) scaleX(1);
+  }
+  30% {
+    transform: scaleY(0.06) scaleX(1.12);
+  }
+  65% {
+    transform: scaleY(0.06) scaleX(1.12);
+  }
+  100% {
+    transform: scaleY(1) scaleX(1);
+  }
+}
+
+.eye-blink-anim {
+  animation: ocularBlinkCycle 0.45s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Dynamic Ripple effect on click */
+.theme-ripple {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.3);
+  transform: scale(0);
+  pointer-events: none;
+  animation: themeRipple 0.5s ease-out forwards;
+}
+
+@keyframes themeRipple {
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+

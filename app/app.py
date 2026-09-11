@@ -42,6 +42,8 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = "dr-secret"  # set your own
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
 def allowed_file(filename):
@@ -474,6 +476,11 @@ def outputs_file(filename):
 def uploads_file(filename):
     os.makedirs(config.UPLOADS_DIR, exist_ok=True)
     return send_from_directory(config.UPLOADS_DIR, filename)
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, "static"), "favicon.ico", mimetype="image/vnd.microsoft.icon")
+
 
 
 if __name__ == "__main__":

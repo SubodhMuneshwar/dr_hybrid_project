@@ -1,924 +1,598 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>RetinaScan AI - Analytics Dashboard</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              brand: "#1713ec",
-              clinical: {
-                light: "#f8f7ff",
-                soft: "#eeebff",
-                lavender: "#e0d7ff",
-                mauve: "#f3e8ff",
-              },
-            },
-            fontFamily: {
-              sans: ["Inter", "sans-serif"],
-            },
-            borderRadius: {
-              eight: "8px",
-            },
-          },
-        },
-      };
-    </script>
-    <script>
-      // ✅ Apply saved theme BEFORE render
-      if (localStorage.getItem("theme") === "dark") {
-        document.documentElement.classList.add("dark");
-      }
-    </script>
-    <script>
-      function animateValue(el, start, end, duration) {
-        if (start === end) {
-          el.textContent = end + "%";
-          return;
-        }
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>RetinaScan AI - Clinical Analytics &amp; Patient Registry</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}"/>
+  <link rel="alternate icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}"/>
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.png') }}"/>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        let range = end - start;
-        let current = start;
-        let increment = end > start ? 1 : -1;
-        let stepTime = Math.max(10, Math.abs(Math.floor(duration / range)));
-
-        let timer = setInterval(() => {
-          current += increment;
-          el.textContent = current + "%";
-          if (current === end) clearInterval(timer);
-        }, stepTime);
-      }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        const confEl = document.querySelector("#confidenceValue");
-        if (confEl && confEl.dataset.value && confEl.dataset.value != -1) {
-          let value = parseInt(confEl.dataset.value);
-          animateValue(confEl, 0, value, 800);
-        }
-      });
-    </script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      * {
-        transition:
-          background-color 0.3s ease,
-          color 0.3s ease;
-      }
-      body {
-        animation: formFade 1s ease forwards;
-      }
-      @keyframes formFade {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'] },
+          colors: {
+            brand: {
+              DEFAULT: '#4f46e5',
+              dark: '#4338ca',
+              light: '#e0e7ff',
+              cyan: '#06b6d4',
+              violet: '#8b5cf6'
+            }
+          }
         }
       }
-      .glass-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
-        transition: all 0.3s ease;
-        animation: fadeUp 0.6s ease;
-        animation-fill-mode: both;
-      }
-      @keyframes fadeUp {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
+    };
+  </script>
+  <script>
+    if (localStorage.getItem("theme") === "dark" || (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+</head>
+<body class="gradient-bg text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
 
-      .glass-card:hover {
-        transform: translateY(-4px) scale(1.005);
-        box-shadow: 0 20px 40px rgba(23, 19, 236, 0.15);
-      }
-      .gradient-bg {
-        background: radial-gradient(
-          circle at top right,
-          #fdf4ff,
-          #ffffff,
-          #f5f3ff
-        );
-        min-height: 100vh;
-      }
-      .dark .gradient-bg {
-        background: radial-gradient(circle at top right, #1a1a1d, #0a0a0b);
-      }
-      nav a.active {
-        color: #1713ec;
-        font-weight: 600;
-      }
+  <!-- Navigation -->
+  {% set active_page = 'dashboard' %}
+  {% include '_navbar.html' %}
 
-      .dark .glass-card {
-        background: rgba(20, 20, 22, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .dark .text-slate-600 {
-        color: #9ca3af;
-      }
-
-      .dark .text-slate-500 {
-        color: #6b7280;
-      }
-
-      .dark .glass-card:hover {
-        box-shadow: 0 20px 40px rgba(23, 19, 236, 0.25);
-      }
-
-      .glass-morphism {
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-
-      .dark .glass-morphism {
-        background: rgba(20, 20, 22, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-      #themeToggle {
-        transition: background 0.3s ease;
-      }
-    </style>
-  </head>
-  <body class="font-sans gradient-bg text-slate-900 dark:text-white">
-    <!-- Navigation -->
-    <nav
-      class="w-full z-50 p-6 flex items-center justify-between max-w-7xl mx-auto"
-    >
-      <div class="flex items-center space-x-2">
-        <div
-          class="w-8 h-8 bg-brand rounded-full flex items-center justify-center"
-        >
-          <div
-            class="w-4 h-4 bg-white dark:bg-black rounded-full transition-colors"
-          ></div>
-        </div>
-        <span
-          class="text-xl font-bold tracking-tight text-slate-900 dark:text-white"
-        >
-          RetinaScan <span class="text-brand">AI</span></span
-        >
-      </div>
-      <div
-        class="hidden md:flex space-x-8 text-sm font-medium text-slate-600 dark:text-gray-300"
-        style="position: relative"
-      >
-        <a
-          href="{{ url_for('index') }}"
-          class="hover:text-brand transition-colors"
-          style="padding-left: 150px"
-          >Home</a
-        >
-        <a
-          href="{{ url_for('dashboard') }}"
-          class="hover:text-brand transition-colors active"
-          >Dashboard</a
-        >
-      </div>
-      <div class="flex items-center gap-4">
-        <span
-          class="hidden md:inline text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400 font-semibold"
-        >
-          System Online
-        </span>
-        <!-- Dark Mode Toggle -->
-        <div
-          id="themeToggle"
-          class="relative w-20 h-9 bg-gradient-to-r from-yellow-200 to-slate-300 rounded-full cursor-pointer flex items-center px-1 transition-all duration-300 shadow-inner"
-        >
-          <div
-            id="toggleCircle"
-            class="w-8 h-8 bg-white dark:bg-[#111] rounded-full shadow-md flex items-center justify-center transition-all duration-300"
-          >
-            🌞
-          </div>
-        </div>
-        <a
-          href="{{ url_for('scanner') }}"
-          class="bg-brand text-white px-6 py-2.5 rounded-eight text-sm font-semibold hover:shadow-lg transition-all inline-block"
-        >
-          New Scan
-        </a>
-      </div>
-    </nav>
-
-    <header class="py-8 px-6 text-center">
-      <div class="max-w-4xl mx-auto">
-        <h1
-          class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white transition-colors duration-300 ..."
-        >
-          Inside the Intelligence
-          <span class="block text-brand text-lg mt-2 font-medium tracking-wide">
-            RetinaScan AI Analytics Core
-          </span>
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-20 flex-1 w-full space-y-10">
+    
+    <!-- Title Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          System Intelligence &amp; Registry
         </h1>
-        <p class="text-lg text-slate-600 dark:text-gray-300 font-medium">
-          Exploring the deep learning foundations and rigorous performance
-          benchmarks of RetinaScan AI.
+        <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-1">
+          Patient diagnostic cohorts, clinical risk stratifications, and model validation artifacts.
         </p>
       </div>
-    </header>
-
-    <div
-      class="max-w-7xl mx-auto px-6 mb-10 grid grid-cols-1 md:grid-cols-5 gap-6"
-    >
-      <div class="glass-card p-5">
-        <p class="text-sm text-slate-500 dark:text-gray-400">Total Scans</p>
-        <h3 class="text-2xl font-bold text-brand mt-1">{{ total_scans }}</h3>
-      </div>
-
-      <div class="glass-card p-5">
-        <p class="text-sm text-slate-500 dark:text-gray-400">Healthy Cases</p>
-        <h3 class="text-2xl font-bold text-green-600 mt-1">
-          {{ healthy_count }}
-        </h3>
-      </div>
-
-      <div class="glass-card p-5">
-        <p class="text-sm text-slate-500 dark:text-gray-400">Moderate Risk</p>
-        <h3 class="text-2xl font-bold text-yellow-500 mt-1">
-          {{ moderate_count }}
-        </h3>
-      </div>
-
-      <div class="glass-card p-5">
-        <p class="text-sm text-slate-500 dark:text-gray-400">Severe Cases</p>
-        <h3 class="text-2xl font-bold text-red-500 mt-1">
-          {{ high_risk_count }}
-        </h3>
-      </div>
-
-      <div class="glass-card p-5">
-        <p class="text-sm text-slate-500 dark:text-gray-400">Model Accuracy</p>
-        <h3 class="text-2xl font-bold text-brand mt-1">94.2%</h3>
+      <div class="flex items-center gap-3">
+        <a href="{{ url_for('scanner') }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-md transition-all">
+          <i class="fas fa-microscope text-xs"></i>
+          <span>Scan New Patient</span>
+        </a>
       </div>
     </div>
 
-    <section class="mb-12" style="margin: 20px">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <!-- Prediction -->
-        <div
-          class="glass-card p-6 text-center flex flex-col justify-center min-h-[140px]"
-        >
-          <h4 class="text-sm text-slate-500 dark:text-gray-400">Prediction</h4>
-          <div class="text-2xl font-bold text-brand mt-2">
-            {{ prediction if prediction else "Scan retina to detect" }}
+    <!-- Metric Stat Cards (5 Cards Responsive Grid) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <!-- Total Scans -->
+      <div class="glass-card p-5 rounded-2xl">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+          <span class="text-xs font-semibold uppercase tracking-wider">Total Scans</span>
+          <i class="fas fa-folder-open text-indigo-500"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">{{ total_scans }}</div>
+        <span class="text-[11px] text-slate-400 mt-1 block">Patient scan registry</span>
+      </div>
+
+      <!-- Healthy Cases -->
+      <div class="glass-card p-5 rounded-2xl">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+          <span class="text-xs font-semibold uppercase tracking-wider">Healthy (No DR)</span>
+          <i class="fas fa-check-circle text-emerald-500"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ healthy_count }}</div>
+        <span class="text-[11px] text-slate-400 mt-1 block">{{ healthy_percent }}% of total cohorts</span>
+      </div>
+
+      <!-- Moderate Risk -->
+      <div class="glass-card p-5 rounded-2xl">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+          <span class="text-xs font-semibold uppercase tracking-wider">Mild &amp; Moderate</span>
+          <i class="fas fa-exclamation-triangle text-amber-500"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-amber-500 dark:text-amber-400">{{ moderate_count }}</div>
+        <span class="text-[11px] text-slate-400 mt-1 block">{{ moderate_percent }}% of total cohorts</span>
+      </div>
+
+      <!-- Severe Risk -->
+      <div class="glass-card p-5 rounded-2xl">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+          <span class="text-xs font-semibold uppercase tracking-wider">Severe Cases</span>
+          <i class="fas fa-exclamation-circle text-rose-500"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400">{{ high_risk_count }}</div>
+        <span class="text-[11px] text-slate-400 mt-1 block">{{ high_percent }}% of total cohorts</span>
+      </div>
+
+      <!-- Model Pipeline Status -->
+      <div class="col-span-2 sm:col-span-1 glass-card p-5 rounded-2xl">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+          <span class="text-xs font-semibold uppercase tracking-wider">Model Status</span>
+          <i class="fas fa-microchip text-indigo-500"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">Ensemble</div>
+        <span class="text-[11px] text-slate-400 mt-1 block">RF + SVM + KNN Voting</span>
+      </div>
+    </div>
+
+    <!-- Active Diagnosis Snapshot Card (if available) -->
+    {% if prediction %}
+    <div class="glass-card p-6 rounded-2xl border border-indigo-200/60 dark:border-indigo-800/40 bg-indigo-50/30 dark:bg-indigo-950/20">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Latest Diagnostic Output</span>
+          <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1 flex items-center gap-3">
+            <span>{{ prediction }}</span>
+            <span class="text-sm font-semibold px-3 py-0.5 rounded-full
+              {% if risk == 'Low' %} bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300
+              {% elif risk == 'Moderate' %} bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300
+              {% else %} bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 {% endif %}
+            ">
+              {{ risk }} Risk
+            </span>
+          </h3>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <div class="text-right">
+            <span class="text-xs text-slate-400 block">Confidence Score</span>
+            <span class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">{{ confidence }}%</span>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400 block">Severity Level</span>
+            <span class="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">{{ severity if severity else "None" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Charts Section: Risk Distribution & Trends -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Cohort Distribution Pie Chart (5 cols) -->
+      <div class="lg:col-span-5 glass-card p-6 sm:p-8 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Patient Cohort Distribution</h3>
+            <span class="text-xs text-slate-400">Live DB</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+            Proportional split of diagnosed patient risks across the active session registry.
+          </p>
+        </div>
+
+        <div class="w-full flex items-center justify-center p-4">
+          <div class="w-64 h-64 relative">
+            <canvas id="riskPieChart"></canvas>
           </div>
         </div>
 
-        <!-- Confidence -->
-        <div
-          class="glass-card p-6 text-center flex flex-col justify-center min-h-[140px]"
-        >
-          <h4 class="text-sm text-slate-500 dark:text-gray-400">Confidence</h4>
-          <div
-            id="confidenceValue"
-            data-value="{{ confidence if confidence else -1 }}"
-            class="text-slate-800 dark:text-gray-300 font-semibold"
-          >
-            {{ confidence ~ "%" if confidence else "No scan yet" }}
+        <div class="grid grid-cols-3 gap-2 pt-6 border-t border-slate-200/60 dark:border-white/10 text-center text-xs">
+          <div>
+            <span class="text-emerald-500 font-bold block">{{ healthy_percent }}%</span>
+            <span class="text-slate-400">Healthy</span>
           </div>
-          <div
-            class="w-full bg-slate-200 dark:bg-gray-700 rounded-full h-2 mt-3"
-          >
-            <div
-              class="bg-brand h-2 rounded-full transition-all duration-700 {{ 'opacity-30' if not confidence else '' }}"
-              style="width: {{ confidence if confidence else 0 }}%"
-            ></div>
+          <div>
+            <span class="text-amber-500 font-bold block">{{ moderate_percent }}%</span>
+            <span class="text-slate-400">Moderate</span>
+          </div>
+          <div>
+            <span class="text-rose-500 font-bold block">{{ high_percent }}%</span>
+            <span class="text-slate-400">High Risk</span>
           </div>
         </div>
+      </div>
 
-        <!-- Severity -->
-        <div
-          class="glass-card p-6 text-center flex flex-col justify-center min-h-[140px]"
-        >
-          <h4 class="text-sm text-slate-500 dark:text-gray-400">
-            Severity Level
-          </h4>
-          <div
-            class="text-2xl font-bold mt-2 {% if severity == 'None' %} text-green-600 {% elif severity == 'Class 1' or severity == 'Class 2' %} text-yellow-600 {% else %} text-red-600 {% endif %}"
-          >
-            {{ severity if severity else "Awaiting scan" }}
+      <!-- Trend Line Chart (7 cols) -->
+      <div class="lg:col-span-7 glass-card p-6 sm:p-8 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Diagnostic Trajectory Over Time</h3>
+            <span class="text-xs text-slate-400">Cumulative</span>
           </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+            Cumulative progression of cases logged across clinical intake sequences.
+          </p>
         </div>
 
-        <!-- Risk Level -->
-        <div
-          class="glass-card p-6 text-center flex flex-col justify-center min-h-[140px]"
-        >
-          <h4 class="text-sm text-slate-500 dark:text-gray-400">Risk Level</h4>
+        <div class="w-full h-64 sm:h-72">
+          <canvas id="riskTrendChart"></canvas>
+        </div>
 
-          <div class="mt-2">
-            {% if risk == "Low" %}
-            <span
-              class="px-4 py-1 rounded-full text-green-600 bg-green-100 font-semibold"
-            >
-              Low Risk
-            </span>
-            {% elif risk == "Moderate" %}
-            <span
-              class="px-4 py-1 rounded-full text-yellow-600 bg-yellow-100 font-semibold"
-            >
-              Moderate Risk
-            </span>
-            {% elif risk == "High" %}
-            <span
-              class="px-4 py-1 rounded-full text-red-600 bg-red-100 font-semibold"
-            >
-              High Risk
-            </span>
+        <div class="pt-4 border-t border-slate-200/60 dark:border-white/10 text-xs text-slate-400 flex items-center justify-between">
+          <span>Tracking continuous scan submissions</span>
+          <span class="text-indigo-500 font-semibold">{{ history|length }} Entries</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation & Performance Artifacts Section -->
+    <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Model Evaluation Artifacts</h2>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Validation curves, normalized confusion matrices, and radar profiles from the trained pipeline.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Accuracy Bar Chart -->
+        <div class="glass-card p-5 rounded-2xl flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <i class="fas fa-chart-bar text-indigo-500"></i>
+              <span>Class Accuracy</span>
+            </h4>
+            <span class="text-[10px] text-slate-400 uppercase">Test Set</span>
+          </div>
+          <div class="w-full h-48 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-white/5 p-2">
+            {% if accuracy_url %}
+            <img src="{{ accuracy_url }}" alt="Model Accuracy Chart" class="max-h-full max-w-full object-contain"/>
             {% else %}
-            <span class="text-slate-400 dark:text-gray-500">--</span>
+            <div class="text-center text-xs text-slate-400">
+              <i class="fas fa-chart-bar text-2xl mb-1 text-slate-300"></i>
+              <p>No accuracy plot found</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Confusion Matrix -->
+        <div class="glass-card p-5 rounded-2xl flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <i class="fas fa-border-all text-indigo-500"></i>
+              <span>Normalized Confusion</span>
+            </h4>
+            <span class="text-[10px] text-slate-400 uppercase">Normalized</span>
+          </div>
+          <div class="w-full h-48 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-white/5 p-2">
+            {% if cm_url %}
+            <img src="{{ cm_url }}" alt="Confusion Matrix" class="max-h-full max-w-full object-contain"/>
+            {% else %}
+            <div class="text-center text-xs text-slate-400">
+              <i class="fas fa-border-all text-2xl mb-1 text-slate-300"></i>
+              <p>No matrix plot found</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Radar Distribution Chart -->
+        <div class="glass-card p-5 rounded-2xl flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <i class="fas fa-spider text-indigo-500"></i>
+              <span>Radar Profile</span>
+            </h4>
+            <span class="text-[10px] text-slate-400 uppercase">Metrics</span>
+          </div>
+          <div class="w-full h-48 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-white/5 p-2">
+            {% if radar_url %}
+            <img src="{{ radar_url }}" alt="Radar Chart" class="max-h-full max-w-full object-contain"/>
+            {% else %}
+            <div class="text-center text-xs text-slate-400">
+              <i class="fas fa-spider text-2xl mb-1 text-slate-300"></i>
+              <p>No radar plot found</p>
+            </div>
             {% endif %}
           </div>
         </div>
       </div>
-    </section>
-
-    <div class="flex justify-center mt-6" style="margin: 20px">
-      <div class="glass-card px-6 py-4 flex items-center gap-6">
-        <!-- Status -->
-        <div
-          class="flex items-center gap-2 text-sm font-semibold {% if prediction %} text-green-600 {% else %} text-yellow-500 {% endif %}"
-        >
-          <span
-            class="w-2 h-2 rounded-full animate-pulse {% if prediction %} bg-green-500 {% else %} bg-yellow-400 {% endif %}"
-          ></span>
-          {{ "System Active" if prediction else "Idle Mode" }}
-        </div>
-
-        <!-- Divider -->
-        <div class="h-4 w-px bg-slate-300 dark:bg-gray-600"></div>
-
-        <!-- Model -->
-        <div class="text-sm text-slate-600 dark:text-gray-300">Model Ready</div>
-
-        <!-- Divider -->
-        <div class="h-4 w-px bg-slate-300 dark:bg-gray-600"></div>
-
-        <!-- Last Updated -->
-        <div class="text-sm text-slate-500 dark:text-gray-400">
-          {{ "Updated just now" if prediction else "No recent scan" }}
-        </div>
-      </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-6 md:px-8 pb-24">
-      {% if not prediction %}
-      <div class="text-center py-12 text-slate-500 dark:text-gray-400">
-        <i class="fas fa-info-circle text-2xl mb-2"></i>
-        <p class="mb-4">No scan data available.</p>
-        <a
-          href="{{ url_for('scanner') }}"
-          class="bg-brand text-white px-5 py-2 rounded-eight text-sm"
+    <!-- Patient Records & PDF Generation Registry Section -->
+    <div class="space-y-6">
+      
+      <!-- Registry Header & Controls -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+            <span>Patient Scan Registry</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200 dark:border-indigo-800/40">
+              {{ total_scans }} Records
+            </span>
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Real-time searchable patient database with instant PDF diagnostic report downloads.
+          </p>
+        </div>
+
+        <!-- Search Bar & Actions -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <!-- Search Input -->
+          <div class="relative min-w-[240px]">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="fas fa-search text-xs"></i>
+            </div>
+            <input
+              type="text"
+              id="patientSearchInput"
+              placeholder="Search by patient name..."
+              class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 text-xs focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 placeholder-slate-400"
+            />
+          </div>
+
+          <!-- Export CSV Button -->
+          <button
+            id="exportCsvBtn"
+            class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold glass-card text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 transition-all cursor-pointer"
+          >
+            <i class="fas fa-file-csv text-emerald-500"></i>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Risk Filter Pill Tabs -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2">
+        <button
+          type="button"
+          data-filter-risk="all"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition-all whitespace-nowrap cursor-pointer"
         >
-          Start First Scan
+          All Cohorts ({{ total_scans }})
+        </button>
+        <button
+          type="button"
+          data-filter-risk="healthy"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold glass-card text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all whitespace-nowrap cursor-pointer"
+        >
+          Healthy ({{ healthy_count }})
+        </button>
+        <button
+          type="button"
+          data-filter-risk="moderate"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold glass-card text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-all whitespace-nowrap cursor-pointer"
+        >
+          Moderate ({{ moderate_count }})
+        </button>
+        <button
+          type="button"
+          data-filter-risk="severe"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold glass-card text-slate-600 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all whitespace-nowrap cursor-pointer"
+        >
+          Severe ({{ high_risk_count }})
+        </button>
+      </div>
+
+      <!-- Dynamic Patient Cards Grid -->
+      {% if paginated_patient_summaries and paginated_patient_summaries|length > 0 %}
+      <div id="patientCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for patient in paginated_patient_summaries %}
+        <div
+          data-patient-card
+          data-patient-name="{{ patient.name }}"
+          data-patient-risk="{{ patient.latest_severity }}"
+          data-patient-scans="{{ patient.scan_count }}"
+          data-patient-diag="{{ patient.latest_prediction }}"
+          data-patient-sev="{{ patient.latest_severity }}"
+          data-patient-conf="{{ patient.latest_confidence }}"
+          data-patient-time="{{ patient.display_time }}"
+          class="glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4"
+        >
+          
+          <!-- Card Header -->
+          <div class="flex items-start justify-between pb-3 border-b border-slate-200/60 dark:border-white/10">
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ patient.name }}</h3>
+              <span class="text-[11px] text-slate-400">{{ patient.scan_count }} Total Scan(s)</span>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold
+              {% if patient.latest_severity == 'Healthy' or patient.latest_severity == 'None' or 'Healthy' in patient.latest_severity %} bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300
+              {% elif patient.latest_severity == 'Mild' or 'Class 1' in patient.latest_severity %} bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300
+              {% elif patient.latest_severity == 'Moderate' or 'Class 2' in patient.latest_severity %} bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300
+              {% else %} bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 {% endif %}
+            ">
+              {{ patient.latest_severity if patient.latest_severity else "Class 0" }}
+            </span>
+          </div>
+
+          <!-- Finding Details -->
+          <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Diagnosis:</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">{{ patient.latest_prediction if patient.latest_prediction else "No DR" }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Certainty:</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">{{ patient.latest_confidence }}%</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Captured:</span>
+              <span class="text-slate-500 dark:text-slate-400">{{ patient.display_time }}</span>
+            </div>
+          </div>
+
+          <!-- Action -->
+          <div class="pt-3 border-t border-slate-200/60 dark:border-white/10">
+            <a
+              href="{{ url_for('download_report', patient_name=patient.name) }}"
+              class="w-full inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-indigo-600 dark:text-indigo-300 text-xs font-semibold transition-all border border-indigo-200/60 dark:border-indigo-800/40 cursor-pointer"
+            >
+              <i class="fas fa-file-pdf"></i>
+              <span>Download Clinical PDF</span>
+            </a>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- No Filter Results Message -->
+      <div id="noFilterResults" class="hidden glass-card p-10 rounded-2xl text-center">
+        <i class="fas fa-search text-2xl text-slate-300 dark:text-slate-600 mb-2"></i>
+        <h4 class="font-bold text-slate-800 dark:text-slate-200 text-sm">No Matching Patients Found</h4>
+        <p class="text-xs text-slate-400 mt-1">Try clearing your search query or switching risk filters.</p>
+      </div>
+
+      <!-- Pagination Controls -->
+      {% if total_pages > 1 %}
+      <div class="flex items-center justify-center gap-2 pt-6">
+        {% if page > 1 %}
+        <a href="{{ url_for('dashboard', page=page-1) }}" class="px-4 py-2 rounded-xl text-xs font-semibold glass-card text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/10">
+          Previous
         </a>
+        {% endif %}
+
+        <span class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm">
+          Page {{ page }} of {{ total_pages }}
+        </span>
+
+        {% if page < total_pages %}
+        <a href="{{ url_for('dashboard', page=page+1) }}" class="px-4 py-2 rounded-xl text-xs font-semibold glass-card text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-white/10">
+          Next
+        </a>
+        {% endif %}
       </div>
       {% endif %}
 
-      <!-- 📊 Risk Distribution Bars -->
-      <section class="mb-20">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="h-8 w-1 bg-brand rounded-full"></div>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
-            Risk Distribution
-          </h2>
-        </div>
-
-        <div class="glass-card p-6 space-y-5">
-          <!-- Healthy -->
-          <div>
-            <div class="flex justify-between text-sm mb-1">
-              <span>Healthy</span>
-              <span>{{ healthy_percent }}%</span>
-            </div>
-            <div class="w-full bg-slate-200 dark:bg-gray-700 rounded-full h-3">
-              <div
-                class="bg-green-500 h-3 rounded-full"
-                style="width: {{ healthy_percent }}%"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Moderate -->
-          <div>
-            <div class="flex justify-between text-sm mb-1">
-              <span>Moderate</span>
-              <span>{{ moderate_percent }}%</span>
-            </div>
-            <div class="w-full bg-slate-200 dark:bg-gray-700 rounded-full h-3">
-              <div
-                class="bg-yellow-500 h-3 rounded-full"
-                style="width: {{ moderate_percent }}%"
-              ></div>
-            </div>
-          </div>
-
-          <!-- High -->
-          <div>
-            <div class="flex justify-between text-sm mb-1">
-              <span>High</span>
-              <span>{{ high_percent }}%</span>
-            </div>
-            <div class="w-full bg-slate-200 dark:bg-gray-700 rounded-full h-3">
-              <div
-                class="bg-red-500 h-3 rounded-full"
-                style="width: {{ high_percent }}%"
-              ></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="mb-20">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="h-8 w-1 bg-brand rounded-full"></div>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
-            Risk Analytics
-          </h2>
-        </div>
-
-        <!-- 🔥 TWO CHARTS SIDE BY SIDE -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- 🥧 Pie Chart -->
-          <div class="glass-card p-6">
-            <h3 class="text-lg font-semibold mb-4">Risk Distribution</h3>
-            <div class="w-full flex justify-center">
-              <canvas
-                id="riskPieChart"
-                class="max-w-[300px] max-h-[300px]"
-              ></canvas>
-            </div>
-          </div>
-
-          <!-- 📈 Trend Graph -->
-          <div class="glass-card p-6">
-            <h3 class="text-lg font-semibold mb-4">Risk Trend Over Time</h3>
-            <canvas id="riskTrendChart" class="h-[300px]"></canvas>
-          </div>
-        </div>
-      </section>
-
-      <section class="mb-20">
-        <div class="flex items-center gap-4 mb-8">
-          <div class="h-8 w-1 bg-brand rounded-full"></div>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
-            Performance Metrics
-          </h2>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <!-- Accuracy Chart Container -->
-          <div class="glass-card rounded-eight p-6 flex flex-col items-center">
-            <h3
-              class="text-lg font-semibold mb-6 text-slate-700 dark:text-gray-300"
-            >
-              <i class="fas fa-chart-bar text-brand"></i> Model Accuracy
-            </h3>
-            <p class="text-xs text-slate-400 dark:text-gray-500 mt-1">
-              Based on validation dataset
-            </p>
-            <br />
-            <div
-              class="w-full h-[220px] flex items-center justify-center overflow-hidden rounded-md border border-slate-100 dark:border-gray-700 shadow-sm bg-white dark:bg-[#111111] p-2"
-            >
-              {% if accuracy_url %}
-              <img
-                class="max-h-full object-contain rounded-md"
-                src="{{ accuracy_url }}"
-                alt="Model Accuracy Chart"
-              />
-              {% else %}
-              <div
-                class="flex flex-col items-center justify-center text-slate-400 dark:text-gray-500 text-sm"
-              >
-                <div
-                  class="w-6 h-6 border-2 border-brand border-t-transparent dark:border-white dark:border-t-transparent rounded-full animate-spin mb-2"
-                ></div>
-                Loading analytics...
-              </div>
-              {% endif %}
-            </div>
-          </div>
-
-          <!-- confusion Matrix Chart Container -->
-          <div class="glass-card rounded-eight p-6 flex flex-col items-center">
-            <h3
-              class="text-lg font-semibold mb-6 text-slate-700 dark:text-gray-300"
-            >
-              <i class="fas fa-border-all text-brand"></i> Confusion Matrix
-            </h3>
-            <p class="text-xs text-slate-400 dark:text-gray-500 mt-1">
-              Based on validation dataset
-            </p>
-            <br />
-            <div
-              class="w-full h-[220px] flex items-center justify-center overflow-hidden rounded-md border border-slate-100 dark:border-gray-700 shadow-sm bg-white dark:bg-[#111111] p-2"
-            >
-              {% if cm_url %}
-              <img
-                class="max-h-full object-contain rounded-md"
-                src="{{ cm_url }}"
-                alt="Confusion Matrix"
-              />
-              {% else %}
-              <div
-                class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-gray-500 text-sm"
-              >
-                <i class="fas fa-chart-line text-xl mb-2"></i>
-                <p>No analysis data available</p>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-
-          <!-- Radar Chart Container -->
-          <div class="glass-card rounded-eight p-6 flex flex-col items-center">
-            <h3
-              class="text-lg font-semibold mb-6 text-slate-700 dark:text-gray-300"
-            >
-              <i class="fas fa-spider text-brand"></i> Distribution Profile
-            </h3>
-            <p class="text-xs text-slate-400 dark:text-gray-500 mt-1">
-              Based on validation dataset
-            </p>
-            <br />
-            <div
-              class="w-full h-[220px] flex items-center justify-center overflow-hidden rounded-md border border-slate-100 dark:border-gray-700 shadow-sm bg-white dark:bg-[#111111] p-2"
-            >
-              {% if radar_url %}
-              <img
-                src="{{ radar_url }}"
-                alt="Model Radar Chart"
-                class="max-h-full object-contain rounded-md"
-              />
-              {% else %}
-              <div
-                class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-gray-500 text-sm"
-              >
-                <i class="fas fa-chart-line text-xl mb-2"></i>
-                <p>No analysis data available</p>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 🗂 Patient-wise Scan History + Reports -->
-      <section class="mb-20">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="h-8 w-1 bg-brand rounded-full"></div>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
-            Recent Scans
-          </h2>
-        </div>
-
-        {% if paginated_patient_summaries and paginated_patient_summaries|length
-        > 0 %}
-        <div class="space-y-5">
-          {% for patient in paginated_patient_summaries %}
-          <div
-            class="glass-card p-6 rounded-eight border border-slate-100 dark:border-gray-700"
-          >
-            <!-- Patient Header -->
-            <div
-              class="flex items-center justify-between mb-5 pb-4 border-b border-slate-200 dark:border-gray-600"
-            >
-              <div>
-                <h3 class="font-bold text-lg text-slate-800 dark:text-white">
-                  {{ patient.name }}
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">
-                  {{ patient.scan_count }} scan(s)
-                </p>
-              </div>
-            </div>
-
-            <!-- Latest Scan Only -->
-            <div class="space-y-3 mb-5">
-              <div
-                class="flex items-center justify-between gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-md border border-slate-100 dark:border-gray-700"
-              >
-                <div class="flex-1 min-w-0">
-                  <div
-                    class="text-sm font-semibold text-slate-800 dark:text-white truncate"
-                  >
-                    {{ patient.latest_prediction if patient.latest_prediction
-                    else "No DR" }}
-                  </div>
-                  <div class="text-xs text-slate-500 dark:text-gray-400 mt-1">
-                    Confidence:
-                    <span class="font-medium"
-                      >{{ patient.latest_confidence if patient.latest_confidence
-                      is not none else "--" }}{% if patient.latest_confidence is
-                      not none %}%{% endif %}</span
-                    >
-                    • {{ patient.display_time if patient.display_time else
-                    "Recently" }}
-                  </div>
-                </div>
-
-                <div class="flex-shrink-0">
-                  <span
-                    class="px-3 py-1 rounded-full text-xs font-bold {% if patient.latest_severity == 'Healthy' or patient.latest_severity == 'None' %} bg-green-100 text-green-700 {% elif patient.latest_severity == 'Mild' or patient.latest_severity == 'Class 1' %} bg-yellow-100 text-yellow-700 {% elif patient.latest_severity == 'Moderate' or patient.latest_severity == 'Class 2' %} bg-orange-100 text-orange-700 {% else %} bg-red-600 text-white {% endif %}"
-                  >
-                    {{ patient.latest_severity if patient.latest_severity else
-                    "--" }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Download Button -->
-            <div
-              class="flex justify-end pt-3 border-t border-slate-100 dark:border-gray-700"
-            >
-              <a
-                href="{{ url_for('download_report', patient_name=patient.name) }}"
-                class="bg-brand text-white px-6 py-2.5 rounded-eight text-sm font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2"
-              >
-                <i class="fas fa-download"></i> Download Report
-              </a>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-
-        {% if total_pages > 1 %}
-        <div class="flex items-center justify-center gap-3 mt-8">
-          {% if page > 1 %}
-          <a
-            href="{{ url_for('dashboard', page=page-1) }}"
-            class="px-4 py-2 text-sm font-semibold rounded-eight border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-200 bg-white/80 dark:bg-slate-800/70 hover:shadow transition-all"
-          >
-            Previous
-          </a>
-          {% else %}
-          <span
-            class="px-4 py-2 text-sm font-semibold rounded-eight border border-slate-200 dark:border-gray-700 text-slate-400 dark:text-gray-500 bg-white/60 dark:bg-slate-800/40 cursor-not-allowed"
-          >
-            Previous
-          </span>
-          {% endif %}
-
-          <span
-            class="px-4 py-2 text-sm font-semibold rounded-eight bg-brand text-white"
-          >
-            Page {{ page }} of {{ total_pages }}
-          </span>
-
-          {% if page < total_pages %}
-          <a
-            href="{{ url_for('dashboard', page=page+1) }}"
-            class="px-4 py-2 text-sm font-semibold rounded-eight border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-200 bg-white/80 dark:bg-slate-800/70 hover:shadow transition-all"
-          >
-            Next
-          </a>
-          {% else %}
-          <span
-            class="px-4 py-2 text-sm font-semibold rounded-eight border border-slate-200 dark:border-gray-700 text-slate-400 dark:text-gray-500 bg-white/60 dark:bg-slate-800/40 cursor-not-allowed"
-          >
-            Next
-          </span>
-          {% endif %}
-        </div>
-        {% endif %} {% else %}
-        <div class="glass-card p-12 text-center">
-          <p class="text-slate-500 dark:text-gray-400">No scan history yet.</p>
-        </div>
-        {% endif %}
-      </section>
-
-      <section class="mb-12">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="glass-card rounded-eight p-6 flex gap-4 items-center">
-            <div class="text-4xl text-brand">
-              <i class="fas fa-notes-medical"></i>
-            </div>
-            <div>
-              <h3 class="font-bold text-slate-800 dark:text-gray-400">
-                Medical Reference: Diabetic Retinopathy
-              </h3>
-              <p class="text-slate-600 dark:text-gray-400 text-sm mt-1">
-                Vessel segmentation analysis categorized across 5 severity
-                levels: Class 0 to Class 4.
-              </p>
-            </div>
-          </div>
-          <div
-            class="glass-card rounded-eight p-6 flex flex-col justify-center"
-          >
-            <h3 class="font-bold text-slate-800 dark:text-gray-400">
-              Hybrid Feature Fusion
-            </h3>
-            <div class="text-2xl font-bold text-brand mt-2">32,818 VECTORS</div>
-            <p class="text-slate-500 dark:text-gray-400 text-xs mt-1">
-              Combined CNN Shape + GLCM Texture + LBP Pattern.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <div class="flex justify-center">
-        <a
-          href="{{ url_for('scanner') }}"
-          class="bg-brand text-white px-8 py-4 rounded-eight font-bold shadow-lg hover:bg-brand/90 transition-all inline-block"
-        >
-          <i class="fas fa-microscope mr-2"></i> START NEW RETINAL ANALYSIS
+      {% else %}
+      <div class="glass-card p-12 rounded-2xl text-center">
+        <i class="fas fa-folder-open text-3xl text-slate-300 dark:text-slate-600 mb-3"></i>
+        <h4 class="font-bold text-slate-800 dark:text-slate-200 text-base">No Scans Recorded Yet</h4>
+        <p class="text-xs text-slate-500 mt-1">Start by analyzing a retinal scan to generate patient records and downloadable reports.</p>
+        <a href="{{ url_for('scanner') }}" class="mt-4 inline-flex items-center gap-2 bg-indigo-600 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow">
+          <span>Go to Diagnostic Scanner</span>
         </a>
       </div>
-    </main>
+      {% endif %}
+    </div>
 
-    <script>
-      document.querySelectorAll("a[href^='/']").forEach((link) => {
-        link.addEventListener("click", function (e) {
-          if (this.href && !this.href.includes("#")) {
-            e.preventDefault();
-            document.body.classList.add("opacity-0", "translate-y-5");
-            setTimeout(() => {
-              window.location = this.href;
-            }, 300);
-          }
-        });
-      });
-    </script>
+  </main>
 
-    <script>
-      const toggle = document.getElementById("themeToggle");
-      const circle = document.getElementById("toggleCircle");
+  <!-- Footer -->
+  <footer class="mt-auto py-8 border-t border-slate-200/60 dark:border-white/5 bg-white/50 dark:bg-slate-950/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
+      RetinaScan AI &bull; Analytics Engine &amp; Clinical Patient History
+    </div>
+  </footer>
 
-      function applyTheme(theme) {
-        if (!toggle || !circle) return;
-
-        if (theme === "dark") {
-          document.documentElement.classList.add("dark");
-
-          circle.style.transform = "translateX(40px)";
-          circle.textContent = "🌙";
-          circle.style.background = "#111";
-          circle.style.color = "#fff";
-
-          toggle.classList.remove("from-yellow-200", "to-slate-300");
-          toggle.classList.add("from-slate-700", "to-slate-900");
-        } else {
-          document.documentElement.classList.remove("dark");
-
-          circle.style.transform = "translateX(0px)";
-          circle.textContent = "🌞";
-          circle.style.background = "#fff";
-          circle.style.color = "#000";
-
-          toggle.classList.remove("from-slate-700", "to-slate-900");
-          toggle.classList.add("from-yellow-200", "to-slate-300");
-        }
-      }
-
-      // INIT
-      const savedTheme = localStorage.getItem("theme") || "light";
-      applyTheme(savedTheme);
-
-      // CLICK
-      if (toggle) {
-        toggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.contains("dark");
-          const newTheme = isDark ? "light" : "dark";
-
-          localStorage.setItem("theme", newTheme);
-          applyTheme(newTheme);
-        });
-      }
-    </script>
-
-    <script>
-            const trendCtx = document.getElementById("riskTrendChart");
-
-            if (trendCtx) {
-              const labels = {{ history | map(attribute="timestamp") | list | tojson }};
-              const risks = {{ history | map(attribute="risk") | list | tojson }};
-
-      let healthyData = [];
-      let moderateData = [];
-      let highData = [];
-
-      let h = 0, m = 0, hi = 0;
-
-      risks.forEach(r => {
-        if (r === "Low") h++;
-        if (r === "Moderate") m++;
-        if (r === "High") hi++;
-
-        healthyData.push(h);
-        moderateData.push(m);
-        highData.push(hi);
-      });
-
-              new Chart(trendCtx, {
-                type: "line",
-                data: {
-                  labels: labels,
-                  datasets: [
-                    {
-                      label: "Healthy",
-                      data: healthyData,
-                      borderColor: "#22c55e",
-                      tension: 0.4
-                    },
-                    {
-                      label: "Moderate",
-                      data: moderateData,
-                      borderColor: "#eab308",
-                      tension: 0.4
-                    },
-                    {
-                      label: "High",
-                      data: highData,
-                      borderColor: "#ef4444",
-                      tension: 0.4
-                    }
-                  ]
-                }
-              });
-            }
-    </script>
-
-    <script>
-      const pieCtx = document.getElementById("riskPieChart");
-
-      if (pieCtx) {
-        new Chart(pieCtx, {
-          type: "pie",
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  
+  <!-- Chart Rendering -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Pie Chart
+      const pieCanvas = document.getElementById("riskPieChart");
+      if (pieCanvas) {
+        new Chart(pieCanvas, {
+          type: "doughnut",
           data: {
-            labels: ["Healthy", "Moderate", "High"],
+            labels: ["Healthy (No DR)", "Moderate Risk", "High Risk"],
             datasets: [{
               data: [
                 {{ healthy_count }},
                 {{ moderate_count }},
                 {{ high_risk_count }}
               ],
-              backgroundColor: ["#22c55e", "#eab308", "#ef4444"]
+              backgroundColor: ["#10b981", "#f59e0b", "#f43f5e"],
+              borderWidth: 0,
+              hoverOffset: 6
             }]
           },
           options: {
             responsive: true,
-            maintainAspectRatio: true
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            cutout: '70%'
           }
         });
       }
-    </script>
 
-    <script>
-      async function loadScans(params = {}) {
-        const url = new URL("/recent-scans", window.location.origin);
+      // 2. Trend Line Chart
+      const trendCanvas = document.getElementById("riskTrendChart");
+      if (trendCanvas) {
+        const labels = {{ history | map(attribute="timestamp") | list | tojson }};
+        const risks = {{ history | map(attribute="risk") | list | tojson }};
 
-        Object.keys(params).forEach((key) => {
-          url.searchParams.set(key, params[key]);
+        let healthyData = [];
+        let moderateData = [];
+        let highData = [];
+        let h = 0, m = 0, hi = 0;
+
+        risks.forEach(r => {
+          if (r === "Low") h++;
+          if (r === "Moderate") m++;
+          if (r === "High") hi++;
+          healthyData.push(h);
+          moderateData.push(m);
+          highData.push(hi);
         });
 
-        const res = await fetch(url);
-        const html = await res.text();
-
-        document.getElementById("recentScansContainer").innerHTML = html;
-      }
-
-      // Apply filters without reload
-      function applyFilters() {
-        const search = document.querySelector("input[name='search']").value;
-        const risk = document.getElementById("riskFilter").value;
-        const sort = document.getElementById("sortBy").value;
-
-        loadScans({
-          search: search,
-          risk: risk,
-          sort: sort,
-          page: 1,
+        new Chart(trendCanvas, {
+          type: "line",
+          data: {
+            labels: labels.length > 0 ? labels : ["Initial"],
+            datasets: [
+              {
+                label: "Healthy",
+                data: healthyData.length > 0 ? healthyData : [0],
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16, 185, 129, 0.1)",
+                tension: 0.35,
+                fill: true,
+                pointRadius: 3
+              },
+              {
+                label: "Moderate",
+                data: moderateData.length > 0 ? moderateData : [0],
+                borderColor: "#f59e0b",
+                backgroundColor: "rgba(245, 158, 11, 0.1)",
+                tension: 0.35,
+                fill: true,
+                pointRadius: 3
+              },
+              {
+                label: "High Risk",
+                data: highData.length > 0 ? highData : [0],
+                borderColor: "#f43f5e",
+                backgroundColor: "rgba(244, 63, 94, 0.1)",
+                tension: 0.35,
+                fill: true,
+                pointRadius: 3
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { boxWidth: 12, font: { family: 'Plus Jakarta Sans', size: 11 } }
+              }
+            },
+            scales: {
+              x: { display: false },
+              y: {
+                beginAtZero: true,
+                ticks: { precision: 0, font: { family: 'Plus Jakarta Sans', size: 10 } },
+                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+              }
+            }
+          }
         });
       }
-    </script>
-  </body>
+    });
+  </script>
+</body>
 </html>
