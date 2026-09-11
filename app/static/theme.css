@@ -199,57 +199,249 @@ html.dark .border-slate-200 { border-color: rgba(255, 255, 255, 0.1) !important;
   transform: scale(1.015);
 }
 
-/* Before / After Comparison Slider */
+/* ==========================================================================
+   Neural Heatmap Inspector - Multi-Mode Diagnostic Engine
+   ========================================================================== */
 .comparison-slider-container {
   position: relative;
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: 1.125rem;
   user-select: none;
+  touch-action: none;
 }
 
-.comparison-slider-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.comparison-overlay-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
+/* Split Slider Handle & Laser Beam */
 .comparison-slider-handle {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 3px;
-  background: #ffffff;
-  cursor: ew-resize;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
-  z-index: 25;
-}
-
-.comparison-slider-button {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #4f46e5;
-  color: white;
-  border: 3px solid #ffffff;
+  width: 44px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-  font-size: 12px;
+  cursor: ew-resize;
+  z-index: 24;
+  user-select: none;
+}
+
+.comparison-laser-beam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  background: #ffffff;
+  box-shadow: 0 0 10px #06b6d4, 0 0 20px rgba(79, 70, 229, 0.7);
+  pointer-events: none;
+}
+
+.comparison-slider-button {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: white;
+  border: 2.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  z-index: 2;
+}
+
+.comparison-slider-handle:hover .comparison-slider-button,
+.comparison-slider-handle.is-dragging .comparison-slider-button {
+  transform: scale(1.14);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.slider-percent-badge {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #38bdf8;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.comparison-slider-handle:hover .slider-percent-badge,
+.comparison-slider-handle.is-dragging .slider-percent-badge {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+/* Diagnostic Optic Loupe Spotlight */
+.inspector-loupe {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 22;
+}
+
+.loupe-optic-ring {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #06b6d4;
+  box-shadow: 0 0 24px rgba(6, 182, 212, 0.55), inset 0 0 16px rgba(6, 182, 212, 0.35);
+  background: #020617;
+}
+
+.loupe-img {
+  position: absolute;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+}
+
+.loupe-crosshair-h {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(6, 182, 212, 0.6);
+  pointer-events: none;
+}
+
+.loupe-crosshair-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(6, 182, 212, 0.6);
+  pointer-events: none;
+}
+
+.loupe-hud-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  font-family: monospace;
+  font-weight: 800;
+  color: #06b6d4;
+  background: rgba(8, 12, 21, 0.88);
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Interactive Clinical Lesion Hotspots */
+.hotspot-node {
+  position: absolute;
+  z-index: 18;
+  transform: translate(-50%, -50%);
+}
+
+.hotspot-pulse-btn {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.hotspot-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border-width: 2px;
+  border-style: solid;
+  animation: pulseGlow 2.2s infinite ease-out;
+}
+
+.hotspot-core {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+  transition: transform 0.2s ease;
+}
+
+.hotspot-pulse-btn:hover .hotspot-core {
+  transform: scale(1.35);
+}
+
+.hotspot-popover {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  width: 195px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 30;
+}
+
+.hotspot-popover::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(15, 23, 42, 0.95);
+}
+
+.hotspot-node:hover .hotspot-popover,
+.hotspot-node.is-active .hotspot-popover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+/* Mode Switcher Buttons Active State */
+.inspector-mode-btn.active {
+  color: #4f46e5 !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+html.dark .inspector-mode-btn.active {
+  color: #818cf8 !important;
+  background: #334155 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* SVG Radial Gauge */
@@ -505,5 +697,107 @@ html.dark .theme-ocular-btn:hover .eye-closed-state {
     transform: scale(2.4);
     opacity: 0;
   }
+}
+
+/* ==========================================================================
+   Holographic Retinal Scanner HUD (Creative Loading Animation)
+   ========================================================================== */
+@keyframes hudSpinCw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes hudSpinCcw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.hud-spin-cw {
+  animation: hudSpinCw 14s linear infinite;
+}
+
+.hud-spin-ccw {
+  animation: hudSpinCcw 9s linear infinite;
+}
+
+@keyframes hudSonarWave {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+.hud-sonar-wave {
+  animation: hudSonarWave 2.4s cubic-bezier(0.1, 0.7, 0.3, 1) infinite;
+}
+
+@keyframes hudRadarSweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hud-radar-sweep {
+  background: conic-gradient(from 0deg, rgba(6, 182, 212, 0.45) 0deg, rgba(99, 102, 241, 0.2) 40deg, transparent 70deg, transparent 360deg);
+  animation: hudRadarSweep 2.2s linear infinite;
+}
+
+@keyframes hudLaserScan {
+  0% {
+    top: 8%;
+    opacity: 0.5;
+  }
+  50% {
+    top: 90%;
+    opacity: 1;
+  }
+  100% {
+    top: 8%;
+    opacity: 0.5;
+  }
+}
+
+.hud-laser-scan {
+  animation: hudLaserScan 2.2s ease-in-out infinite;
+}
+
+@keyframes hudRetinaPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.88;
+    filter: drop-shadow(0 0 3px rgba(6, 182, 212, 0.4));
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+    filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.85));
+  }
+}
+
+.hud-retina-pulse {
+  animation: hudRetinaPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes laserShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.hud-laser-progress-bar {
+  background: linear-gradient(90deg, #06b6d4, #6366f1, #a855f7, #06b6d4);
+  background-size: 200% 100%;
+  animation: laserShimmer 2s linear infinite;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.6), 0 0 18px rgba(99, 102, 241, 0.35);
 }
 

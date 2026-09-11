@@ -115,51 +115,203 @@
             <!-- Glow under card -->
             <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/30 to-cyan-500/20 rounded-3xl blur-2xl transform group-hover:scale-105 transition-transform duration-500"></div>
 
-            <div class="glass-card p-4 sm:p-5 rounded-3xl relative overflow-hidden border border-white/60 dark:border-white/15 shadow-2xl">
-              <!-- Slider Instruction Header -->
-              <div class="flex items-center justify-between mb-3 px-1">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                  <i class="fas fa-sliders-h text-indigo-500"></i>
-                  <span>Drag to Reveal Neural Heatmap</span>
-                </span>
-                <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50">Interactive</span>
+            <div class="glass-card p-4 sm:p-5 rounded-3xl relative overflow-hidden border border-white/60 dark:border-white/15 shadow-2xl" id="neuralInspectorCard">
+              <!-- Inspector Header & Mode Switcher Pills -->
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
+                <div class="flex items-center gap-2">
+                  <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+                  </span>
+                  <span class="text-xs font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                    Neural Heatmap Inspector
+                  </span>
+                </div>
+
+                <!-- Interactive Mode Switcher Toolbar -->
+                <div class="inline-flex p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-white/10 text-[11px] font-semibold shadow-xs">
+                  <button id="modeSplitBtn" type="button" class="inspector-mode-btn active px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-700/80 shadow-xs" data-mode="split" title="Split Screen Slider (Drag / Click)">
+                    <i class="fas fa-columns text-[10px]"></i>
+                    <span>Split</span>
+                  </button>
+                  <button id="modeBlendBtn" type="button" class="inspector-mode-btn px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300" data-mode="blend" title="Heatmap Opacity Fader">
+                    <i class="fas fa-adjust text-[10px]"></i>
+                    <span>Blend</span>
+                  </button>
+                  <button id="modeLensBtn" type="button" class="inspector-mode-btn px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300" data-mode="lens" title="Optic Loupe Spotlight">
+                    <i class="fas fa-search-plus text-[10px]"></i>
+                    <span>Loupe</span>
+                  </button>
+                  <button id="modeAutoBtn" type="button" class="inspector-mode-btn px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300" data-mode="auto" title="Automated Radar Scan Sweep">
+                    <i class="fas fa-play text-[10px]"></i>
+                    <span>Auto</span>
+                  </button>
+                </div>
               </div>
 
-              <!-- Interactive Before / After Split Slider Container -->
-              <div id="comparisonContainer" class="comparison-slider-container aspect-square rounded-2xl bg-slate-950 cursor-ew-resize relative">
-                <!-- Under Image: Raw Fundus -->
-                <img src="/outputs/Fundus_-_diabetic_retinopathy_input.png" alt="Raw Retinal Fundus Scan" class="w-full h-full object-cover select-none pointer-events-none"/>
+              <!-- Interactive Canvas Container -->
+              <div id="comparisonContainer" class="comparison-slider-container aspect-square rounded-2xl bg-slate-950 relative overflow-hidden select-none cursor-ew-resize shadow-inner border border-slate-800/40" style="--split-x: 50%;">
                 
-                <!-- Floating Left Tag -->
-                <div class="absolute top-3 left-3 pointer-events-none z-10 px-2.5 py-1 rounded-md bg-slate-900/80 backdrop-blur text-[11px] font-semibold text-white border border-white/10 shadow-sm">
-                  Raw Fundus
+                <!-- Layer 1 (Under): Raw Fundus Image (Pixel-perfect 1:1) -->
+                <img id="rawFundusImg" src="/outputs/Fundus_-_diabetic_retinopathy_input.png" alt="Raw Retinal Fundus Scan" class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none" />
+
+                <!-- Layer 2 (Over): Grad-CAM Heatmap Layer (Clip-path in Split, Opacity in Blend) -->
+                <div id="comparisonHeatmapLayer" class="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-200" style="clip-path: polygon(0 0, var(--split-x, 50%) 0, var(--split-x, 50%) 100%, 0 100%);">
+                  <img src="/outputs/Fundus_-_diabetic_retinopathy_gradcam.png" alt="Grad-CAM Activation Heatmap" class="w-full h-full object-cover select-none pointer-events-none" />
                 </div>
 
-                <!-- Over Image: Grad-CAM Activation Heatmap -->
-                <div id="comparisonOverlay" class="comparison-overlay-img pointer-events-none" style="width: 50%;">
-                  <img src="/outputs/Fundus_-_diabetic_retinopathy_gradcam.png" alt="Grad-CAM Activation Heatmap" class="w-full h-full object-cover select-none pointer-events-none" style="min-width: 100%; height: 100%;"/>
-                  
-                  <!-- Floating Right Tag -->
-                  <div class="absolute top-3 right-3 pointer-events-none z-10 px-2.5 py-1 rounded-md bg-indigo-900/90 backdrop-blur text-[11px] font-semibold text-white border border-indigo-500/40 shadow-sm">
-                    Grad-CAM AI
+                <!-- Diagnostic Optic Loupe (Visible in Lens Mode) -->
+                <div id="inspectorLoupe" class="inspector-loupe pointer-events-none absolute hidden" style="left: 50%; top: 50%;">
+                  <div class="loupe-optic-ring">
+                    <img id="loupeHeatmapImg" src="/outputs/Fundus_-_diabetic_retinopathy_gradcam.png" alt="Magnified Heatmap" class="loupe-img select-none pointer-events-none" />
+                    <!-- Reticle Crosshairs HUD -->
+                    <div class="loupe-crosshair-h"></div>
+                    <div class="loupe-crosshair-v"></div>
+                    <div class="loupe-hud-badge">AI FOCUS</div>
                   </div>
                 </div>
 
-                <!-- Draggable Divider Line & Button Handle -->
-                <div id="comparisonHandle" class="comparison-slider-handle pointer-events-none" style="left: 50%;">
+                <!-- Vertical Laser Divider Line & Central Handle (Active in Split & Auto) -->
+                <div id="comparisonHandle" class="comparison-slider-handle pointer-events-auto absolute top-0 bottom-0 z-20" style="left: 50%;">
+                  <div class="comparison-laser-beam"></div>
                   <div class="comparison-slider-button">
-                    <i class="fas fa-arrows-alt-h"></i>
+                    <i class="fas fa-arrows-alt-h text-[11px]"></i>
+                    <span id="sliderPercentBadge" class="slider-percent-badge">50%</span>
                   </div>
+                </div>
+
+                <!-- Properly Anchored HUD Corner Badges (Never Collide) -->
+                <div id="hudTagGradcam" class="absolute top-3 left-3 pointer-events-none z-10 px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur border border-indigo-500/40 text-[10px] font-bold text-white shadow-md flex items-center gap-1.5 transition-all">
+                  <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                  <span>Grad-CAM Attention</span>
+                </div>
+                <div id="hudTagRaw" class="absolute top-3 right-3 pointer-events-none z-10 px-2.5 py-1 rounded-lg bg-slate-900/85 backdrop-blur border border-white/15 text-[10px] font-bold text-slate-200 shadow-md flex items-center gap-1.5 transition-all">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  <span>Raw Fundus</span>
+                </div>
+
+                <!-- Interactive Clinical Lesion Hotspots Layer -->
+                <div id="lesionHotspotsGroup" class="absolute inset-0 z-15 pointer-events-none transition-opacity duration-300">
+                  <!-- Hotspot 1: Hard Exudates -->
+                  <div class="hotspot-node pointer-events-auto absolute" style="top: 28%; left: 42%;" data-pos="42">
+                    <button type="button" class="hotspot-pulse-btn" aria-label="Inspect Hard Exudate Cluster">
+                      <span class="hotspot-ring border-amber-400"></span>
+                      <span class="hotspot-core bg-amber-400"></span>
+                    </button>
+                    <div class="hotspot-popover">
+                      <div class="text-[9px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fas fa-exclamation-triangle text-[9px]"></i> High Risk Zone
+                      </div>
+                      <div class="text-xs font-bold text-white mt-0.5">Hard Exudates Cluster</div>
+                      <div class="text-[10px] text-slate-300 mt-1 leading-snug">Lipid precipitates. Attention score: <span class="text-cyan-300 font-mono font-bold">96.4%</span></div>
+                      <div class="text-[9px] text-indigo-300 mt-1 font-semibold flex items-center gap-1"><i class="fas fa-mouse-pointer text-[8px]"></i> Click to slide focus here</div>
+                    </div>
+                  </div>
+
+                  <!-- Hotspot 2: Microaneurysm Ring -->
+                  <div class="hotspot-node pointer-events-auto absolute" style="top: 64%; left: 46%;" data-pos="46">
+                    <button type="button" class="hotspot-pulse-btn" aria-label="Inspect Microaneurysm">
+                      <span class="hotspot-ring border-rose-500"></span>
+                      <span class="hotspot-core bg-rose-500"></span>
+                    </button>
+                    <div class="hotspot-popover">
+                      <div class="text-[9px] font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fas fa-tint text-[9px]"></i> Focal Hemorrhage
+                      </div>
+                      <div class="text-xs font-bold text-white mt-0.5">Microaneurysm Outpouching</div>
+                      <div class="text-[10px] text-slate-300 mt-1 leading-snug">Vascular capillary wall weakness. Attention score: <span class="text-rose-300 font-mono font-bold">91.8%</span></div>
+                      <div class="text-[9px] text-indigo-300 mt-1 font-semibold flex items-center gap-1"><i class="fas fa-mouse-pointer text-[8px]"></i> Click to slide focus here</div>
+                    </div>
+                  </div>
+
+                  <!-- Hotspot 3: Optic Disc Reference Landmark -->
+                  <div class="hotspot-node pointer-events-auto absolute" style="top: 48%; left: 14%;" data-pos="14">
+                    <button type="button" class="hotspot-pulse-btn" aria-label="Inspect Optic Disc">
+                      <span class="hotspot-ring border-cyan-400"></span>
+                      <span class="hotspot-core bg-cyan-400"></span>
+                    </button>
+                    <div class="hotspot-popover">
+                      <div class="text-[9px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fas fa-crosshairs text-[9px]"></i> Anatomical Landmark
+                      </div>
+                      <div class="text-xs font-bold text-white mt-0.5">Optic Disc Margin</div>
+                      <div class="text-[10px] text-slate-300 mt-1 leading-snug">Physiological landmark. Baseline neural reference zone.</div>
+                      <div class="text-[9px] text-indigo-300 mt-1 font-semibold flex items-center gap-1"><i class="fas fa-mouse-pointer text-[8px]"></i> Click to slide focus here</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Contextual Action Bar (Adapts to Active Mode) -->
+              <!-- Bar 1: Split Mode Controls -->
+              <div id="controlsSplitBar" class="mt-3 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 px-1">
+                <div class="flex items-center gap-2">
+                  <button id="toggleHotspotsBtn" type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 transition-colors shadow-2xs">
+                    <i class="fas fa-crosshairs text-indigo-500 text-[10px]"></i>
+                    <span id="hotspotsBtnLabel">Hotspots: ON</span>
+                  </button>
+                  <button id="snapCenterBtn" type="button" class="text-[11px] text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors font-medium">
+                    Reset 50%
+                  </button>
+                </div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                  <span>Drag or click canvas</span>
                 </div>
               </div>
 
-              <!-- Bottom Meta Badge -->
-              <div class="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
-                <span class="flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  VGG16 Neural Heatmap
+              <!-- Bar 2: Blend Mode Controls (Hidden by default) -->
+              <div id="controlsBlendBar" class="mt-3 hidden px-1 space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                    <i class="fas fa-adjust text-indigo-500"></i>
+                    <span>Heatmap Opacity</span>
+                  </span>
+                  <span id="blendPercentLabel" class="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-xs">70%</span>
+                </div>
+                <input id="blendOpacityRange" type="range" min="0" max="100" value="70" class="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+                <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+                  <button type="button" class="hover:text-indigo-500" onclick="document.getElementById('blendOpacityRange').value=0; document.getElementById('blendOpacityRange').dispatchEvent(new Event('input'))">0% (Raw Fundus)</button>
+                  <button type="button" class="hover:text-indigo-500" onclick="document.getElementById('blendOpacityRange').value=50; document.getElementById('blendOpacityRange').dispatchEvent(new Event('input'))">50% Blend</button>
+                  <button type="button" class="hover:text-indigo-500" onclick="document.getElementById('blendOpacityRange').value=100; document.getElementById('blendOpacityRange').dispatchEvent(new Event('input'))">100% (Heatmap)</button>
+                </div>
+              </div>
+
+              <!-- Bar 3: Loupe Mode Controls (Hidden by default) -->
+              <div id="controlsLensBar" class="mt-3 hidden items-center justify-between text-xs text-slate-600 dark:text-slate-300 px-1">
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+                  <i class="fas fa-search-plus text-cyan-500"></i>
+                  <span>Move cursor over retina to inspect activations</span>
                 </span>
-                <span>Lesion Localization</span>
+                <div class="inline-flex p-0.5 rounded-lg bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-white/10 text-[10px] font-mono font-bold">
+                  <button id="loupeZoom1x" type="button" class="loupe-zoom-btn px-2 py-0.5 rounded text-indigo-600 dark:text-cyan-400 bg-white dark:bg-slate-700 shadow-2xs" data-zoom="1.0">1.0x 1:1</button>
+                  <button id="loupeZoom15x" type="button" class="loupe-zoom-btn px-2 py-0.5 rounded text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-400 transition-colors" data-zoom="1.5">1.5x Zoom</button>
+                </div>
+              </div>
+
+              <!-- Bar 4: Auto Mode Controls (Hidden by default) -->
+              <div id="controlsAutoBar" class="mt-3 hidden items-center justify-between text-xs text-slate-600 dark:text-slate-300 px-1">
+                <div class="flex items-center gap-2">
+                  <button id="autoPlayPauseBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-all">
+                    <i class="fas fa-pause text-[10px]" id="autoPlayIcon"></i>
+                    <span id="autoPlayLabel">Pause Scan</span>
+                  </button>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400">0.8 Hz Laser Sweep</span>
+                </div>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  RADAR ACTIVE
+                </span>
+              </div>
+
+              <!-- Bottom Meta Footer -->
+              <div class="mt-3 pt-2.5 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                  <span class="font-semibold text-slate-700 dark:text-slate-300">VGG16 + DenseNet121</span>
+                </span>
+                <span class="font-mono text-[11px] text-indigo-600 dark:text-indigo-400 font-bold">562-D Fusion Heatmap</span>
               </div>
             </div>
           </div>

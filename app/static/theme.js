@@ -47,37 +47,162 @@
     applyTheme("light");
   }
 
-  // Before/After Comparison Slider Initializer
-  function initComparisonSlider() {
+  // ==========================================================================
+  // Neural Heatmap Inspector (Split Slider, Opacity Blend, Optic Loupe, Auto-Scan, Hotspots)
+  // ==========================================================================
+  function initNeuralInspector() {
     const container = document.getElementById("comparisonContainer");
-    const overlay = document.getElementById("comparisonOverlay");
+    if (!container) return;
+
+    const heatmapLayer = document.getElementById("comparisonHeatmapLayer") || document.getElementById("comparisonOverlay");
     const handle = document.getElementById("comparisonHandle");
-    if (!container || !overlay || !handle) return;
+    const percentBadge = document.getElementById("sliderPercentBadge");
+    const modeBtns = document.querySelectorAll(".inspector-mode-btn");
 
+    const controlsSplit = document.getElementById("controlsSplitBar");
+    const controlsBlend = document.getElementById("controlsBlendBar");
+    const controlsLens = document.getElementById("controlsLensBar");
+    const controlsAuto = document.getElementById("controlsAutoBar");
+
+    const blendRange = document.getElementById("blendOpacityRange");
+    const blendLabel = document.getElementById("blendPercentLabel");
+
+    const loupe = document.getElementById("inspectorLoupe");
+    const loupeImg = document.getElementById("loupeHeatmapImg");
+
+    const hotspotsGroup = document.getElementById("lesionHotspotsGroup");
+    const toggleHotspotsBtn = document.getElementById("toggleHotspotsBtn");
+    const hotspotsBtnLabel = document.getElementById("hotspotsBtnLabel");
+    const snapCenterBtn = document.getElementById("snapCenterBtn");
+
+    const autoPlayPauseBtn = document.getElementById("autoPlayPauseBtn");
+    const autoPlayIcon = document.getElementById("autoPlayIcon");
+    const autoPlayLabel = document.getElementById("autoPlayLabel");
+
+    let currentMode = "split"; // "split", "blend", "lens", "auto"
+    let currentSplitPct = 50;
     let isDragging = false;
+    let autoRafId = null;
+    let isAutoPlaying = true;
+    let hotspotsVisible = true;
 
-    function setPosition(x) {
-      const rect = container.getBoundingClientRect();
-      let pos = (x - rect.left) / rect.width;
-      if (pos < 0.05) pos = 0.05;
-      if (pos > 0.95) pos = 0.95;
-      const pct = pos * 100;
-      overlay.style.width = pct + "%";
-      handle.style.left = pct + "%";
+    function applySplit(pct) {
+      if (pct < 0) pct = 0;
+      if (pct > 100) pct = 100;
+      currentSplitPct = pct;
+
+      container.style.setProperty("--split-x", pct + "%");
+      if (heatmapLayer) {
+        heatmapLayer.style.clipPath = `polygon(0 0, ${pct}% 0, ${pct}% 100%, 0 100%)`;
+      }
+      if (handle) {
+        handle.style.left = pct + "%";
+      }
+      if (percentBadge) {
+        percentBadge.textContent = Math.round(pct) + "%";
+      }
     }
 
+    function setPositionFromClientX(clientX) {
+      const rect = container.getBoundingClientRect();
+      let pos = (clientX - rect.left) / rect.width;
+      let pct = pos * 100;
+      applySplit(pct);
+    }
+
+    // Mode Switching
+    function setMode(mode) {
+      currentMode = mode;
+
+      // Update mode switcher buttons active UI
+      modeBtns.forEach((btn) => {
+        const isActive = btn.getAttribute("data-mode") === mode;
+        btn.classList.toggle("active", isActive);
+        if (isActive) {
+          btn.classList.add("text-indigo-600", "dark:text-indigo-400", "bg-white", "dark:bg-slate-700/80", "shadow-xs");
+          btn.classList.remove("text-slate-600", "dark:text-slate-400");
+        } else {
+          btn.classList.remove("text-indigo-600", "dark:text-indigo-400", "bg-white", "dark:bg-slate-700/80", "shadow-xs");
+          btn.classList.add("text-slate-600", "dark:text-slate-400");
+        }
+      });
+
+      // Toggle secondary control bars
+      if (controlsSplit) controlsSplit.classList.toggle("hidden", mode !== "split");
+      if (controlsBlend) controlsBlend.classList.toggle("hidden", mode !== "blend");
+      if (controlsLens) controlsLens.classList.toggle("hidden", mode !== "lens");
+      if (controlsAuto) controlsAuto.classList.toggle("hidden", mode !== "auto");
+
+      // Mode-specific canvas resets
+      if (autoRafId) {
+        cancelAnimationFrame(autoRafId);
+        autoRafId = null;
+      }
+
+      if (loupe) loupe.classList.add("hidden");
+
+      if (mode === "split") {
+        container.style.cursor = "ew-resize";
+        if (handle) handle.classList.remove("hidden");
+        if (heatmapLayer) {
+          heatmapLayer.style.opacity = "1";
+          applySplit(currentSplitPct);
+        }
+      } else if (mode === "blend") {
+        container.style.cursor = "default";
+        if (handle) handle.classList.add("hidden");
+        if (heatmapLayer) {
+          heatmapLayer.style.clipPath = "none";
+          const val = blendRange ? blendRange.value : 70;
+          heatmapLayer.style.opacity = String(val / 100);
+        }
+      } else if (mode === "lens") {
+        container.style.cursor = "crosshair";
+        if (handle) handle.classList.add("hidden");
+        if (heatmapLayer) {
+          heatmapLayer.style.clipPath = "none";
+          heatmapLayer.style.opacity = "0";
+        }
+        if (loupe) loupe.classList.remove("hidden");
+        // Center loupe by default
+        updateLoupePosition(container.clientWidth / 2, container.clientHeight / 2);
+      } else if (mode === "auto") {
+        container.style.cursor = "pointer";
+        if (handle) handle.classList.remove("hidden");
+        if (heatmapLayer) {
+          heatmapLayer.style.opacity = "1";
+        }
+        isAutoPlaying = true;
+        updateAutoPlayUI();
+        startAutoScanLoop();
+      }
+    }
+
+    modeBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mode = btn.getAttribute("data-mode");
+        if (mode) setMode(mode);
+      });
+    });
+
+    // Split Mode Interactions (Mouse, Touch, Keyboard)
     function onPointerDown(e) {
+      if (currentMode !== "split") return;
       isDragging = true;
-      setPosition(e.clientX || (e.touches && e.touches[0].clientX));
+      if (handle) handle.classList.add("is-dragging");
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      if (clientX !== undefined) setPositionFromClientX(clientX);
     }
 
     function onPointerMove(e) {
-      if (!isDragging) return;
-      setPosition(e.clientX || (e.touches && e.touches[0].clientX));
+      if (!isDragging || currentMode !== "split") return;
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      if (clientX !== undefined) setPositionFromClientX(clientX);
     }
 
     function onPointerUp() {
       isDragging = false;
+      if (handle) handle.classList.remove("is-dragging");
     }
 
     container.addEventListener("mousedown", onPointerDown);
@@ -87,6 +212,194 @@
     container.addEventListener("touchstart", onPointerDown, { passive: true });
     window.addEventListener("touchmove", onPointerMove, { passive: true });
     window.addEventListener("touchend", onPointerUp);
+
+    // Keyboard navigation
+    container.setAttribute("tabindex", "0");
+    container.addEventListener("keydown", (e) => {
+      if (currentMode !== "split") return;
+      const step = e.shiftKey ? 10 : 2;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        applySplit(currentSplitPct - step);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        applySplit(currentSplitPct + step);
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        applySplit(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        applySplit(100);
+      }
+    });
+
+    // Blend Mode Slider
+    if (blendRange) {
+      blendRange.addEventListener("input", () => {
+        const val = blendRange.value;
+        if (blendLabel) blendLabel.textContent = val + "%";
+        if (currentMode === "blend" && heatmapLayer) {
+          heatmapLayer.style.opacity = String(val / 100);
+        }
+      });
+    }
+
+    // Optic Loupe Spotlight Handler with Pixel-Perfect Alignment
+    let currentLoupeZoom = 1.0;
+    let lastLoupeX = null;
+    let lastLoupeY = null;
+
+    function updateLoupePosition(x, y) {
+      if (!loupe || !loupeImg) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (!w || !h) return;
+
+      lastLoupeX = x;
+      lastLoupeY = y;
+
+      // Loupe radius (half of width/height)
+      const loupeRadius = (loupe.offsetWidth || 140) / 2;
+
+      // Position loupe centered at cursor (x, y)
+      loupe.style.left = x + "px";
+      loupe.style.top = y + "px";
+
+      // Pixel-Perfect Geometric Alignment:
+      // The loupe-optic-ring top-left is positioned at (x - loupeRadius, y - loupeRadius).
+      // Inside loupe-optic-ring, a pixel at image coordinate (x, y) must appear
+      // precisely at the loupe's center (loupeRadius, loupeRadius).
+      // When scaled by currentLoupeZoom:
+      // imageLeft = loupeRadius - (x * currentLoupeZoom)
+      // imageTop = loupeRadius - (y * currentLoupeZoom)
+      const scaledW = w * currentLoupeZoom;
+      const scaledH = h * currentLoupeZoom;
+
+      loupeImg.style.width = scaledW + "px";
+      loupeImg.style.height = scaledH + "px";
+      loupeImg.style.left = (loupeRadius - (x * currentLoupeZoom)) + "px";
+      loupeImg.style.top = (loupeRadius - (y * currentLoupeZoom)) + "px";
+    }
+
+    // Loupe Zoom Preset Buttons
+    const loupeZoomBtns = document.querySelectorAll(".loupe-zoom-btn");
+    const loupeBadge = loupe ? loupe.querySelector(".loupe-hud-badge") : null;
+
+    loupeZoomBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const zoom = parseFloat(btn.getAttribute("data-zoom") || "1.0");
+        currentLoupeZoom = zoom;
+
+        loupeZoomBtns.forEach((b) => {
+          b.classList.remove("text-indigo-600", "dark:text-cyan-400", "bg-white", "dark:bg-slate-700", "shadow-2xs");
+          b.classList.add("text-slate-500", "dark:text-slate-400");
+        });
+        btn.classList.add("text-indigo-600", "dark:text-cyan-400", "bg-white", "dark:bg-slate-700", "shadow-2xs");
+        btn.classList.remove("text-slate-500", "dark:text-slate-400");
+
+        if (loupeBadge) {
+          loupeBadge.textContent = zoom === 1.0 ? "1:1 ALIGNED" : "1.5x ZOOM";
+        }
+
+        if (lastLoupeX !== null && lastLoupeY !== null) {
+          updateLoupePosition(lastLoupeX, lastLoupeY);
+        }
+      });
+    });
+
+    container.addEventListener("mousemove", (e) => {
+      if (currentMode !== "lens") return;
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      updateLoupePosition(x, y);
+    });
+
+    container.addEventListener("touchmove", (e) => {
+      if (currentMode !== "lens" || !e.touches[0]) return;
+      const rect = container.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      const y = e.touches[0].clientY - rect.top;
+      updateLoupePosition(x, y);
+    }, { passive: true });
+
+    container.addEventListener("mouseenter", () => {
+      if (currentMode === "lens" && loupe) loupe.classList.remove("hidden");
+    });
+
+    container.addEventListener("mouseleave", () => {
+      if (currentMode === "lens" && loupe) loupe.classList.add("hidden");
+    });
+
+    // Auto-Scan Radar Loop
+    let autoStartTime = performance.now();
+    function startAutoScanLoop() {
+      function tick(now) {
+        if (currentMode !== "auto") return;
+        if (isAutoPlaying) {
+          const elapsed = (now - autoStartTime) * 0.0018;
+          // Smooth sine sweep between 8% and 92%
+          const sweepPct = 50 + 40 * Math.sin(elapsed);
+          applySplit(sweepPct);
+        }
+        autoRafId = requestAnimationFrame(tick);
+      }
+      autoRafId = requestAnimationFrame(tick);
+    }
+
+    function updateAutoPlayUI() {
+      if (!autoPlayLabel || !autoPlayIcon) return;
+      if (isAutoPlaying) {
+        autoPlayIcon.className = "fas fa-pause text-[10px]";
+        autoPlayLabel.textContent = "Pause Scan";
+      } else {
+        autoPlayIcon.className = "fas fa-play text-[10px]";
+        autoPlayLabel.textContent = "Resume Scan";
+      }
+    }
+
+    if (autoPlayPauseBtn) {
+      autoPlayPauseBtn.addEventListener("click", () => {
+        isAutoPlaying = !isAutoPlaying;
+        if (isAutoPlaying) autoStartTime = performance.now();
+        updateAutoPlayUI();
+      });
+    }
+
+    // Reset to 50%
+    if (snapCenterBtn) {
+      snapCenterBtn.addEventListener("click", () => {
+        applySplit(50);
+      });
+    }
+
+    // Hotspot Toggle & Focus Jump
+    if (toggleHotspotsBtn && hotspotsGroup) {
+      toggleHotspotsBtn.addEventListener("click", () => {
+        hotspotsVisible = !hotspotsVisible;
+        hotspotsGroup.style.opacity = hotspotsVisible ? "1" : "0";
+        hotspotsGroup.style.pointerEvents = hotspotsVisible ? "auto" : "none";
+        if (hotspotsBtnLabel) {
+          hotspotsBtnLabel.textContent = hotspotsVisible ? "Hotspots: ON" : "Hotspots: OFF";
+        }
+      });
+    }
+
+    document.querySelectorAll(".hotspot-node").forEach((node) => {
+      node.addEventListener("click", () => {
+        const pos = node.getAttribute("data-pos");
+        if (pos && (currentMode === "split" || currentMode === "auto")) {
+          applySplit(parseFloat(pos));
+        }
+        document.querySelectorAll(".hotspot-node").forEach((n) => {
+          if (n !== node) n.classList.remove("is-active");
+        });
+        node.classList.toggle("is-active");
+      });
+    });
+
+    // Initialize in Split Mode at 50%
+    applySplit(50);
   }
 
   // One-Click Sample Image Loader for Scanner Page
@@ -107,8 +420,8 @@
       btn.addEventListener("click", async (e) => {
         e.preventDefault();
         const url = btn.getAttribute("data-sample-url");
-        const name = btn.getAttribute("data-sample-name") || "sample_retina.jpg";
-        const patientName = btn.getAttribute("data-patient-default") || "Jane Doe";
+        const name = btn.getAttribute("data-sample-name") || btn.getAttribute("data-sample-filename") || "sample_retina.jpg";
+        const patientName = btn.getAttribute("data-patient-default") || btn.getAttribute("data-sample-patient") || "Jane Doe";
 
         try {
           btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Loading...';
@@ -272,7 +585,7 @@
     }
 
     // Initialize interactive subsystems
-    initComparisonSlider();
+    initNeuralInspector();
     initSampleLoader();
     initDashboardFilters();
   });
@@ -280,7 +593,7 @@
   window.__retinascan = {
     applyTheme,
     currentTheme,
-    initComparisonSlider,
+    initNeuralInspector,
     initSampleLoader,
     initDashboardFilters
   };
