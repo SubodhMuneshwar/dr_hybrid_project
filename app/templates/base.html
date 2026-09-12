@@ -49,13 +49,16 @@
     };
   </script>
 
-  <!-- Immediate Theme Initializer -->
+  <!-- Immediate Theme Initializer: Strictly follows system/OS configuration -->
   <script>
-    if (localStorage.getItem("theme") === "dark" || (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    (function () {
+      try { localStorage.removeItem("theme"); } catch (e) {}
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    })();
   </script>
 
   <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>

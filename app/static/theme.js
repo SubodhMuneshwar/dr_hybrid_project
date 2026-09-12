@@ -8,23 +8,33 @@
 // ==========================================================================
 
 (function () {
-  const STORAGE_KEY = "theme";
   const html = document.documentElement;
+
+  // Clear any existing stored theme preference so system configuration always takes precedence
+  try {
+    localStorage.removeItem("theme");
+  } catch (e) {}
+
+  function getSystemTheme() {
+    return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ? "dark"
+      : "light";
+  }
 
   function applyTheme(theme) {
     const isDark = theme === "dark";
     html.classList.toggle("dark", isDark);
 
-    // Sync all ocular buttons on page
+    // Sync all ocular toggle buttons on page
     document.querySelectorAll("[data-theme-toggle], #themeToggle").forEach((toggle) => {
       toggle.setAttribute("aria-pressed", String(isDark));
       toggle.setAttribute(
         "title",
-        isDark ? "Open eye: switch to daylight mode" : "Close eye: switch to night mode"
+        isDark ? "System dark mode active (click to preview daylight mode)" : "System daylight mode active (click to preview night mode)"
       );
       toggle.setAttribute(
         "aria-label",
-        isDark ? "Switch to light mode (open eye)" : "Switch to dark mode (close eye)"
+        isDark ? "System dark mode active" : "System light mode active"
       );
     });
   }
@@ -33,18 +43,20 @@
     return html.classList.contains("dark") ? "dark" : "light";
   }
 
-  // Load saved preference or system default
-  let saved = null;
-  try {
-    saved = localStorage.getItem(STORAGE_KEY);
-  } catch (e) {}
+  // Strictly apply theme according to system configuration
+  applyTheme(getSystemTheme());
 
-  if (saved === "dark" || saved === "light") {
-    applyTheme(saved);
-  } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    applyTheme("dark");
-  } else {
-    applyTheme("light");
+  // Listen in real-time to OS/system dark/light mode preference changes
+  if (window.matchMedia) {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystemThemeChange = (e) => {
+      applyTheme(e.matches ? "dark" : "light");
+    };
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", onSystemThemeChange);
+    } else if (mediaQuery.addListener) {
+      mediaQuery.addListener(onSystemThemeChange);
+    }
   }
 
   // ==========================================================================
@@ -646,9 +658,6 @@
         setTimeout(() => ripple.remove(), 550);
 
         const next = currentTheme() === "dark" ? "light" : "dark";
-        try {
-          localStorage.setItem(STORAGE_KEY, next);
-        } catch (e) {}
         applyTheme(next);
       });
     });
