@@ -139,6 +139,11 @@ This project was conceived, developed, and delivered as a **College Final Year M
 
 ## System Architecture
 
+### Visual Diagnostic Workflow: How the System Basically Works
+
+![End-to-End Diagnostic Pipeline Workflow](docs/images/workflow_pipeline_infographic.png)
+*Figure 1: Visual breakdown of the 4-stage diagnostic pipeline — (1) Raw Retinal Fundus Input, (2) Optical CLAHE Contrast Preprocessing, (3) Grad-CAM Explainable AI Saliency Heatmap, and (4) Calibrated Hybrid Stacking 5-Class Prediction.*
+
 ```
                                ┌─────────────────────────────┐
                                │   Retinal Fundus Image      │
@@ -201,6 +206,11 @@ This project was conceived, developed, and delivered as a **College Final Year M
 ---
 
 ## Hybrid ML Pipeline
+
+### Clinical Severity Grading & Visual Attention
+
+![Clinical Severity Grading & Grad-CAM Saliency Response Across Stages](docs/images/multi_stage_comparison.png)
+*Figure 2: Grad-CAM visual attention across clinical stages — Grade 0 (Normal Fundus / No DR), Grade 2 (Moderate NPDR with localized microaneurysms), and Grade 4 (Proliferative DR with extensive neovascularization).*
 
 The machine learning pipeline is implemented across `src/` modules:
 
@@ -450,6 +460,15 @@ To regenerate evaluation reports and graphical artifacts:
 # Re-evaluate cached features and produce confusion matrix + F1 plots
 python -m src.pipeline --evaluate
 ```
+
+### Benchmark Evaluation Artifacts
+
+<p align="center">
+  <img src="docs/images/confusion_matrix.png" width="48%" alt="Multi-Class Confusion Matrix" />
+  <img src="docs/images/f1_scores.png" width="48%" alt="Per-Class F1 Score Breakdown" />
+</p>
+
+*Figure 3: Test-set classification performance — Multi-class Confusion Matrix across the 5 DR stages (left) and per-grade F1-score performance distribution (right).*
 
 Generated outputs will be saved to `outputs/`:
 - `outputs/stacking_confusion_matrix.png`
