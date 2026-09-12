@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}About Us | College Major Project - RetinaScan AI{% endblock %}
+{% block meta_description %}RetinaScan AI is a College Final Year Major Project developed by Subodh Muneshwar and Nihar Narvekar. Combining hybrid deep learning, Grad-CAM, and automated fundus analysis.{% endblock %}
+
+{% block content %}
+<article class="space-y-10 animate-fade-in">
+
+  <!-- Hero Card -->
+  <header class="glass-card p-8 sm:p-12 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-xl relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-indigo-500/15 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-3xl space-y-5">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200/70 dark:border-indigo-800/50 shadow-xs">
+        <i class="fas fa-graduation-cap text-indigo-500"></i>
+        <span>College Final Year Major Project • Academic Year 2025–2026</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+        RetinaScan <span class="text-indigo-600 dark:text-indigo-400">AI</span> <br/>
+        <span class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+          Diabetic Retinopathy Hybrid System
+        </span>
+      </h1>
+
+      <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+        Developed as an engineering capstone major project, RetinaScan AI tackles one of the leading global causes of preventable blindness through an end-to-end automated pipeline fusing deep convolutional neural features, texture analysis, and explainable Grad-CAM saliency.
+      </p>
+
+      <div class="pt-2 flex flex-wrap items-center gap-4">
+        <a href="{{ url_for('scanner') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/35 hover:-translate-y-0.5 transition-all">
+          <i class="fas fa-microscope text-sm"></i>
+          <span>Launch Diagnostic Scanner</span>
+        </a>
+        <a href="#team" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl glass-card hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all border border-slate-200/70 dark:border-white/10">
+          <i class="fas fa-users text-sm"></i>
+          <span>Meet the Project Team</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Project Team Section (College Major Project Authors) -->
+  <section id="team" class="space-y-6">
+    <div class="text-center max-w-xl mx-auto space-y-2">
+      <div class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+        <i class="fas fa-code-branch"></i>
+        <span>Engineering Team</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+        Project Authors &amp; Core Developers
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+        Computer Engineering Final Year Capstone Project Team
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Subodh Muneshwar -->
+      <div class="glass-card p-7 rounded-3xl border border-slate-200/70 dark:border-white/10 hover:border-indigo-500/40 transition-all shadow-md group relative overflow-hidden flex flex-col justify-between">
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/20 transition-all"></div>
+        
+        <div class="space-y-4">
+          <div class="flex items-start gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white text-2xl font-black shadow-md shadow-indigo-500/25 shrink-0 group-hover:scale-105 transition-transform">
+              SM
+            </div>
+            <div class="space-y-1">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/40 uppercase tracking-wide">
+                Frontend Development &amp; Application Integration Lead
+              </span>
+              <h3 class="text-xl font-black text-slate-900 dark:text-white">
+                Subodh Muneshwar
+              </h3>
+              <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                Application Layer, System Integration &amp; Repo Maintainer
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p class="font-semibold text-slate-800 dark:text-slate-200">
+              Owned the frontend development and application/system integration connecting the user to the inference pipeline:
+            </p>
+            <ul class="space-y-1.5 list-disc list-inside text-slate-600 dark:text-slate-400 pl-1">
+              <li>Designed and implemented the web application's frontend and interface (landing page, diagnostic scanner view, analytics dashboard).</li>
+              <li>Built the retinal image upload workflow with input validation, drag-and-drop, and user feedback.</li>
+              <li>Integrated the Flask application with the inference pipeline (<code class="text-[11px] font-mono bg-slate-100 dark:bg-white/10 px-1 py-0.5 rounded">src/infer.py</code>).</li>
+              <li>Connected prediction outputs to the user interface, including confidence/probability display and clinical descriptions.</li>
+              <li>Integrated Grad-CAM output into the web workflow and surfaced it side-by-side in the diagnostic view.</li>
+              <li>Worked on the application flow connecting image input, backend inference, error handling, and displayed results.</li>
+              <li>Maintains and documents the repository under his GitHub account at <a href="https://github.com/SubodhMuneshwar/dr_hybrid_project" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline font-mono">github.com/SubodhMuneshwar</a>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-200/60 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+          <a
+            href="mailto:subodhum1603@gmail.com"
+            class="inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+          >
+            <i class="fas fa-envelope"></i>
+            <span class="font-mono">subodhum1603@gmail.com</span>
+          </a>
+          <a
+            href="https://github.com/SubodhMuneshwar"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white inline-flex items-center gap-1 transition-colors"
+          >
+            <i class="fab fa-github text-sm"></i>
+            <span>GitHub Profile</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Nihar Narvekar -->
+      <div class="glass-card p-7 rounded-3xl border border-slate-200/70 dark:border-white/10 hover:border-cyan-500/40 transition-all shadow-md group relative overflow-hidden flex flex-col justify-between">
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-cyan-500/20 transition-all"></div>
+        
+        <div class="space-y-4">
+          <div class="flex items-start gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-md shadow-cyan-500/25 shrink-0 group-hover:scale-105 transition-transform">
+              NN
+            </div>
+            <div class="space-y-1">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-400 border border-cyan-200/50 dark:border-cyan-800/40 uppercase tracking-wide">
+                Machine Learning &amp; Model Development Lead
+              </span>
+              <h3 class="text-xl font-black text-slate-900 dark:text-white">
+                Nihar Narvekar
+              </h3>
+              <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                Hybrid Classification Pipeline, Feature Extraction &amp; Model Training
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p class="font-semibold text-slate-800 dark:text-slate-200">
+              Owned the machine learning and model development work for the hybrid classification pipeline:
+            </p>
+            <ul class="space-y-1.5 list-disc list-inside text-slate-600 dark:text-slate-400 pl-1">
+              <li>Engineered the hybrid pipeline combining deep convolutional features with handcrafted texture descriptors.</li>
+              <li>Implemented preprocessing (CLAHE optical contrast enhancement) and deep backbones (VGG16 / DenseNet121).</li>
+              <li>Extracted mathematical texture descriptors: Uniform LBP histograms (26-bin) and Haralick GLCM features (24-d).</li>
+              <li>Trained and calibrated stacking ensemble classifiers (Random Forest, SVM, KNN with Logistic Regression meta-learner).</li>
+              <li>Applied SMOTE balancing inside ImbPipeline to address 5-stage DR class imbalance.</li>
+              <li>Orchestrated offline pipeline training, feature caching (<code class="text-[11px] font-mono bg-slate-100 dark:bg-white/10 px-1 py-0.5 rounded">features_cache.npz</code>), and evaluation reports (confusion matrices and F1 plots).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-200/60 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+          <a
+            href="mailto:narvekarnihar2204@gmail.com"
+            class="inline-flex items-center gap-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors"
+          >
+            <i class="fas fa-envelope"></i>
+            <span class="font-mono">narvekarnihar2204@gmail.com</span>
+          </a>
+          <a
+            href="https://github.com/Nihar0001"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white inline-flex items-center gap-1 transition-colors"
+          >
+            <i class="fab fa-github text-sm"></i>
+            <span>GitHub Profile</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Major Project Highlights & Academic Goals -->
+  <section class="glass-card p-8 sm:p-10 rounded-3xl border border-slate-200/70 dark:border-white/10 space-y-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-md shadow-indigo-600/25">
+        <i class="fas fa-award"></i>
+      </div>
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">College Major Project Scope &amp; Deliverables</h2>
+        <p class="text-xs text-slate-500">Key Engineering Objectives Achieved</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+      <div class="p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 space-y-2">
+        <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-sm font-bold">1</div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm">Automated Severity Grading</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Standardized 5-class ICDR classification (No DR, Mild, Moderate, Severe, Proliferative DR) achieving rapid sub-3-second inference.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 space-y-2">
+        <div class="w-8 h-8 rounded-xl bg-cyan-100 dark:bg-cyan-950 flex items-center justify-center text-cyan-600 dark:text-cyan-400 text-sm font-bold">2</div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm">Explainable AI (XAI)</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Integrated Grad-CAM attention overlays that pinpoint microaneurysms and exudate clusters, making the AI's diagnostic reasoning fully transparent to ophthalmologists.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 space-y-2">
+        <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm font-bold">3</div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm">Clinical Workflow Web Portal</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Engineered an enterprise-grade multi-page application (MPA) complete with patient history tracking, analytics dashboards, and automated PDF consultation exports.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5-Level Classification System -->
+  <section class="space-y-6">
+    <div class="text-center max-w-xl mx-auto space-y-2">
+      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+        Standardized 5-Level ICDR Grading
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+        Implemented per the International Clinical Diabetic Retinopathy Disease Severity Scale
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      
+      <!-- Class 0 -->
+      <div class="glass-card p-6 rounded-3xl border border-emerald-200/70 dark:border-emerald-900/40 bg-emerald-50/20 dark:bg-emerald-950/10 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
+            Class 0
+          </span>
+          <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Low Risk</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">No Diabetic Retinopathy</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          No evident vascular abnormalities, microaneurysms, or retinal hemorrhages detected on fundus examination.
+        </p>
+      </div>
+
+      <!-- Class 1 -->
+      <div class="glass-card p-6 rounded-3xl border border-amber-200/70 dark:border-amber-900/40 bg-amber-50/20 dark:bg-amber-950/10 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-100 dark:bg-yellow-900/60 text-yellow-800 dark:text-yellow-300">
+            Class 1
+          </span>
+          <span class="text-xs font-semibold text-yellow-600 dark:text-yellow-400">Low-Moderate Risk</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Mild Non-Proliferative DR</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Presence of isolated microaneurysms only. Indicates early structural capillary changes requiring annual surveillance.
+        </p>
+      </div>
+
+      <!-- Class 2 -->
+      <div class="glass-card p-6 rounded-3xl border border-amber-300/70 dark:border-amber-800/40 bg-amber-50/30 dark:bg-amber-950/15 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300">
+            Class 2
+          </span>
+          <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Moderate Risk</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Moderate NPDR</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          More than microaneurysms, with hard exudates, cotton-wool spots, and venous dilation across quadrants.
+        </p>
+      </div>
+
+      <!-- Class 3 -->
+      <div class="glass-card p-6 rounded-3xl border border-rose-200/70 dark:border-rose-900/40 bg-rose-50/20 dark:bg-rose-950/10 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-900/60 text-rose-800 dark:text-rose-300">
+            Class 3
+          </span>
+          <span class="text-xs font-semibold text-rose-600 dark:text-rose-400">High Risk</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Severe NPDR</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Follows the 4-2-1 rule: &gt;20 intraretinal hemorrhages in 4 quadrants, venous beading in 2, or IRMA in 1.
+        </p>
+      </div>
+
+      <!-- Class 4 -->
+      <div class="glass-card p-6 rounded-3xl border border-purple-200/70 dark:border-purple-900/40 bg-purple-50/20 dark:bg-purple-950/10 space-y-3 md:col-span-2 lg:col-span-2">
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300">
+            Class 4
+          </span>
+          <span class="text-xs font-semibold text-purple-600 dark:text-purple-400">Critical High Risk</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Proliferative DR (PDR)</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Neovascularization on the optic disc (NVD) or elsewhere (NVE), preretinal hemorrhages, and elevated risk of tractional retinal detachment. Urgent ophthalmological intervention required.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</article>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy | RetinaScan AI - Clinical Data Protection{% endblock %}
+{% block meta_description %}Learn how RetinaScan AI protects retinal fundus scans, patient confidentiality, and adheres to strict medical data privacy and security protocols.{% endblock %}
+
+{% block content %}
+<article class="space-y-8 animate-fade-in">
+  
+  <!-- Page Header Card -->
+  <header class="glass-card p-8 sm:p-10 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-xl relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/40">
+        <i class="fas fa-shield-halved"></i>
+        <span>Clinical Data Protection</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        Privacy Policy
+      </h1>
+
+      <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+        <span class="inline-flex items-center gap-1.5">
+          <i class="far fa-calendar-check text-indigo-500"></i>
+          Effective Date: September 2026
+        </span>
+        <span>•</span>
+        <span class="inline-flex items-center gap-1.5">
+          <i class="fas fa-arrows-rotate text-emerald-500"></i>
+          Version 2.4 Clinical Baseline
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Quick Navigation Anchors -->
+  <nav aria-label="Privacy sections" class="flex flex-wrap gap-2 text-xs font-medium">
+    <a href="#data-collection" class="px-3 py-1.5 rounded-xl glass-card hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">1. Data Collected</a>
+    <a href="#how-we-use" class="px-3 py-1.5 rounded-xl glass-card hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">2. How Data is Used</a>
+    <a href="#security" class="px-3 py-1.5 rounded-xl glass-card hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">3. Security Standards</a>
+    <a href="#data-retention" class="px-3 py-1.5 rounded-xl glass-card hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">4. Retention &amp; Storage</a>
+    <a href="#patient-rights" class="px-3 py-1.5 rounded-xl glass-card hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">5. Patient Rights</a>
+    <a href="#compliance" class="px-3 py-1.5 rounded-xl glass-card hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">6. Healthcare Compliance</a>
+  </nav>
+
+  <!-- Main Legal Content Cards -->
+  <div class="space-y-6 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+
+    <!-- Section 1 -->
+    <section id="data-collection" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          1
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Information We Process</h2>
+      </div>
+      <p>
+        RetinaScan AI collects only the minimal data points necessary to perform machine learning classification and generate diagnostic interpretability heatmaps:
+      </p>
+      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+        <li class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 flex items-start gap-3">
+          <i class="fas fa-image text-indigo-500 mt-1"></i>
+          <div>
+            <strong class="font-semibold text-slate-800 dark:text-white block">Retinal Fundus Images:</strong>
+            Standard PNG or JPEG ocular fundus scans submitted for deep learning severity grading.
+          </div>
+        </li>
+        <li class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 flex items-start gap-3">
+          <i class="fas fa-id-card-clip text-indigo-500 mt-1"></i>
+          <div>
+            <strong class="font-semibold text-slate-800 dark:text-white block">Patient Pseudonyms:</strong>
+            De-identified patient identifiers or names assigned to track chronological scan progressions.
+          </div>
+        </li>
+        <li class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 flex items-start gap-3">
+          <i class="fas fa-clock text-indigo-500 mt-1"></i>
+          <div>
+            <strong class="font-semibold text-slate-800 dark:text-white block">Scan Metadata:</strong>
+            Timestamps, confidence scores, probability vectors, and Grad-CAM attention coordinates.
+          </div>
+        </li>
+        <li class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 flex items-start gap-3">
+          <i class="fas fa-laptop-code text-indigo-500 mt-1"></i>
+          <div>
+            <strong class="font-semibold text-slate-800 dark:text-white block">Diagnostic Logs:</strong>
+            System operational logs and inference latencies used solely for operational maintenance.
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 2 -->
+    <section id="how-we-use" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          2
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">How Information Is Used</h2>
+      </div>
+      <p>
+        Submitted data is exclusively utilized for diagnostic inference and longitudinal patient record keeping:
+      </p>
+      <ul class="space-y-2 list-disc list-inside text-slate-600 dark:text-slate-400 pl-2">
+        <li>Executing neural inference to determine diabetic retinopathy severity classification (Classes 0 through 4).</li>
+        <li>Generating Class Activation Maps (Grad-CAM) to highlight pathological vascular patterns and exudates.</li>
+        <li>Exporting clinical diagnostic PDF summary reports for ophthalmology consultations.</li>
+        <li>Maintaining sequential scan histories within the local deployment database.</li>
+        <li><strong>We never sell, monetize, or transmit medical images to commercial advertising brokers.</strong></li>
+      </ul>
+    </section>
+
+    <!-- Section 3 -->
+    <section id="security" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          3
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Data Security Architecture</h2>
+      </div>
+      <p>
+        The platform implements defense-in-depth architectural safeguards to protect medical records against unauthorized access, tampering, or exfiltration:
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+        <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
+          <div class="text-indigo-600 dark:text-indigo-400 text-lg mb-2"><i class="fas fa-lock"></i></div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm">Input Sanitization</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Strict regex validation, filename sanitization, and path-traversal prevention guards.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
+          <div class="text-indigo-600 dark:text-indigo-400 text-lg mb-2"><i class="fas fa-database"></i></div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm">Atomic Storage</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Thread-safe atomic writes and OS file-locking to prevent concurrent record corruption.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
+          <div class="text-indigo-600 dark:text-indigo-400 text-lg mb-2"><i class="fas fa-shield-virus"></i></div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-sm">CSRF Protection</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Cryptographic session verification tokens on all form endpoints and image uploads.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section id="data-retention" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          4
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Data Retention &amp; Local Processing</h2>
+      </div>
+      <p>
+        All retinal images and patient histories remain on the deployment environment specified by the deploying clinic or researcher. Unless configured otherwise, image processing takes place entirely within local memory during the inference cycle.
+      </p>
+    </section>
+
+    <!-- Section 5 -->
+    <section id="patient-rights" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          5
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">User and Patient Rights</h2>
+      </div>
+      <p>
+        In accordance with international privacy principles (including GDPR and regional health privacy statutes), individuals whose data is processed hold the right to:
+      </p>
+      <ul class="space-y-2 list-disc list-inside text-slate-600 dark:text-slate-400 pl-2">
+        <li><strong>Right to Access:</strong> Review diagnostic history and confidence ratings recorded under a patient profile.</li>
+        <li><strong>Right to Portability:</strong> Export structured patient records and consultation PDFs.</li>
+        <li><strong>Right to Erasure:</strong> Request permanent removal of uploaded scans and derived attention maps.</li>
+      </ul>
+    </section>
+
+    <!-- Section 6 -->
+    <section id="compliance" class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          6
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">HIPAA &amp; Regulatory Disclosures</h2>
+      </div>
+      <p>
+        This installation of RetinaScan AI serves as an investigational research demonstration. For commercial or hospital-wide deployment involving Protected Health Information (PHI), organizations must deploy behind a certified Business Associate Agreement (BAA) with hardened access-control policies.
+      </p>
+      <div class="pt-4 border-t border-slate-200/60 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-slate-900 dark:text-white">Privacy Questions or Deletion Requests?</h3>
+          <p class="text-xs text-slate-500">Reach our medical data protection compliance team directly.</p>
+        </div>
+        <a href="{{ url_for('contact_us') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow">
+          <i class="fas fa-paper-plane text-xs"></i>
+          <span>Contact Privacy Officer</span>
+        </a>
+      </div>
+    </section>
+
+  </div>
+
+</article>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Terms &amp; Conditions | RetinaScan AI - Clinical Terms of Service{% endblock %}
+{% block meta_description %}Read the official Terms and Conditions for RetinaScan AI. Learn about permissible use, clinical disclaimers, intellectual property, and research guidelines.{% endblock %}
+
+{% block content %}
+<article class="space-y-8 animate-fade-in">
+
+  <!-- Page Header Card -->
+  <header class="glass-card p-8 sm:p-10 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-xl relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/40">
+        <i class="fas fa-file-contract"></i>
+        <span>Clinical Platform Terms</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        Terms &amp; Conditions
+      </h1>
+
+      <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+        <span class="inline-flex items-center gap-1.5">
+          <i class="far fa-calendar-check text-indigo-500"></i>
+          Last Revised: September 2026
+        </span>
+        <span>•</span>
+        <span class="inline-flex items-center gap-1.5">
+          <i class="fas fa-gavel text-amber-500"></i>
+          Standard Clinical Demonstration License
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Medical Emergency Alert Banner -->
+  <div class="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200/90 text-sm leading-relaxed flex items-start gap-4">
+    <div class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+      <i class="fas fa-triangle-exclamation text-lg"></i>
+    </div>
+    <div class="space-y-1">
+      <h3 class="font-bold text-amber-950 dark:text-amber-300 text-sm">Critical Medical &amp; Clinical Disclaimer</h3>
+      <p class="text-xs">
+        RetinaScan AI is an investigational deep learning system designed for educational analysis, research prototyping, and decision support triage. <strong>It does not constitute an automated medical device certification or diagnostic replacement.</strong> All findings must be corroborated by a qualified medical practitioner before making clinical treatment decisions.
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Terms Content -->
+  <div class="space-y-6 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+
+    <!-- Section 1 -->
+    <section class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          1
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Acceptance of Agreement</h2>
+      </div>
+      <p>
+        By accessing, navigating, or uploading retinal fundus images to RetinaScan AI, you acknowledge that you have read, understood, and consented to be legally bound by these Terms and Conditions. If you do not agree to these terms in full, you must terminate use immediately.
+      </p>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          2
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Permissible Use &amp; Researcher Responsibilities</h2>
+      </div>
+      <p>Users of the system agree to adhere to the following professional standards:</p>
+      <ul class="space-y-2 list-disc list-inside text-slate-600 dark:text-slate-400 pl-2">
+        <li><strong>Patient Consent:</strong> You certify that patient consent has been obtained for any fundus images uploaded for analysis.</li>
+        <li><strong>De-Identification:</strong> You agree not to upload non-anonymized sensitive personally identifiable information (PII) beyond clinical study labels.</li>
+        <li><strong>Prohibition of Reverse Engineering:</strong> You may not extract or re-engineer weights or proprietary code beyond the provisions of the repository's open license.</li>
+        <li><strong>No Misrepresentation:</strong> You agree never to issue automated model outputs to patients as definitive ophthalmological opinions without physician validation.</li>
+      </ul>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          3
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Accuracy, Artifacts &amp; Image Quality</h2>
+      </div>
+      <p>
+        Deep convolutional networks are susceptible to optical artifacts such as cataracts, improper pupil dilation, corneal reflections, and camera focus issues. While RetinaScan AI applies CLAHE normalization and feature extraction, the system cannot guarantee 100% sensitivity or specificity across uncurated optical capture devices.
+      </p>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          4
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Limitation of Liability</h2>
+      </div>
+      <p>
+        To the maximum extent permitted by applicable law, neither the developers, authors, nor affiliated research institutions shall be liable for any direct, indirect, incidental, punitive, or consequential damages resulting from medical decisions made or omitted based on model predictions.
+      </p>
+    </section>
+
+    <!-- Section 5 -->
+    <section class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/70 dark:border-white/10 shadow-sm space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          5
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Intellectual Property &amp; Open Collaboration</h2>
+      </div>
+      <p>
+        The software architecture, user interface components, and analytical pipelines are governed by open clinical research licensing as outlined in the project repository. Uploaded images remain the intellectual property of the submitting practitioner or institution.
+      </p>
+      <div class="pt-4 border-t border-slate-200/60 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-slate-900 dark:text-white">Questions Regarding Commercial Licensing?</h3>
+          <p class="text-xs text-slate-500">Contact our legal and clinical licensing team.</p>
+        </div>
+        <a href="{{ url_for('contact_us') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow">
+          <i class="fas fa-envelope text-xs"></i>
+          <span>Inquire With Legal</span>
+        </a>
+      </div>
+    </section>
+
+  </div>
+
+</article>
+{% endblock %}

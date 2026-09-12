@@ -63,9 +63,15 @@
         
         <!-- Left Hero Copy -->
         <div class="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
-          <div class="reveal-on-scroll reveal-delay-1 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider shadow-sm">
-            <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
-            Hybrid Deep Learning &amp; Texture Fusion
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+            <div class="reveal-on-scroll reveal-delay-1 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+              Hybrid Deep Learning &amp; Texture Fusion
+            </div>
+            <div class="reveal-on-scroll reveal-delay-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200/60 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-xs font-bold shadow-xs">
+              <i class="fas fa-graduation-cap text-amber-500"></i>
+              <span>College Final Year Major Project</span>
+            </div>
           </div>
 
           <h1 class="reveal-on-scroll reveal-delay-2 text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.12]">
@@ -504,24 +510,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="mt-auto py-10 border-t border-slate-200/60 dark:border-white/5 bg-white/50 dark:bg-slate-950/50 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center space-x-2">
-        <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs">
-          <i class="fas fa-eye"></i>
-        </div>
-        <span class="font-bold text-slate-800 dark:text-white">RetinaScan AI</span>
-        <span class="text-xs text-slate-400 ml-2">Educational &amp; Research Platform</span>
-      </div>
-      <div class="flex items-center space-x-6 text-sm text-slate-500 dark:text-slate-400">
-        <a href="{{ url_for('scanner') }}" class="hover:text-indigo-600 transition-colors">Scanner</a>
-        <a href="{{ url_for('dashboard') }}" class="hover:text-indigo-600 transition-colors">Dashboard</a>
-        <a href="https://github.com/SubodhMuneshwar/dr_hybrid_project" target="_blank" class="hover:text-indigo-600 transition-colors">
-          <i class="fab fa-github mr-1"></i> GitHub
-        </a>
-      </div>
-    </div>
-  </footer>
+  {% include '_footer.html' %}
 
   <script src="{{ url_for('static', filename='theme.js') }}"></script>
 </body>

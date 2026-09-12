@@ -1,156 +1,115 @@
-<!-- ==========================================================================
-     RetinaScan AI - Global Unified Navigation Bar
-     Unified across Home, Scanner, and Dashboard
-     ========================================================================== -->
-<nav class="glass-nav fixed top-0 w-full z-50 transition-all duration-300">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-    
-    <!-- Brand Logo (Consistent Brand Identity) -->
-    <a href="{{ url_for('index') }}" class="flex items-center space-x-3 group">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/25 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all duration-300">
-        <i class="fas fa-eye text-white text-lg"></i>
-      </div>
-      <div class="flex flex-col">
-        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-700 dark:from-white dark:via-indigo-200 dark:to-indigo-400 bg-clip-text text-transparent">
-          RetinaScan <span class="text-indigo-600 dark:text-indigo-400">AI</span>
-        </span>
-        <span class="text-[10px] font-semibold text-indigo-500/90 dark:text-indigo-400 tracking-wider uppercase">
-          Clinical AI Platform
-        </span>
-      </div>
-    </a>
+<!-- RetinaScan AI - Minimal Modern Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-white/70 dark:bg-slate-950/70 border-b border-slate-200/30 dark:border-white/10 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="h-16 flex items-center justify-between">
 
-    <!-- Desktop Navigation Links (Unified Across All Pages) -->
-    <div class="hidden md:flex items-center space-x-1 lg:space-x-2">
-      <!-- Home Link -->
-      <a href="{{ url_for('index') }}" class="nav-link {% if active_page == 'home' %}nav-link-active{% endif %}">
-        <i class="fas fa-home text-xs opacity-70"></i>
-        <span>Home</span>
+      <!-- Brand Logo (Compact) -->
+      <a href="{{ url_for('index') }}" class="flex items-center gap-2.5 group flex-shrink-0">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
+          <i class="fas fa-eye text-white text-lg"></i>
+        </div>
+        <div class="hidden sm:flex flex-col gap-0.5">
+          <span class="text-lg font-bold bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">
+            RetinaScan AI
+          </span>
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Clinical Platform</span>
+        </div>
       </a>
 
-      <!-- Pipeline & Technology Link -->
-      <a href="{{ url_for('index') }}#technology" class="nav-link">
-        <i class="fas fa-layer-group text-xs opacity-70"></i>
-        <span>Pipeline &amp; Tech</span>
-      </a>
+      <!-- Desktop Navigation Links (Minimal) -->
+      <div class="hidden lg:flex items-center gap-0.5">
+        <a href="{{ url_for('index') }}" class="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-all {% if active_page == 'home' %}text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50{% endif %}">
+          Home
+        </a>
 
-      <!-- Diagnostic Scanner Link -->
-      <a href="{{ url_for('scanner') }}" class="nav-link {% if active_page == 'scanner' %}nav-link-active{% endif %}">
-        <i class="fas fa-microscope text-xs opacity-70"></i>
-        <span>Diagnostic Scanner</span>
-      </a>
+        <a href="{{ url_for('scanner') }}" class="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-all {% if active_page == 'scanner' %}text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50{% endif %}">
+          Scanner
+        </a>
 
-      <!-- Analytics Dashboard Link -->
-      <a href="{{ url_for('dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}nav-link-active{% endif %}">
-        <i class="fas fa-chart-pie text-xs opacity-70"></i>
-        <span>Analytics Dashboard</span>
-      </a>
-    </div>
+        <a href="{{ url_for('dashboard') }}" class="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-all {% if active_page == 'dashboard' %}text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50{% endif %}">
+          Dashboard
+        </a>
 
-    <!-- Actions & Right Controls -->
-    <div class="flex items-center space-x-3 sm:space-x-4">
-      
-      <!-- System Heartbeat Active Status Badge (Enterprise Clinical Polish) -->
-      <div class="hidden lg:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-200/60 dark:border-emerald-800/40 shadow-xs">
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-        </span>
-        <span>AI Core Active</span>
+        <a href="{{ url_for('about_us') }}" class="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-all {% if active_page == 'about' %}text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50{% endif %}">
+          About
+        </a>
+
+        <a href="{{ url_for('contact_us') }}" class="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-all {% if active_page == 'contact' %}text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50{% endif %}">
+          Contact
+        </a>
       </div>
 
-      <!-- Interactive Ocular Theme Toggle (Open Eye for Light Mode, Closed Eye for Dark Mode) -->
-      <button
-        id="themeToggle"
-        type="button"
-        aria-label="Toggle Color Theme"
-        class="theme-ocular-btn group"
-        title="Toggle Light / Dark Mode"
-      >
-        <!-- Ambient Radial Glow Halo -->
-        <span class="theme-glow-orb"></span>
+      <!-- Right Actions (Compact) -->
+      <div class="flex items-center gap-2.5">
+        <!-- Theme Toggle -->
+        <button id="themeToggle" type="button" aria-label="Toggle Theme" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-200">
+          <span class="theme-eye-wrapper w-5 h-5" id="themeEyeWrapper">
+            <svg class="theme-eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <g class="eye-open-state">
+                <path class="eye-sclera" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+                <circle class="eye-iris" cx="12" cy="12" r="3.2" />
+                <circle class="eye-pupil" cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
+              </g>
+              <g class="eye-closed-state">
+                <path class="eyelid-arc" d="M2.5 12c3.5 6 15.5 6 19 0" />
+              </g>
+            </svg>
+          </span>
+        </button>
 
-        <!-- Animated Ocular SVG Container -->
-        <span class="theme-eye-wrapper" id="themeEyeWrapper">
-          <svg class="theme-eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <!-- Open Eye (Day / Awake / Light Mode) -->
-            <g class="eye-open-state">
-              <path class="eye-sclera" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
-              <circle class="eye-iris" cx="12" cy="12" r="3.2" />
-              <circle class="eye-pupil" cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
-              <circle class="eye-glint" cx="13.2" cy="10.8" r="0.65" fill="#ffffff" stroke="none" />
-            </g>
+        <!-- CTA Button (Compact) -->
+        {% if active_page == 'scanner' %}
+        <a href="{{ url_for('dashboard') }}" class="hidden sm:inline-flex items-center gap-1.5 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+          <i class="fas fa-chart-line text-xs"></i>
+          <span>Dashboard</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('scanner') }}" class="hidden sm:inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm shadow-indigo-600/20 hover:shadow-indigo-600/30 transition-all duration-200">
+          <i class="fas fa-microscope text-xs"></i>
+          <span>Scanner</span>
+        </a>
+        {% endif %}
 
-            <!-- Closed Eye (Night / Sleep / Dark Mode) -->
-            <g class="eye-closed-state">
-              <path class="eyelid-arc" d="M2.5 12c3.5 6 15.5 6 19 0" />
-              <!-- Delicate Eyelashes -->
-              <line class="eyelash" x1="12" y1="16.5" x2="12" y2="19.5" />
-              <line class="eyelash" x1="7.5" y1="15.5" x2="6" y2="18.2" />
-              <line class="eyelash" x1="16.5" y1="15.5" x2="18" y2="18.2" />
-              <line class="eyelash" x1="4" y1="13.5" x2="2.5" y2="15.5" />
-              <line class="eyelash" x1="20" y1="13.5" x2="21.5" y2="15.5" />
-            </g>
-          </svg>
-        </span>
-      </button>
-
-      <!-- Contextual Action CTA Button -->
-      {% if active_page == 'scanner' %}
-      <a href="{{ url_for('dashboard') }}" class="hidden sm:inline-flex items-center gap-2 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
-        <i class="fas fa-chart-line text-xs"></i>
-        <span>View Dashboard</span>
-      </a>
-      {% else %}
-      <a href="{{ url_for('scanner') }}" class="hidden sm:inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-600/25 hover:shadow-lg hover:shadow-indigo-600/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
-        <i class="fas fa-microscope text-xs"></i>
-        <span>Launch Scanner</span>
-      </a>
-      {% endif %}
-
-      <!-- Mobile Hamburger Button -->
-      <button id="mobileMenuBtn" aria-label="Open Mobile Menu" class="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 border border-transparent hover:border-slate-200 dark:hover:border-white/10 transition-colors">
-        <i class="fas fa-bars text-lg"></i>
-      </button>
+        <!-- Mobile Menu Button -->
+        <button id="mobileMenuBtn" aria-label="Menu" class="lg:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+          <i class="fas fa-bars text-lg"></i>
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Mobile Nav Drawer (Consistent Across All Pages) -->
-  <div id="mobileNavMenu" class="md:hidden hidden glass-card mx-4 mb-4 p-4 space-y-2 border border-slate-200/70 dark:border-white/10 shadow-xl">
-    <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200/50 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400">
-      <span>Navigation Menu</span>
-      <span class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        Core Online
-      </span>
-    </div>
-
-    <a href="{{ url_for('index') }}" class="block px-3 py-2 text-sm font-medium rounded-xl {% if active_page == 'home' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold{% else %}text-slate-700 dark:text-slate-200 hover:bg-indigo-50/50 dark:hover:bg-white/5{% endif %}">
-      <i class="fas fa-home w-5 text-center text-xs opacity-70 mr-2"></i>Home
-    </a>
-
-    <a href="{{ url_for('index') }}#technology" class="block px-3 py-2 text-sm font-medium rounded-xl text-slate-700 dark:text-slate-200 hover:bg-indigo-50/50 dark:hover:bg-white/5">
-      <i class="fas fa-layer-group w-5 text-center text-xs opacity-70 mr-2"></i>Pipeline &amp; Technology
-    </a>
-
-    <a href="{{ url_for('scanner') }}" class="block px-3 py-2 text-sm font-medium rounded-xl {% if active_page == 'scanner' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold{% else %}text-slate-700 dark:text-slate-200 hover:bg-indigo-50/50 dark:hover:bg-white/5{% endif %}">
-      <i class="fas fa-microscope w-5 text-center text-xs opacity-70 mr-2"></i>Diagnostic Scanner
-    </a>
-
-    <a href="{{ url_for('dashboard') }}" class="block px-3 py-2 text-sm font-medium rounded-xl {% if active_page == 'dashboard' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold{% else %}text-slate-700 dark:text-slate-200 hover:bg-indigo-50/50 dark:hover:bg-white/5{% endif %}">
-      <i class="fas fa-chart-pie w-5 text-center text-xs opacity-70 mr-2"></i>Analytics Dashboard
-    </a>
-
-    <div class="pt-2 border-t border-slate-200/50 dark:border-white/10">
-      {% if active_page == 'scanner' %}
-      <a href="{{ url_for('dashboard') }}" class="block w-full text-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold px-4 py-2.5 rounded-xl shadow mt-1">
-        <i class="fas fa-chart-line mr-1.5"></i>View Dashboard
+  <!-- Mobile Menu (Minimal) -->
+  <div id="mobileNavMenu" class="lg:hidden hidden bg-white dark:bg-slate-900 border-t border-slate-200/30 dark:border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-2">
+      <a href="{{ url_for('index') }}" class="block px-3 py-2 text-sm font-medium rounded-lg {% if active_page == 'home' %}bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400{% else %}text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50{% endif %}">
+        Home
       </a>
-      {% else %}
-      <a href="{{ url_for('scanner') }}" class="block w-full text-center bg-indigo-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow mt-1">
-        <i class="fas fa-microscope mr-1.5"></i>Launch Scanner
+      <a href="{{ url_for('scanner') }}" class="block px-3 py-2 text-sm font-medium rounded-lg {% if active_page == 'scanner' %}bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400{% else %}text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50{% endif %}">
+        Scanner
       </a>
-      {% endif %}
+      <a href="{{ url_for('dashboard') }}" class="block px-3 py-2 text-sm font-medium rounded-lg {% if active_page == 'dashboard' %}bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400{% else %}text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50{% endif %}">
+        Dashboard
+      </a>
+      <a href="{{ url_for('about_us') }}" class="block px-3 py-2 text-sm font-medium rounded-lg {% if active_page == 'about' %}bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400{% else %}text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50{% endif %}">
+        About
+      </a>
+      <a href="{{ url_for('contact_us') }}" class="block px-3 py-2 text-sm font-medium rounded-lg {% if active_page == 'contact' %}bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400{% else %}text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50{% endif %}">
+        Contact
+      </a>
+
+      <div class="pt-2 border-t border-slate-200/30 dark:border-white/10 mt-2">
+        {% if active_page != 'scanner' %}
+        <a href="{{ url_for('scanner') }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg shadow-sm transition-all">
+          Launch Scanner
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="pt-2 flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <a href="{{ url_for('privacy_policy') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Privacy</a>
+        <span>•</span>
+        <a href="{{ url_for('terms_and_conditions') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">Terms</a>
+      </div>
     </div>
   </div>
 </nav>

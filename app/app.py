@@ -571,6 +571,47 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, "static"), "favicon.ico", mimetype="image/vnd.microsoft.icon")
 
 
+# ============================================================================
+# SEO-Optimized Multi-Page Routes for Better Search Engine Rankings
+# ============================================================================
+
+@app.route("/privacy")
+def privacy_policy():
+    """Privacy Policy page - SEO optimized"""
+    return render_template("privacy.html", active_page="privacy")
+
+
+@app.route("/terms")
+def terms_and_conditions():
+    """Terms & Conditions page - SEO optimized"""
+    return render_template("terms.html", active_page="terms")
+
+
+@app.route("/about")
+def about_us():
+    """About Us page - SEO optimized"""
+    return render_template("about.html", active_page="about")
+
+
+@app.route("/contact", methods=["GET", "POST"])
+def contact_us():
+    """Contact Us page - SEO optimized with interactive message submission"""
+    if request.method == "POST":
+        contact_name = request.form.get("contact_name", "").strip()
+        contact_email = request.form.get("contact_email", "").strip()
+        inquiry_type = request.form.get("inquiry_type", "General")
+        contact_message = request.form.get("contact_message", "").strip()
+
+        if not contact_name or not contact_email or not contact_message:
+            flash("Please fill in all required fields (Name, Email, and Message).")
+            return redirect(url_for("contact_us"))
+
+        logger.info(f"Clinical inquiry received from {contact_name} ({contact_email}) [Type: {inquiry_type}]")
+        flash("Thank you for contacting RetinaScan AI! Your clinical inquiry has been received. Our team will respond within 24-48 hours.")
+        return redirect(url_for("contact_us"))
+
+    return render_template("contact.html", active_page="contact")
+
 
 if __name__ == "__main__":
     # For direct python app/app.py runs

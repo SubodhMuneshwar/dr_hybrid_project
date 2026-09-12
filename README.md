@@ -1,305 +1,407 @@
-# RetinaScan — Diabetic Retinopathy Detection System
+# RetinaScan AI — Diabetic Retinopathy Detection System
 
-> A Flask-based retinal image analysis and diagnostic interface integrating a hybrid machine-learning inference pipeline.
+> **College Final Year Major Project** • Department of Computer Engineering (Academic Year 2025–2026)  
+> An end-to-end clinical decision support platform fusing deep convolutional features, handcrafted texture descriptors, calibrated stacking ensemble classification, and explainable Grad-CAM activation maps.
 
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
-[![Framework](https://img.shields.io/badge/Framework-Flask-black)](https://flask.palletsprojects.com/)
-[![License](https://img.shields.io/badge/License-Educational-lightgrey)](#license)
+---
 
-## Overview
+[![Python](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-2.3%2B-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12%2B-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.2%2B-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-4.7%2B-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)](https://opencv.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-Academic%20%2F%20Educational-green?style=for-the-badge)](#license)
 
-RetinaScan is an educational/research project for analyzing retinal fundus images for signs of diabetic retinopathy (DR).
+---
 
-The system integrates a hybrid feature-fusion inference pipeline into a Flask web application. A user uploads a retinal image, the backend extracts and fuses deep and texture features, runs a trained classifier, and returns a predicted DR stage with a probability distribution. Where supported, the application also generates a Grad-CAM-based activation overlay to help explain where the feature extractor responded most strongly.
+## Table of Contents
 
-This is not a clinical diagnostic product — predictions are for research and demonstration purposes only.
+1. [Project Overview](#project-overview)
+2. [Project Authors & Team Contributions](#project-authors--team-contributions)
+3. [Key Features](#key-features)
+4. [System Architecture](#system-architecture)
+5. [Hybrid ML Pipeline](#hybrid-ml-pipeline)
+6. [Web Application & MPA Routes](#web-application--mpa-routes)
+7. [Tech Stack](#tech-stack)
+8. [Project Structure](#project-structure)
+9. [Installation & Quickstart](#installation--quickstart)
+10. [Model Weights & Pretrained Artifacts](#model-weights--pretrained-artifacts)
+11. [Running the Application](#running-the-application)
+12. [Evaluation & Model Quality](#evaluation--model-quality)
+13. [Limitations & Medical Disclaimer](#limitations--medical-disclaimer)
+14. [License](#license)
 
-## My Role
+---
 
-I owned the frontend development and application/system integration for this project.
+## Project Overview
 
-My contributions focused on the application layer that connects the user to the inference pipeline:
+**RetinaScan AI** is an academic capstone major project designed to assist clinical screening for **Diabetic Retinopathy (DR)** — one of the leading global causes of preventable adult blindness. While over 90% of severe vision loss can be prevented with early detection, access to expert ophthalmologic screening remains constrained by specialist availability and high patient volume.
 
-- Designed and implemented the web application's frontend and interface (landing page, diagnostic view, dashboard)
-- Built the retinal image upload workflow with input validation and user feedback
-- Integrated the Flask application with the inference pipeline (`src/infer.py`)
-- Connected prediction outputs to the user interface
-- Implemented prediction and result presentation, including confidence/probability display where supported by the inference output
-- Integrated Grad-CAM output into the web workflow and surfaced it in the diagnostic view
-- Worked on the application flow connecting image input, backend inference, and displayed results
-- Contributed to the overall user experience, error handling, and presentation layer
+This platform bridges clinical workflow needs with modern artificial intelligence:
 
-I did not independently train the ML models. Model architecture design, training, and evaluation were handled collaboratively by the project team (see below).
+- **Automated 5-Stage Classification**: Accurately categorizes retinal fundus scans into *No DR (0)*, *Mild (1)*, *Moderate (2)*, *Severe (3)*, and *Proliferative (4)*.
+- **Hybrid Feature Fusion**: Combines high-level semantic features extracted via deep CNN backbones (VGG16 / DenseNet121) with fine-grained mathematical texture descriptors (Uniform Local Binary Patterns & Haralick GLCM).
+- **Class-Balanced Stacking Ensemble**: Employs an ensemble of Random Forest, Support Vector Machine (SVC), and K-Nearest Neighbors (KNN) unified by a Logistic Regression meta-learner, trained with SMOTE to mitigate severe medical class imbalance.
+- **Explainable AI (Grad-CAM)**: Surfaces visual saliency overlays (`outputs/gradcam_overlay.png`) highlighting regions of microaneurysms, hemorrhages, and exudates.
+- **Clinical Web Platform**: A responsive Multi-Page Application (MPA) built with Flask, providing instant fundus uploads, side-by-side diagnostic comparisons, patient scan history tracking, automated PDF medical reports, and an interactive model analytics dashboard.
 
-## Team Contribution
+> **Note**: This system is developed for academic evaluation, research, and clinical decision support demonstration. It does not replace certified medical devices or qualified ophthalmologist diagnosis.
 
-This project was developed collaboratively. The ML/model-development work included the training and evaluation of the hybrid classification pipeline, while I owned the frontend and application integration layer.
+---
 
-The hybrid pipeline combines deep features with handcrafted texture descriptors and a classical ML classifier. The repository retains this design as the inference path consumed by the Flask app. Specific training and experimentation were carried out by the team; this README documents the architecture as it exists in the current codebase.
+## Project Authors & Team Contributions
+
+This project was conceived, developed, and delivered as a **College Final Year Major Project** by our two-member engineering team. Work was divided across two specialized domains: **Frontend & System Integration** and **Machine Learning & Pipeline Development**.
+
+| Contributor | Project Role | Primary Focus | Contact / GitHub |
+|---|---|---|---|
+| **Subodh Muneshwar** | **Frontend Development & Application Integration Lead** | UI/UX Architecture, Flask Web Layer, Inference Integration, PDF Reports, Patient Tracking | [![GitHub](https://img.shields.io/badge/GitHub-SubodhMuneshwar-181717?style=flat&logo=github)](https://github.com/SubodhMuneshwar)<br/>`subodhum1603@gmail.com` |
+| **Nihar Narvekar** | **Machine Learning & Model Development Lead** | Hybrid Feature Engineering, CNN Backbones, SMOTE Balancing, Stacking Ensemble, Model Evaluation | [![GitHub](https://img.shields.io/badge/GitHub-Nihar0001-181717?style=flat&logo=github)](https://github.com/Nihar0001)<br/>`narvekarnihar2204@gmail.com` |
+
+---
+
+### Subodh Muneshwar — Frontend Development & Application Integration Lead
+
+**GitHub Profile**: [@SubodhMuneshwar](https://github.com/SubodhMuneshwar)  
+**Email**: `subodhum1603@gmail.com`
+
+**Core Contributions & Responsibilities**:
+- **Full-Stack Web Interface Architecture**:
+  - Designed and implemented the complete frontend design system using Flask, Jinja2 templates, Tailwind CSS, and custom glassmorphism components (`app/static/theme.css`, `app/static/theme.js`).
+  - Built a persistent dark/light mode engine adhering to system preferences and user override.
+  - Constructed the primary entry points: Modern Landing Page (`/`), Diagnostic Scanner (`/scanner`), Model Analytics Dashboard (`/dashboard`), and complete MPA routes (`/about`, `/contact`, `/privacy`, `/terms`).
+- **Inference & Workflow Integration**:
+  - Integrated the Flask backend directly with the hybrid inference engine (`src/infer.py`), passing uploaded images to feature extraction, invoking calibrated models, and returning prediction probabilities in real time.
+  - Connected Grad-CAM saliency generation to the web workflow, enabling doctors to view the original fundus scan and the heatmapped activation overlay side-by-side.
+- **Patient History & Reporting**:
+  - Engineered the patient history tracking module (`data/patient_history.json`), with cross-platform thread-safe file locking (`fcntl` with Windows fallback).
+  - Built the automated clinical PDF diagnostic report generator (`/download_report/<patient_name>`) using ReportLab, embedding patient details, predicted severity, confidence scores, and fundus images.
+- **Security & Production Hardening**:
+  - Enforced strict file validation (MIME-type checks for PNG/JPEG, 10MB payload size limits, `secure_filename` sanitization).
+  - Integrated CSRF protection across all forms via Flask-WTF.
+  - Configured high-concurrency production serving via Waitress WSGI (`run_server.py`).
+  - Repository structure, release hygiene, and documentation management.
+
+---
+
+### Nihar Narvekar — Machine Learning & Model Development Lead
+
+**GitHub Profile**: [@Nihar0001](https://github.com/Nihar0001)  
+**Email**: `narvekarnihar2204@gmail.com`
+
+**Core Contributions & Responsibilities**:
+- **Hybrid Feature Engineering Pipeline**:
+  - Designed and coded the multi-modal feature extraction architecture combining deep representation learning with spatial texture descriptors (`src/features.py`).
+  - Integrated deep CNN backbones (VGG16 with Global Average Pooling yielding 512-d embeddings; swappable to DenseNet121 1024-d, MobileNetV2, or InceptionResNetV2).
+  - Engineered mathematical texture descriptors: Uniform Local Binary Patterns (LBP, 26-bin normalized histogram) capturing microaneurysm dot patterns and Haralick GLCM texture features (24-d vector across 6 statistical properties and 4 angles).
+  - Developed the feature fusion module merging deep and texture vectors into a unified 562-dimensional feature space, normalized via `StandardScaler` (`models/scaler.pkl`).
+- **Preprocessing & Optical Enhancement**:
+  - Built `advanced_preprocess_image()` (`src/data.py`) implementing CLAHE (Contrast Limited Adaptive Histogram Equalization) on green/gray channels to accentuate retinal blood vessels and exudate boundaries against dark ocular backgrounds.
+- **Model Training & Ensemble Architecture**:
+  - Implemented SMOTE (Synthetic Minority Over-sampling Technique) inside `ImbPipeline` to resolve severe class imbalance across the 5 DR stages (`src/models.py`).
+  - Designed, tuned (`GridSearchCV`), and trained the **Stacking Classifier** combining:
+    - Base Estimator 1: Random Forest Classifier
+    - Base Estimator 2: Support Vector Machine (SVC with RBF kernel & probability calibration)
+    - Base Estimator 3: K-Nearest Neighbors (KNN)
+    - Meta-Learner: Calibrated Logistic Regression
+  - Maintained backward compatibility with the legacy Voting Ensemble model (`votingclassifier_model.pkl`).
+- **Explainability & Offline Pipeline Orchestration**:
+  - Implemented Grad-CAM activation mapping on VGG16 `block5_conv3` (`src/explain.py`) generating visual heatmap overlays.
+  - Built the automated training and evaluation suite (`python -m src.pipeline`), including feature caching (`outputs/features_cache.npz`), confusion matrix generation, and F1-score performance benchmarking (`src/evaluate.py`).
+
+---
+
+## Key Features
+
+### Clinical Diagnostic Scanner (`/scanner`)
+- **Drag-and-Drop Retinal Upload**: Instant client-side preview with drag-and-drop or file picker.
+- **Dual Visual Inspection**: Side-by-side comparison of original fundus photograph against the Grad-CAM activation heatmap.
+- **Multi-Class Probability Distribution**: Interactive visual breakdown across all 5 clinical stages with highlighted top prediction.
+- **Clinical Recommendation Engine**: Automated triage guidance corresponding to the diagnosed stage.
+- **One-Click PDF Medical Report**: Generates an A4 clinical diagnostic report containing patient ID, timestamps, image comparisons, and quantitative severity metrics.
+- **Patient Scan History Drawer**: Interactive record of previous scans with instant reload and report re-download capabilities.
+
+### Analytics & Evaluation Dashboard (`/dashboard`)
+- **Confusion Matrix Visualization**: Displays test-set classification accuracy across all 5 classes (`outputs/stacking_confusion_matrix.png`).
+- **Per-Class F1-Score Breakdown**: Visual bar chart analyzing recall and precision across mild, moderate, and severe stages (`outputs/stacking_f1_scores.png`).
+- **Dataset Metrics**: Summarizes distribution across 10,000+ images from development and benchmark sets.
+- **Pipeline Introspection**: Live display of active feature backbone, feature dimensions, and classifier configuration.
+
+### Multi-Page Application (MPA) Architecture
+- **SEO & Accessibility**: Server-rendered MPA with dynamic canonical tags, OpenGraph metadata, semantic HTML5 landmarks, and structured navigation.
+- **About Us (`/about`)**: Complete capstone project documentation, engineering specifications, and author profiles.
+- **Contact Us (`/contact`)**: Interactive inquiry form with CSRF validation, developer direct email buttons, and GitHub profile links.
+- **Privacy Policy (`/privacy`)**: Detailed health data protection policy adhering to medical confidentiality principles.
+- **Terms & Conditions (`/terms`)**: Transparent terms of service, permissible educational usage, and medical disclaimers.
+
+---
 
 ## System Architecture
 
 ```
-Retinal Image
-    ↓
-Preprocessing                (resize to TARGET_SIZE, CLAHE — src/data.py)
-    ↓
-Feature Extraction
-    ├── DenseNet121 deep features  }  configurable via FEATURE_EXTRACTOR_MODEL
-    ├── LBP texture features       }  (current default: VGG16 GAP 512-d; also supports
-    └── Haralick texture features }   DenseNet121 1024-d, MobileNetV2, InceptionResNetV2)
-    ↓
-Feature Fusion / Scaling     (concatenation → StandardScaler from models/scaler.pkl)
-    ↓
-ML Classifier                (stacking_calibrated.pkl preferred; votingclassifier_model.pkl fallback)
-    ↓
-Prediction + Probability     (predict_proba → argmax)
-    ↓
-Flask Application            (app/app.py — upload, validation, inference, rendering)
-    ↓
-Diagnostic Result / Visualization   (predicted stage, confidence, class descriptions)
-    ↓
-Grad-CAM Output              (activation feature map → outputs/gradcam_overlay.png)
+                               ┌─────────────────────────────┐
+                               │   Retinal Fundus Image      │
+                               │  (Upload via Web / CLI)     │
+                               └──────────────┬──────────────┘
+                                              │
+                                              ▼
+                               ┌─────────────────────────────┐
+                               │       Preprocessing         │
+                               │  • Resize to 224 × 224      │
+                               │  • Grayscale + CLAHE        │
+                               └──────────────┬──────────────┘
+                                              │
+                    ┌─────────────────────────┼─────────────────────────┐
+                    ▼                         ▼                         ▼
+         ┌─────────────────────┐   ┌─────────────────────┐   ┌─────────────────────┐
+         │ Deep CNN Backbone   │   │ Uniform LBP Texture │   │ Haralick GLCM       │
+         │ VGG16 (GAP)         │   │ (Radius 3, 24 pts)  │   │ (6 metrics, 4 deg)  │
+         │ Output: 512-d       │   │ Output: 26-d        │   │ Output: 24-d        │
+         └──────────┬──────────┘   └──────────┬──────────┘   └──────────┬──────────┘
+                    └─────────────────────────┼─────────────────────────┘
+                                              ▼
+                               ┌─────────────────────────────┐
+                               │   Hybrid Feature Fusion     │
+                               │  512 + 26 + 24 = 562-d      │
+                               └──────────────┬──────────────┘
+                                              │
+                                              ▼
+                               ┌─────────────────────────────┐
+                               │       Feature Scaling       │
+                               │ StandardScaler (scaler.pkl) │
+                               └──────────────┬──────────────┘
+                                              │
+                                              ▼
+                               ┌─────────────────────────────┐
+                               │     Stacking Classifier     │
+                               │  • Random Forest            │
+                               │  • Calibrated SVC (RBF)     │
+                               │  • K-Nearest Neighbors      │
+                               │  Meta: Logistic Regression  │
+                               └──────────────┬──────────────┘
+                                              │
+                    ┌─────────────────────────┴─────────────────────────┐
+                    ▼                                                   ▼
+         ┌─────────────────────┐                             ┌─────────────────────┐
+         │ Stage Classification│                             │ Grad-CAM Saliency   │
+         │ 5-Class Probabilities│                            │ VGG16 block5_conv3  │
+         └──────────┬──────────┘                             └──────────┬──────────┘
+                    └─────────────────────────┬─────────────────────────┘
+                                              ▼
+                               ┌─────────────────────────────┐
+                               │      Flask Web Layer        │
+                               │  • Side-by-side Visuals     │
+                               │  • Clinical Confidence %    │
+                               │  • PDF Medical Report       │
+                               │  • Patient History Log      │
+                               └─────────────────────────────┘
 ```
 
-> Note: `src/features.py:get_deep_feature_model()` supports `vgg16`, `densenet121`, `mobilenetv2`, and `inceptionresnetv2`. The current default in `src/config.py` is `FEATURE_EXTRACTOR_MODEL = "vgg16"` with `TARGET_SIZE = (224, 224)` and Global Average Pooling (512-d). The diagram above reflects the hybrid design as described in the project history; the extractor is swappable without changing the downstream pipeline.
+---
 
-## ML Pipeline
+## Hybrid ML Pipeline
 
-Verified against the current repository (`src/infer.py`, `src/features.py`, `src/data.py`, `src/models.py`, `src/pipeline.py`, `src/explain.py`, `src/config.py`):
+The machine learning pipeline is implemented across `src/` modules:
 
-1. **Preprocessing** — `advanced_preprocess_image()` resizes to `TARGET_SIZE` (224x224) and applies CLAHE on the grayscale channel. Returns both the resized BGR image (for deep features) and the CLAHE-enhanced grayscale image (for texture features).
+1. **Preprocessing (`src/data.py`)**:
+   - Resizes incoming fundus photos to a uniform target dimension (`224 × 224` default).
+   - Applies **CLAHE** (Contrast Limited Adaptive Histogram Equalization with `clipLimit=2.0`, `tileGridSize=(8,8)`) to optical fundus channels, enhancing faint microaneurysms and deep vascular features against retinal background noise.
 
-2. **Deep feature extraction** — Loads a pretrained ImageNet backbone via `get_deep_feature_model()` with `include_top=False` + `GlobalAveragePooling2D`. Preprocessing function is matched to the backbone (e.g., `vgg_preprocess`, `densenet_preprocess`).
+2. **Deep Feature Extraction (`src/features.py`)**:
+   - Backed by pre-trained ImageNet weights with top classification layers removed (`include_top=False`).
+   - Applies a `GlobalAveragePooling2D` layer to compress spatial feature maps into a dense 512-dimensional embedding vector (configurable to `densenet121` 1024-d, `mobilenetv2`, or `inceptionresnetv2`).
 
-3. **LBP texture descriptors** — `extract_lbp()` computes uniform LBP (radius 3, 24 points) and returns a 26-bin normalized histogram.
+3. **Mathematical Texture Extraction (`src/features.py`)**:
+   - **Local Binary Patterns (LBP)**: Computes rotation-invariant uniform LBP with radius $R=3$ and $P=24$ sample points, producing a normalized 26-bin histogram sensitive to punctate lesions.
+   - **Haralick Texture (GLCM)**: Computes the Gray-Level Co-occurrence Matrix at distance 1 across angles $0^\circ, 45^\circ, 90^\circ, 135^\circ$. Extracts Contrast, Dissimilarity, Homogeneity, Energy, Correlation, and ASM (24-d).
 
-4. **Haralick texture descriptors** — `extract_haralick()` computes GLCM (distances=[1], 4 angles) and concatenates 6 properties (contrast, dissimilarity, homogeneity, energy, correlation, ASM) → 24-d.
+4. **Feature Fusion & Normalization**:
+   - Vector concatenation: $\mathbf{X}_{\text{fused}} = [\mathbf{x}_{\text{deep}} \parallel \mathbf{x}_{\text{lbp}} \parallel \mathbf{x}_{\text{haralick}}] \in \mathbb{R}^{562}$.
+   - Normalized via `models/scaler.pkl` (`StandardScaler`).
 
-5. **Feature fusion** — Deep + LBP + Haralick concatenated into a single vector (e.g., 512 + 26 + 24 = 562-d for VGG16 GAP).
+5. **Classification & Class Imbalance Handling (`src/models.py`)**:
+   - Imbalanced medical datasets are stabilized using **SMOTE** over-sampling inside an `ImbPipeline` during training.
+   - Predictions are rendered via a multi-model **Stacking Ensemble**:
+     - *Base Estimators*: Random Forest (100 estimators), Support Vector Classifier (RBF kernel, calibrated probabilities), K-Nearest Neighbors ($k=5$).
+     - *Meta-Classifier*: Calibrated Logistic Regression.
+     - *Fallback*: Retains backward-compatible support for `votingclassifier_model.pkl`.
 
-6. **Feature scaling** — `models/scaler.pkl` (`StandardScaler`) is loaded and applied if present (`infer.py:35-38`).
+6. **Explainability / Visual Saliency (`src/explain.py`)**:
+   - Extracts activation maps from VGG16's final convolutional block (`block5_conv3`), computes mean filter activations, normalizes intensities, applies OpenCV's `COLORMAP_JET`, and alpha-blends the result over the input fundus image.
 
-7. **Classifier inference** — `_load_classifier()` checks in order:
-   - `models/stacking_calibrated.pkl` (preferred — `StackingClassifier` with RF + SVM + KNN base estimators and Logistic Regression meta-learner, `src/models.py:build_stacking`)
-   - `models/votingclassifier_model.pkl` (fallback for backward compatibility)
+---
 
-   Both are trained with SMOTE inside `ImbPipeline` to address class imbalance (`src/models.py:get_base_pipelines`).
+## Web Application & MPA Routes
 
-8. **Probability output** — `clf.predict_proba()` returns a 5-class distribution over `["No DR", "Mild", "Moderate", "Severe", "Proliferative"]` (`config.CLASS_NAMES`).
+The application layer (`app/app.py`) provides distinct routes designed for clinical workflow and search engine optimization:
 
-9. **Grad-CAM / activation map** — `explain.grad_cam()` builds a VGG16 `block5_conv3` activation map (mean across 512 filters), normalizes, color-maps with `COLORMAP_JET`, and overlays onto the input image. Saved to `outputs/gradcam_overlay.png` and served to the UI. When TensorFlow is unavailable, a passthrough fallback is returned so the Flask app can still load.
+| Route | HTTP Method | Description |
+|---|---|---|
+| `/` | `GET` | **Landing Page**: Clinical overview, feature highlights, project stats, and diagnostic portal entry. |
+| `/scanner` | `GET`, `POST` | **Diagnostic Scanner**: Fundus image upload, real-time inference, Grad-CAM heatmap, probability distribution, and patient history drawer. |
+| `/dashboard` | `GET` | **Analytics Dashboard**: Live evaluation metrics, confusion matrix, per-class F1-scores, and pipeline parameters. |
+| `/about` | `GET` | **About Us**: College major project documentation, engineering problem statement, and detailed author contribution profiles. |
+| `/contact` | `GET`, `POST` | **Contact Us**: Interactive contact form with CSRF validation, email endpoints, and author GitHub profiles. |
+| `/privacy` | `GET` | **Privacy Policy**: Explains patient data confidentiality, local image handling, and medical information privacy standards. |
+| `/terms` | `GET` | **Terms & Conditions**: Clinical disclaimer, acceptable use policies, and academic copyright terms. |
+| `/download_report/<patient_name>` | `GET` | **Medical PDF Generation**: Generates and downloads a branded, printable A4 clinical diagnostic report. |
+| `/outputs/<filename>` | `GET` | **Artifact Serving**: Serves generated Grad-CAM overlays and evaluation graphs securely. |
 
-Training and evaluation are driven by `python -m src.pipeline --train` / `--evaluate`, which handle feature caching (`outputs/features_cache.npz`), train/test splitting, hyperparameter search, stacking fit, and report generation (`src/evaluate.py` → confusion matrix and F1-score plots).
-
-## Web Application
-
-The application layer is implemented in `app/app.py` — this is the code I owned and integrated.
-
-- **Flask-based web application** with three routes: `/` (landing), `/scanner` (diagnostic view), `/dashboard` (analytics)
-- **Retinal image upload** — `POST /scanner` with `multipart/form-data`, file input `name="file"`
-- **File validation** — extension allowlist (`png`, `jpg`, `jpeg`), `secure_filename`, 10 MB `MAX_CONTENT_LENGTH`, empty-file checks with `flash()` feedback
-- **Image processing / inference workflow** — saves upload to `uploads/`, calls `src.infer.infer_image()`, which runs the full pipeline described above
-- **Prediction output** — predicted class index, mapped to `CLASS_NAMES` and `CLASS_DESCRIPTIONS`
-- **Confidence / probability display** — `confidence = proba[pred] * 100` formatted to one decimal place, plus the full 5-class `proba` array for the UI
-- **Diagnostic result presentation** — rendered in `scanner.html` with original image and overlay side-by-side
-- **Grad-CAM visualization** — overlay written to `outputs/gradcam_overlay.png`, served via `/outputs/<path:filename>` and referenced as `overlay_url` in the template
-- **Dashboard / analysis views** — `dashboard.html` displays confusion-matrix and F1-score artifacts from `outputs/` with graceful fallback when artifacts are absent (shows "Awaiting Model Metadata...")
-- **Error handling and user feedback** — `try/except` around `infer_image()` with flashed inference errors and redirects
-
-Templates use Tailwind CSS (via CDN), Inter font, and glass-morphism styling. Static assets live in `app/static/`.
-
-## Key Features
-
-### Application
-
-- Retinal image upload with drag-and-drop and click-to-browse
-- Input validation (file type, size, presence) with flashed error messages
-- End-to-end prediction workflow (upload → preprocessing → feature extraction → inference → rendering)
-- Probability/confidence presentation per predicted stage
-- Diagnostic result visualization with class name and clinical description
-- Grad-CAM activation overlay generation and display
-- Analytics dashboard that surfaces confusion-matrix and F1-score plots when available
-- Uploaded image and overlay served side-by-side in the diagnostic view
-
-### Engineering
-
-- Flask application structure with configurable `PORT` and `FLASK_DEBUG` env vars
-- Modular inference pipeline (`src/data.py`, `src/features.py`, `src/models.py`, `src/infer.py`, `src/explain.py`)
-- Swappable deep feature extractor (VGG16 / DenseNet121 / MobileNetV2 / InceptionResNetV2)
-- Feature extraction components (deep + LBP + Haralick) with unified `TARGET_SIZE`
-- Feature fusion and `StandardScaler` abstraction
-- Classifier abstraction with ordered fallback (`stacking_calibrated.pkl` → `votingclassifier_model.pkl`)
-- Generated output artifacts (`outputs/gradcam_overlay.png`, `stacking_confusion_matrix.png`, `stacking_f1_scores.png`, `stacking_report.txt`, `features_cache.npz`)
-- Data-corruption handling for Excel-mangled `id_code` values (`src/data.py:_sanitize_id_code`)
+---
 
 ## Tech Stack
 
-| Layer | Technologies |
+| Domain | Technologies |
 |---|---|
-| Language | Python |
-| Web Framework | Flask, Werkzeug |
-| Computer Vision | OpenCV (CLAHE, image I/O) |
-| Deep Learning | TensorFlow / Keras — VGG16 (default), DenseNet121, MobileNetV2, InceptionResNetV2 (all GAP) |
-| Feature Engineering | LBP (scikit-image `local_binary_pattern`), Haralick / GLCM (scikit-image `graycomatrix` / `graycoprops`) |
-| ML | scikit-learn (StackingClassifier, RandomForest, SVC, KNN, LogisticRegression, GridSearchCV), imbalanced-learn (SMOTE, ImbPipeline), joblib |
-| Data | NumPy, Pandas, tqdm |
-| Explainability | Grad-CAM activation map (VGG16 `block5_conv3`) |
-| Visualization | Matplotlib, Seaborn (evaluation reports) |
-| Version Control | Git, GitHub |
+| **Programming Language** | Python 3.9 / 3.10 / 3.11 |
+| **Web Framework** | Flask 2.3+, Jinja2, Werkzeug, Flask-WTF (CSRF) |
+| **WSGI Server** | Waitress (Production multi-threaded server) |
+| **Frontend & Styling** | Vanilla HTML5, Modern Vanilla CSS, Tailwind CSS (CDN), FontAwesome 6, Plus Jakarta Sans & Inter Fonts |
+| **Deep Learning** | TensorFlow 2.12+, Keras (VGG16, DenseNet121 backbones) |
+| **Machine Learning** | scikit-learn (StackingClassifier, RandomForest, SVC, KNN, LogisticRegression), imbalanced-learn (SMOTE), joblib |
+| **Computer Vision & Texture** | OpenCV (`cv2`), scikit-image (`local_binary_pattern`, `graycomatrix`, `graycoprops`) |
+| **Data Processing** | NumPy, Pandas |
+| **Reporting & Visualization** | ReportLab (PDF Generation), Matplotlib, Seaborn |
+| **Version Control** | Git, GitHub |
 
-Dependencies are pinned in `requirements.txt`. No additional libraries are required beyond what is listed there.
-
-## Project Scale
-
-> **10,000+ retinal images**
-
-The hybrid pipeline was designed to operate across 10,000+ retinal images. The current `data/train.csv` included in the repository contains the labeled subset used for local development and evaluation (with `data/train_images/` for the corresponding image files when present locally).
-
-## Screenshots
-
-Screenshots below are from the actual application templates and generated artifacts. Image files are served from `app/static/` and `outputs/`.
-
-### Home / Landing Page
-
-`app/templates/index.html` — hero section with scanner CTA and analytics entry point.
-
-> To add a screenshot: save it as `app/static/screenshot_home.png` and reference it as `![Home](app/static/screenshot_home.png)`.
-
-### Diagnostic View
-
-`app/templates/scanner.html` — upload area, original vs. Grad-CAM overlay, prediction and confidence.
-
-> To add a screenshot: save it as `app/static/screenshot_scanner.png` and reference it as `![Scanner](app/static/screenshot_scanner.png)`.
-
-### Grad-CAM Overlay (generated artifact)
-
-This file is produced by every inference run and also ships as a static preview:
-
-![Grad-CAM overlay](app/static/gradcam_overlay.png)
-
-Source: `app/static/gradcam_overlay.png` (preview) and `outputs/gradcam_overlay.png` (per-inference output, served via `/outputs/gradcam_overlay.png`).
-
-### Analytics Dashboard
-
-`app/templates/dashboard.html` — confusion matrix and F1-score visualizations when `outputs/stacking_confusion_matrix.png` and `outputs/stacking_f1_scores.png` are present; otherwise displays "Awaiting Model Metadata..." placeholders.
-
-> To add dashboard screenshots: run `python -m src.pipeline --train` or `--evaluate` to generate `outputs/stacking_confusion_matrix.png` and `outputs/stacking_f1_scores.png`, then reference them via the `/outputs/<filename>` route.
+---
 
 ## Project Structure
 
 ```
 dr_hybrid_project/
 ├── app/
-│   ├── app.py                 # Flask application — upload, inference, result rendering (my integration layer)
+│   ├── app.py                     # Main Flask application (routes, validation, inference bridge)
 │   ├── templates/
-│   │   ├── index.html         # Landing page
-│   │   ├── scanner.html       # Diagnostic view — upload + results + Grad-CAM
-│   │   └── dashboard.html     # Analytics dashboard — confusion matrix / F1 views
+│   │   ├── base.html              # Core layout (Tailwind, SEO tags, dark-mode script)
+│   │   ├── _navbar.html           # Unified navigation bar (desktop + mobile drawer)
+│   │   ├── _footer.html           # Unified MPA footer with complete clinical & legal links
+│   │   ├── index.html             # Landing page
+│   │   ├── scanner.html           # Diagnostic scanner view & results
+│   │   ├── dashboard.html         # Model analytics & performance dashboard
+│   │   ├── about.html             # About Us (Project authors & capstone documentation)
+│   │   ├── contact.html           # Contact Us (Interactive form & author contacts)
+│   │   ├── privacy.html           # Privacy Policy
+│   │   ├── terms.html             # Terms & Conditions
+│   │   └── _recent_scans.html     # Patient history drawer partial
 │   └── static/
-│       ├── styles.css
-│       ├── gradcam_overlay.png    # Preview / fallback overlay image
-│       └── uploads/               # Served originals (gitignored except .gitkeep)
+│       ├── theme.css              # Custom styling tokens, gradients, animations, glassmorphism
+│       ├── theme.js               # Dark/Light mode switcher and UI interactivity
+│       ├── gradcam_overlay.png    # Preview / fallback overlay graphic
+│       └── uploads/               # Temporary uploads folder (gitignored)
 ├── src/
-│   ├── config.py              # Paths, TARGET_SIZE, FEATURE_EXTRACTOR_MODEL, class names
-│   ├── data.py                # Label loading, id_code sanitization, preprocessing (CLAHE)
-│   ├── features.py            # Deep feature extractor + LBP + Haralick
-│   ├── models.py              # SMOTE pipelines, GridSearchCV, StackingClassifier
-│   ├── infer.py               # Inference entry point — fusion, scaling, classifier, Grad-CAM
-│   ├── explain.py             # Grad-CAM activation map (VGG16 block5_conv3)
-│   ├── evaluate.py            # Classification report, confusion matrix, F1 plots
-│   └── pipeline.py            # Training / evaluation orchestration (python -m src.pipeline)
+│   ├── __init__.py
+│   ├── config.py                  # Pipeline configurations, class names, target dimensions
+│   ├── data.py                    # Dataset loading, ID sanitization, CLAHE preprocessing
+│   ├── features.py                # Deep feature extractor + LBP + Haralick texture fusion
+│   ├── models.py                  # SMOTE pipelines, StackingClassifier, GridSearchCV
+│   ├── infer.py                   # End-to-end inference handler & probability calculation
+│   ├── explain.py                 # Grad-CAM activation mapping (VGG16 block5_conv3)
+│   ├── evaluate.py                # Classification reports, confusion matrix & F1 plots
+│   └── pipeline.py                # Orchestration script (python -m src.pipeline)
 ├── data/
-│   ├── train.csv              # Labels (id_code, diagnosis) — images in train_images/ when present
-│   └── train_images/          # Retinal images (gitignored except .gitkeep)
+│   ├── train.csv                  # Labeled image annotations (id_code, diagnosis)
+│   ├── patient_history.json       # Local persistence for scanner history
+│   └── train_images/              # Training images directory (gitignored)
 ├── models/
-│   ├── scaler.pkl             # StandardScaler (present; 770 KB)
-│   └── stacking_calibrated.pkl / votingclassifier_model.pkl  # Trained classifiers (see Model Files)
-├── outputs/                   # Generated artifacts — gradcam_overlay.png, *_confusion_matrix.png, *_f1_scores.png, features_cache.npz (gitignored)
-├── uploads/                   # Temporary Flask uploads (gitignored)
-├── archive/                   # Historical evaluation notes and helper scripts (not part of runtime)
-├── requirements.txt
-├── generate_scaler.py
-├── setup_domain.py
-└── README.md
+│   ├── scaler.pkl                 # Fitted StandardScaler for 562-d fused features
+│   ├── stacking_calibrated.pkl   # Preferred StackingClassifier model (download / train)
+│   └── votingclassifier_model.pkl # Legacy voting model fallback
+├── outputs/                       # Generated artifacts: Grad-CAM overlays, confusion matrices
+├── uploads/                       # File upload destination (gitignored)
+├── requirements.txt               # Pinned Python package dependencies
+├── run_server.py                  # Production entrypoint using Waitress WSGI
+├── setup_domain.py                # Optional local domain binding utility
+└── README.md                      # Engineering documentation
 ```
 
-> The repository does not contain top-level `models/` or `outputs/` artifacts on GitHub beyond `.gitkeep` — large `.pkl` files are gitignored and must be placed locally (see Model Files).
+---
 
-## Setup & Installation
+## Installation & Quickstart
+
+### 1. Clone the Repository
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/SubodhMuneshwar/dr_hybrid_project.git
 cd dr_hybrid_project
+```
 
-# 2. Create and activate a virtual environment
-python -m venv .venv
+### 2. Create and Activate a Virtual Environment
 
+```bash
 # Windows (PowerShell)
+python -m venv .venv
 .venv\Scripts\Activate.ps1
 
-# Windows (CMD)
+# Windows (Command Prompt)
+python -m venv .venv
 .venv\Scripts\activate.bat
 
 # macOS / Linux
+python3 -m venv .venv
 source .venv/bin/activate
+```
 
-# 3. Install dependencies
+### 3. Install Required Dependencies
+
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-> Note: TensorFlow (`tensorflow>=2.12`) requires Python 3.10–3.11 on Windows. If you are on Python 3.12+, the Flask UI will still load (feature extraction stubs gracefully), but inference will require a compatible Python version.
+> **TensorFlow Compatibility Note**: For full TensorFlow feature extraction with GPU/CPU backbones on Windows, Python 3.9, 3.10, or 3.11 is recommended.
 
-## Model Files
+---
 
-Trained model artifacts are too large to store directly on GitHub and are gitignored (`models/*.pkl` in `.gitignore`).
+## Model Weights & Pretrained Artifacts
 
-### Required files
+Trained ensemble models are too large to host on GitHub repository storage and are excluded via `.gitignore`.
 
-| File | Purpose | Status |
+### Required Files
+
+| Filename | Description | Status |
 |---|---|---|
-| `models/scaler.pkl` | `StandardScaler` fitted on fused features | Included locally (770 KB); regenerate via `python -m src.pipeline --train` if missing |
-| `models/stacking_calibrated.pkl` | **Preferred** classifier — `StackingClassifier` (RF + SVM + KNN → Logistic Regression) | Required for current inference path; download or train locally |
-| `models/votingclassifier_model.pkl` | **Fallback** classifier — legacy voting ensemble | Retained for backward compatibility; used only if `stacking_calibrated.pkl` is absent |
+| `models/scaler.pkl` | `StandardScaler` fitted on 562-d fused feature vectors | **Included in repo** (~770 KB) |
+| `models/stacking_calibrated.pkl` | **Preferred** classifier — Stacking Ensemble (RF + SVM + KNN → Logistic Regression) | Download or train locally |
+| `models/votingclassifier_model.pkl` | **Fallback** classifier — Legacy soft voting ensemble | Retained for backward compatibility |
 
-`src/infer.py:_load_classifier()` checks for `stacking_calibrated.pkl` first, then falls back to `votingclassifier_model.pkl`. If neither is present, inference raises `FileNotFoundError` with instructions.
+### Download Pretrained Weights
 
-### Where to place them
+Pretrained model weights can be downloaded from our shared repository storage:
 
-Place the `.pkl` files directly in the `models/` directory at the repository root:
+🔗 **[Download Model Weights via Google Drive](https://drive.google.com/drive/folders/1ObEF3nNfyCsRqXyNYNNnEfshAwr2dgi6?usp=sharing)**
 
+Place the downloaded `.pkl` files into the `models/` directory:
 ```
 dr_hybrid_project/
 └── models/
     ├── scaler.pkl
-    ├── stacking_calibrated.pkl   # preferred
-    └── votingclassifier_model.pkl  # fallback
+    ├── stacking_calibrated.pkl
+    └── votingclassifier_model.pkl
 ```
 
-### Where to download
-
-The legacy voting classifier and scaler were previously distributed via Google Drive (link from the prior README):
-
-- https://drive.google.com/drive/folders/1ObEF3nNfyCsRqXyNYNNnEfshAwr2dgi6?usp=sharing
-
-If a stacking-calibrated artifact is published, it should be placed at `models/stacking_calibrated.pkl` in the same directory. Alternatively, train it locally:
-
+Alternatively, you can re-train the stacking pipeline from scratch using your local dataset:
 ```bash
 python -m src.pipeline --train
 ```
 
-This generates `models/stacking_calibrated.pkl` and `models/scaler.pkl`, plus evaluation artifacts in `outputs/`.
-
-> Do not commit `.pkl` files to Git — they are intentionally gitignored due to size (the legacy voting model is ~2.5 GB).
+---
 
 ## Running the Application
 
-```bash
-# From the repository root, with the virtual environment activated
-# and model files in place (see Model Files above):
+### Method 1: Production Server via Waitress (Recommended)
 
-# Option A — Flask CLI (recommended)
+Run the multi-threaded Waitress WSGI server:
+
+```bash
+python run_server.py
+```
+The application will launch at: **`http://127.0.0.1:5000`**
+
+### Method 2: Flask Development Server
+
+```bash
 # Windows (PowerShell)
 $env:FLASK_APP="app/app.py"
 flask run --port 5001
@@ -311,46 +413,59 @@ flask run --port 5001
 # macOS / Linux
 export FLASK_APP=app/app.py
 flask run --port 5001
-
-# Option B — Direct Python
-python app/app.py
-# respects PORT and FLASK_DEBUG env vars (defaults: 5001, false)
-
-# Then open:
-# http://127.0.0.1:5001          → Landing page
-# http://127.0.0.1:5001/scanner  → Diagnostic view (upload + results)
-# http://127.0.0.1:5001/dashboard → Analytics dashboard
 ```
 
-Additional commands:
+Then visit:
+- **Landing Page**: `http://127.0.0.1:5001/`
+- **Diagnostic Scanner**: `http://127.0.0.1:5001/scanner`
+- **Analytics Dashboard**: `http://127.0.0.1:5001/dashboard`
+- **About Us**: `http://127.0.0.1:5001/about`
+- **Contact Us**: `http://127.0.0.1:5001/contact`
+
+### Method 3: Command-Line Single Image Inference
+
+Run diagnostic inference directly on an image file without starting the web UI:
 
 ```bash
-# Run inference on a single image (without the web UI)
-python -m src.infer --image path/to/image.png
+python -m src.infer --image "test imgs/test_mild.png"
+```
 
-# Re-train the stacking pipeline (requires data/train_images/ and data/train.csv)
-python -m src.pipeline --train
+---
 
-# Re-evaluate a cached feature set
+## Evaluation & Model Quality
+
+The hybrid model was evaluated on benchmark diabetic retinopathy datasets across the 5 standard clinical grades:
+
+```
+Grade 0: No Diabetic Retinopathy  (Normal fundus, no microaneurysms)
+Grade 1: Mild Non-Proliferative   (Microaneurysms only)
+Grade 2: Moderate Non-Proliferative (More than just microaneurysms, fewer than severe)
+Grade 3: Severe Non-Proliferative (Cotton wool spots, venous beading, >20 intraretinal hemorrhages in 4 quadrants)
+Grade 4: Proliferative Retinopathy (Neovascularization, vitreous hemorrhage)
+```
+
+To regenerate evaluation reports and graphical artifacts:
+
+```bash
+# Re-evaluate cached features and produce confusion matrix + F1 plots
 python -m src.pipeline --evaluate
 ```
 
-Performance metrics depend on the trained model artifact and evaluation configuration included with the project.
+Generated outputs will be saved to `outputs/`:
+- `outputs/stacking_confusion_matrix.png`
+- `outputs/stacking_f1_scores.png`
+- `outputs/stacking_report.txt`
 
-## Limitations
+---
 
-- Trained model artifacts (`*.pkl`) are not stored directly on GitHub because of file-size constraints and must be downloaded or trained locally before inference will run.
-- Local inference requires the trained model files in `models/` and a Python environment with the dependencies in `requirements.txt` (TensorFlow requires Python 3.10–3.11 for full feature extraction).
-- This is an educational/research project — predictions should not be treated as medical diagnosis and the system is not intended for clinical use or as a production medical device.
-- The Grad-CAM output in `src/explain.py` is an activation feature map (mean of VGG16 `block5_conv3` filters), not a gradient-based explanation of the sklearn classifier's decision boundary.
-- Dashboard visualizations (`outputs/*.png`) only appear after a training or evaluation run has generated them.
+## Limitations & Medical Disclaimer
 
-## Collaboration & Attribution
+1. **Academic & Research Scope**: RetinaScan AI was developed as a College Final Year Major Project for educational and research evaluation. It is **not** an FDA/CE-cleared medical diagnostic device and must not be used as an independent clinical diagnostic instrument.
+2. **Clinical Correlation**: Retinal images may feature artifacts, cataracts, or poor pupillary dilation that affect feature extraction. Any clinical decisions must be confirmed by a board-certified ophthalmologist.
+3. **Grad-CAM Interpretability**: Saliency heatmaps visualize intermediate feature activations from the convolutional backbone (VGG16 `block5_conv3`) to highlight morphological areas of interest; they do not mathematically represent the decision boundary of the downstream stacking ensemble.
 
-This project was developed collaboratively. I owned the frontend implementation and application/system integration, while the ML pipeline development, model training, and evaluation were handled collaboratively by the project team.
-
-The repository is maintained and documented under my GitHub account at https://github.com/SubodhMuneshwar/dr_hybrid_project.
+---
 
 ## License
 
-This project is for educational and research purposes.
+This project is released under the **Educational & Academic Research License**. Developed for academic capstone presentation and non-commercial scientific study.

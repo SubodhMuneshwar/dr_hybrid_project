@@ -1,0 +1,605 @@
+<title>Diabetic Retinopathy Detector</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --color-primary: #0ea5e9;
+    --color-primary-dark: #0284c7;
+    --color-text: #1e293b;
+    --color-text-light: #64748b;
+    --color-bg: #ffffff;
+    --color-bg-alt: #f8fafc;
+    --color-border: #e2e8f0;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-text: #f1f5f9;
+      --color-text-light: #cbd5e1;
+      --color-bg: #0f172a;
+      --color-bg-alt: #1e293b;
+      --color-border: #334155;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --color-text: #f1f5f9;
+    --color-text-light: #cbd5e1;
+    --color-bg: #0f172a;
+    --color-bg-alt: #1e293b;
+    --color-border: #334155;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: var(--color-bg);
+    line-height: 1.6;
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Navigation */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: var(--color-bg-alt);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.95rem;
+    color: var(--color-text-light);
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  /* Main Content */
+  main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .section {
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    text-align: center;
+    padding: 6rem 2rem;
+  }
+
+  .hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .hero p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: white;
+    color: var(--color-primary);
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    text-decoration: none;
+  }
+
+  /* Features Grid */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  .feature-card {
+    padding: 2rem;
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+  }
+
+  .feature-card h3 {
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+
+  .feature-card p {
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--color-bg-alt);
+    border-top: 1px solid var(--color-border);
+    padding: 2rem;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+
+  .footer-section h4 {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    letter-spacing: 0.05em;
+  }
+
+  .footer-section ul {
+    list-style: none;
+  }
+
+  .footer-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-section a {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+
+  .footer-section a:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-light);
+    font-size: 0.85rem;
+  }
+
+  /* Page Sections (hidden by default) */
+  .page-section {
+    display: none;
+  }
+
+  .page-section.active {
+    display: block;
+  }
+
+  .page-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-primary);
+  }
+
+  .page-section h3 {
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .page-section p {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+    color: var(--color-text-light);
+  }
+
+  .page-section ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-section li {
+    margin-bottom: 0.5rem;
+    color: var(--color-text-light);
+  }
+
+  /* Disclaimer Box */
+  .disclaimer {
+    background: #fef3c7;
+    border-left: 4px solid var(--color-warning);
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border-radius: 0.25rem;
+  }
+
+  .disclaimer strong {
+    color: #92400e;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .disclaimer {
+      background: rgba(245, 158, 11, 0.1);
+      border-left-color: var(--color-warning);
+    }
+    .disclaimer strong {
+      color: #fcd34d;
+    }
+  }
+
+  :root[data-theme="dark"] .disclaimer {
+    background: rgba(245, 158, 11, 0.1);
+    border-left-color: var(--color-warning);
+  }
+
+  :root[data-theme="dark"] .disclaimer strong {
+    color: #fcd34d;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero h1 {
+      font-size: 2rem;
+    }
+
+    .hero p {
+      font-size: 1rem;
+    }
+
+    .nav-links {
+      gap: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .section {
+      padding: 2rem 1rem;
+    }
+  }
+</style>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-brand">🔍 DR Detector</div>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('home'); return false;">Home</a></li>
+    <li><a href="#" onclick="showPage('about'); return false;">About</a></li>
+    <li><a href="#" onclick="showPage('contact'); return false;">Contact</a></li>
+    <li><a href="#" onclick="showPage('privacy'); return false;">Privacy</a></li>
+  </ul>
+</nav>
+
+<!-- Home Page -->
+<div id="home" class="page-section active">
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Diabetic Retinopathy Detection</h1>
+    <p>AI-powered analysis of retinal images to help detect diabetic retinopathy in early stages</p>
+    <a href="http://localhost:5000" class="cta-button">Try the Demo →</a>
+  </section>
+
+  <!-- Main Content -->
+  <main>
+    <section class="section">
+      <div class="disclaimer">
+        <strong>⚠️ Educational Disclaimer:</strong> This tool is for educational and demonstration purposes only. It is <strong>NOT</strong> a substitute for professional medical diagnosis or treatment. Always consult with a qualified healthcare provider for medical concerns.
+      </div>
+
+      <h2 style="color: var(--color-primary); margin-bottom: 1.5rem;">How It Works</h2>
+
+      <div class="features">
+        <div class="feature-card">
+          <h3>📸 Upload Image</h3>
+          <p>Upload a retinal fundus image in PNG or JPEG format. The image should be clear and properly lit for accurate analysis.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🤖 AI Analysis</h3>
+          <p>Our machine learning model analyzes the image to detect signs of diabetic retinopathy using advanced deep learning techniques.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📊 Detailed Report</h3>
+          <p>Get instant results including severity classification, confidence scores, and visual heatmaps showing areas of concern.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📈 Patient Dashboard</h3>
+          <p>Track scan history for multiple patients and monitor changes over time with comprehensive records.</p>
+        </div>
+      </div>
+
+      <h2 style="color: var(--color-primary); margin: 2rem 0 1rem;">Features</h2>
+      <ul style="margin-left: 1.5rem; color: var(--color-text-light);">
+        <li>Supports 5 classification levels: No DR, Mild, Moderate, Severe, and Proliferative DR</li>
+        <li>Confidence scores for each prediction</li>
+        <li>Visual heatmaps showing model focus areas</li>
+        <li>Patient history tracking and management</li>
+        <li>PDF report generation for medical records</li>
+        <li>Secure image handling and storage</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<!-- About Page -->
+<div id="about" class="page-section">
+  <section class="section">
+    <h2>About Us</h2>
+
+    <h3>Project Overview</h3>
+    <p>The Diabetic Retinopathy Detection system is an innovative tool designed to assist in the early detection of diabetic retinopathy using artificial intelligence and machine learning. This project combines medical imaging analysis with state-of-the-art deep learning models.</p>
+
+    <h3>Our Mission</h3>
+    <p>To provide accessible, accurate, and user-friendly tools that support healthcare professionals in identifying diabetic retinopathy at early stages, potentially preventing vision loss and improving patient outcomes.</p>
+
+    <h3>Technology Stack</h3>
+    <ul>
+      <li><strong>Backend:</strong> Python, Flask, TensorFlow, Keras</li>
+      <li><strong>Frontend:</strong> HTML, CSS, JavaScript</li>
+      <li><strong>ML Models:</strong> Convolutional Neural Networks (CNNs) trained on retinal imaging datasets</li>
+      <li><strong>Image Processing:</strong> OpenCV, scikit-image</li>
+      <li><strong>Data Analysis:</strong> NumPy, Pandas, scikit-learn</li>
+    </ul>
+
+    <h3>Classification System</h3>
+    <p>Our system classifies retinal images into 5 categories:</p>
+    <ul>
+      <li><strong>Class 0 - No DR:</strong> No signs of diabetic retinopathy</li>
+      <li><strong>Class 1 - Mild DR:</strong> Mild microaneurysms present</li>
+      <li><strong>Class 2 - Moderate DR:</strong> Moderate hemorrhages and hard exudates</li>
+      <li><strong>Class 3 - Severe DR:</strong> Multiple hemorrhages and venous beading</li>
+      <li><strong>Class 4 - Proliferative DR:</strong> Neovascularization and retinal detachment risk</li>
+    </ul>
+
+    <h3>Dataset and Training</h3>
+    <p>The model was trained on publicly available diabetic retinopathy datasets and validated with rigorous testing protocols to ensure accuracy and reliability.</p>
+
+    <div class="disclaimer">
+      <strong>Note:</strong> This tool is a demonstration of AI capabilities in medical imaging. Results should always be verified by qualified healthcare professionals before any clinical decisions are made.
+    </div>
+  </section>
+</div>
+
+<!-- Contact Page -->
+<div id="contact" class="page-section">
+  <section class="section">
+    <h2>Contact Us</h2>
+
+    <h3>Get in Touch</h3>
+    <p>We'd love to hear from you. Whether you have questions, feedback, or technical issues, please reach out.</p>
+
+    <h3>Contact Information</h3>
+    <ul>
+      <li><strong>Email:</strong> <a href="mailto:info@drdetector.com">info@drdetector.com</a></li>
+      <li><strong>GitHub:</strong> <a href="https://github.com" target="_blank">Visit our repository</a></li>
+      <li><strong>Support:</strong> For technical issues, please open an issue on our GitHub repository</li>
+    </ul>
+
+    <h3>Feedback</h3>
+    <p>We continuously work to improve our system. If you have suggestions for enhancement or notice any issues, please let us know.</p>
+
+    <h3>Research & Collaboration</h3>
+    <p>Interested in collaborating on diabetic retinopathy research or improving the model? Contact us to discuss opportunities.</p>
+
+    <div class="disclaimer">
+      <strong>Medical Inquiries:</strong> This is a demonstration tool, not a medical service. For medical advice or concerns about diabetic retinopathy, please consult with your healthcare provider.
+    </div>
+  </section>
+</div>
+
+<!-- Privacy Policy -->
+<div id="privacy" class="page-section">
+  <section class="section">
+    <h2>Privacy Policy</h2>
+    <p><strong>Last Updated: September 2026</strong></p>
+
+    <h3>1. Introduction</h3>
+    <p>This Privacy Policy explains how we handle information when you use the Diabetic Retinopathy Detection system. We are committed to protecting your privacy and ensuring transparency in our data practices.</p>
+
+    <h3>2. Information We Collect</h3>
+    <ul>
+      <li><strong>Images:</strong> Retinal fundus images you upload for analysis</li>
+      <li><strong>Patient Information:</strong> Patient names and examination dates you provide</li>
+      <li><strong>Usage Data:</strong> Information about how you interact with the system</li>
+      <li><strong>Technical Data:</strong> IP addresses, browser type, and device information</li>
+    </ul>
+
+    <h3>3. How We Use Your Information</h3>
+    <ul>
+      <li>To analyze images and generate diagnostic reports</li>
+      <li>To maintain patient history and medical records</li>
+      <li>To improve our AI models and system performance</li>
+      <li>To monitor system usage and detect technical issues</li>
+      <li>To comply with legal obligations</li>
+    </ul>
+
+    <h3>4. Data Security</h3>
+    <p>We implement industry-standard security measures including encryption, secure storage, and access controls to protect your data from unauthorized access or disclosure.</p>
+
+    <h3>5. Data Retention</h3>
+    <p>Medical images and patient data are retained as long as necessary to provide our services and comply with applicable regulations. Users can request deletion of their data at any time.</p>
+
+    <h3>6. Third-Party Services</h3>
+    <p>We do not share your personal information with third parties without your explicit consent, except as required by law or to provide our services.</p>
+
+    <h3>7. User Rights</h3>
+    <p>You have the right to:</p>
+    <ul>
+      <li>Access your personal data</li>
+      <li>Request correction or deletion of your data</li>
+      <li>Export your data in a standard format</li>
+      <li>Opt-out of non-essential data collection</li>
+    </ul>
+
+    <h3>8. HIPAA & Healthcare Compliance</h3>
+    <p>Note: This demonstration version is not HIPAA-compliant. For use in clinical settings requiring HIPAA compliance, a custom enterprise deployment is required.</p>
+
+    <h3>9. Contact Us</h3>
+    <p>For privacy concerns or data requests, please contact us at <a href="mailto:privacy@drdetector.com">privacy@drdetector.com</a></p>
+  </section>
+</div>
+
+<!-- Terms & Conditions (shown via Terms link) -->
+<div id="terms" class="page-section">
+  <section class="section">
+    <h2>Terms & Conditions</h2>
+    <p><strong>Last Updated: September 2026</strong></p>
+
+    <h3>1. Acceptance of Terms</h3>
+    <p>By using the Diabetic Retinopathy Detection system, you agree to comply with these Terms & Conditions. If you do not agree, please do not use this service.</p>
+
+    <h3>2. Educational and Demonstration Use</h3>
+    <p>This tool is provided for educational, research, and demonstration purposes only. It is not intended for clinical diagnostic use without proper medical supervision and regulatory approval.</p>
+
+    <h3>3. Medical Disclaimer</h3>
+    <p><strong>IMPORTANT:</strong> This tool is NOT a substitute for professional medical diagnosis. Results from this system should never be used as the sole basis for medical decisions. Always consult with qualified healthcare professionals.</p>
+
+    <h3>4. Accuracy and Limitations</h3>
+    <p>While we strive for accuracy, the AI model may produce false positives or false negatives. Image quality, lighting, and other factors can affect results. Users accept full responsibility for interpreting and acting on results appropriately.</p>
+
+    <h3>5. User Responsibilities</h3>
+    <ul>
+      <li>You are responsible for obtaining proper consent before uploading patient images</li>
+      <li>You must comply with all applicable healthcare laws and regulations</li>
+      <li>You must not attempt to reverse-engineer or misuse the AI model</li>
+      <li>You must not upload images that violate privacy or contain protected health information without proper safeguards</li>
+    </ul>
+
+    <h3>6. Limitation of Liability</h3>
+    <p>We are not liable for any direct, indirect, or consequential damages resulting from the use or misuse of this system, including medical consequences from relying on our analysis.</p>
+
+    <h3>7. Data Handling</h3>
+    <ul>
+      <li>Images are processed and stored securely</li>
+      <li>You retain ownership of uploaded images and data</li>
+      <li>We reserve the right to use anonymized data for model improvement</li>
+      <li>You can request deletion of your data at any time</li>
+    </ul>
+
+    <h3>8. Intellectual Property</h3>
+    <p>The AI model, software code, and system architecture are protected intellectual property. Users are granted a limited license to use the system for legitimate purposes only.</p>
+
+    <h3>9. Prohibited Uses</h3>
+    <p>Users shall not:</p>
+    <ul>
+      <li>Use the system for commercial purposes without authorization</li>
+      <li>Attempt to gain unauthorized access to the system</li>
+      <li>Misrepresent results as professional medical opinions</li>
+      <li>Sell or distribute our models or results</li>
+      <li>Use the system for any illegal purposes</li>
+    </ul>
+
+    <h3>10. Modifications to Service</h3>
+    <p>We reserve the right to modify or discontinue this service at any time with or without notice.</p>
+
+    <h3>11. Contact for Legal Matters</h3>
+    <p>For questions regarding these terms, please contact <a href="mailto:legal@drdetector.com">legal@drdetector.com</a></p>
+  </section>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-section">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#" onclick="showPage('home'); return false;">Home</a></li>
+        <li><a href="#" onclick="showPage('about'); return false;">About</a></li>
+        <li><a href="http://localhost:5000" target="_blank">Live Demo</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#" onclick="showPage('privacy'); return false;">Privacy Policy</a></li>
+        <li><a href="#" onclick="showPage('terms'); return false;">Terms & Conditions</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#" onclick="showPage('contact'); return false;">Contact Us</a></li>
+        <li><a href="https://github.com" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Disclaimer</h4>
+      <p style="font-size: 0.85rem; line-height: 1.6;">This tool is for educational purposes only and not a substitute for professional medical diagnosis.</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 Diabetic Retinopathy Detection. All rights reserved. This is a demonstration project.</p>
+  </div>
+</footer>
+
+<script>
+  function showPage(pageId) {
+    // Hide all pages
+    const pages = document.querySelectorAll('.page-section');
+    pages.forEach(page => page.classList.remove('active'));
+
+    // Show selected page
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+      targetPage.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  }
+
+  // Handle Terms link in footer
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add Terms link handler if needed
+  });
+</script>
