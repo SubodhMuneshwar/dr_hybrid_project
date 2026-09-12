@@ -672,6 +672,7 @@
     }
 
     // Initialize interactive subsystems
+    initInteractiveClickGrid();
     initNeuralInspector();
     initSampleLoader();
     initDashboardFilters();
@@ -775,9 +776,220 @@
     });
   }
 
+  // ==========================================================================
+  // ==========================================================================
+  // Interactive Grid Background: Glows Radiantly on Click
+  // ==========================================================================
+  function initInteractiveClickGrid() {
+    // 1. Clean up any previous background elements
+    document.querySelectorAll("#neuralCanvasBg, #cursorSpotlightGlow, .ambient-neural-orb").forEach((el) => el.remove());
+
+    // 2. Inject or locate the interactive grid canvas
+    let canvas = document.getElementById("interactiveGridCanvas");
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      canvas.id = "interactiveGridCanvas";
+      document.body.prepend(canvas);
+    }
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let width = 0;
+    let height = 0;
+    let dpr = window.devicePixelRatio || 1;
+    let animationFrameId = null;
+    let isAnimating = false;
+
+    // Grid size aligned with CSS background (36px)
+    const GRID_SIZE = 36;
+
+    // List of active click glow pulses
+    const pulses = [];
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Trigger redraw if pulses exist
+      if (pulses.length > 0 && !isAnimating) {
+        isAnimating = true;
+        animationFrameId = requestAnimationFrame(render);
+      }
+    }
+    resize();
+    window.addEventListener("resize", resize, { passive: true });
+
+    // Listen for clicks across the window (pointerdown is faster and covers touch/mouse)
+    window.addEventListener("pointerdown", (e) => {
+      // Create a radiant grid glow pulse at the exact click location
+      const maxRad = Math.min(340, Math.max(220, Math.min(width, height) * 0.42));
+      pulses.push({
+        x: e.clientX,
+        y: e.clientY,
+        radius: 0,
+        maxRadius: maxRad,
+        speed: 14,
+        alpha: 1.0,
+        decay: 0.028
+      });
+
+      if (!isAnimating) {
+        isAnimating = true;
+        animationFrameId = requestAnimationFrame(render);
+      }
+    }, { passive: true });
+
+    function render() {
+      if (pulses.length === 0) {
+        ctx.clearRect(0, 0, width, height);
+        isAnimating = false;
+        animationFrameId = null;
+        return;
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+      const isDark = document.documentElement.classList.contains("dark");
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Color scheme for glowing grid
+      // Dark mode: Vivid Cyan & Indigo glow | Light mode: Vibrant Clinical Indigo & Cyan
+      const glowColor = isDark ? "#06b6d4" : "#4f46e5";
+      const secondaryColor = isDark ? "#818cf8" : "#0284c7";
+
+      for (let pIdx = pulses.length - 1; pIdx >= 0; pIdx--) {
+        const pulse = pulses[pIdx];
+
+        // Animate pulse wave expansion and decay
+        pulse.radius += pulse.speed;
+        pulse.speed = Math.max(4.5, pulse.speed * 0.95);
+        pulse.alpha -= pulse.decay;
+
+        if (pulse.alpha <= 0.01 || pulse.radius >= pulse.maxRadius) {
+          pulses.splice(pIdx, 1);
+          continue;
+        }
+
+        const r = pulse.radius;
+        const currentAlpha = Math.max(0, pulse.alpha);
+
+        // 1. Soft radial background illumination through the grid squares
+        const radialGrad = ctx.createRadialGradient(pulse.x, pulse.y, 0, pulse.x, pulse.y, r);
+        if (isDark) {
+          radialGrad.addColorStop(0, `rgba(6, 182, 212, ${currentAlpha * 0.18})`);
+          radialGrad.addColorStop(0.45, `rgba(99, 102, 241, ${currentAlpha * 0.11})`);
+          radialGrad.addColorStop(1, "rgba(6, 182, 212, 0)");
+        } else {
+          radialGrad.addColorStop(0, `rgba(79, 70, 229, ${currentAlpha * 0.15})`);
+          radialGrad.addColorStop(0.5, `rgba(2, 132, 199, ${currentAlpha * 0.08})`);
+          radialGrad.addColorStop(1, "rgba(79, 70, 229, 0)");
+        }
+
+        ctx.save();
+        ctx.fillStyle = radialGrad;
+        ctx.beginPath();
+        ctx.arc(pulse.x, pulse.y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // 2. Identify and draw glowing vertical & horizontal grid lines within the pulse radius
+        const minX = Math.max(0, Math.floor((pulse.x - r) / GRID_SIZE) * GRID_SIZE);
+        const maxX = Math.min(width, Math.ceil((pulse.x + r) / GRID_SIZE) * GRID_SIZE);
+        const minY = Math.max(0, Math.floor((pulse.y - r) / GRID_SIZE) * GRID_SIZE);
+        const maxY = Math.min(height, Math.ceil((pulse.y + r) / GRID_SIZE) * GRID_SIZE);
+
+        ctx.save();
+        ctx.lineWidth = isDark ? 2.0 : 1.6;
+        ctx.shadowBlur = isDark ? 14 : 9;
+        ctx.shadowColor = glowColor;
+
+        // Draw glowing vertical grid lines
+        for (let x = minX; x <= maxX; x += GRID_SIZE) {
+          const dx = Math.abs(x - pulse.x);
+          if (dx <= r) {
+            const dy = Math.sqrt(r * r - dx * dx);
+            const y1 = Math.max(0, pulse.y - dy);
+            const y2 = Math.min(height, pulse.y + dy);
+
+            // Proximity to wave front
+            const lineProximity = 1 - (dx / r);
+            const lineAlpha = currentAlpha * lineProximity * (isDark ? 0.92 : 0.78);
+
+            ctx.strokeStyle = isDark
+              ? `rgba(6, 182, 212, ${lineAlpha})`
+              : `rgba(79, 70, 229, ${lineAlpha})`;
+
+            ctx.beginPath();
+            ctx.moveTo(x, y1);
+            ctx.lineTo(x, y2);
+            ctx.stroke();
+          }
+        }
+
+        // Draw glowing horizontal grid lines
+        for (let y = minY; y <= maxY; y += GRID_SIZE) {
+          const dy = Math.abs(y - pulse.y);
+          if (dy <= r) {
+            const dx = Math.sqrt(r * r - dy * dy);
+            const x1 = Math.max(0, pulse.x - dx);
+            const x2 = Math.min(width, pulse.x + dx);
+
+            // Proximity to wave front
+            const lineProximity = 1 - (dy / r);
+            const lineAlpha = currentAlpha * lineProximity * (isDark ? 0.92 : 0.78);
+
+            ctx.strokeStyle = isDark
+              ? `rgba(6, 182, 212, ${lineAlpha})`
+              : `rgba(79, 70, 229, ${lineAlpha})`;
+
+            ctx.beginPath();
+            ctx.moveTo(x1, y);
+            ctx.lineTo(x2, y);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+
+        // 3. Draw illuminated glowing intersection points (crosshair dots)
+        ctx.save();
+        ctx.fillStyle = secondaryColor;
+        ctx.shadowBlur = isDark ? 14 : 9;
+        ctx.shadowColor = secondaryColor;
+
+        for (let x = minX; x <= maxX; x += GRID_SIZE) {
+          for (let y = minY; y <= maxY; y += GRID_SIZE) {
+            const dist = Math.hypot(x - pulse.x, y - pulse.y);
+            if (dist <= r && dist >= Math.max(0, r - 60)) {
+              // Intersection node is right along the expanding wave front
+              const nodeAlpha = currentAlpha * (1 - Math.abs(dist - (r - 20)) / 45);
+              if (nodeAlpha > 0.08) {
+                ctx.fillStyle = isDark
+                  ? `rgba(129, 140, 248, ${nodeAlpha})`
+                  : `rgba(2, 132, 199, ${nodeAlpha})`;
+
+                ctx.beginPath();
+                ctx.arc(x, y, isDark ? 2.8 : 2.2, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          }
+        }
+        ctx.restore();
+      }
+    }
+  }
+
   window.__retinascan = {
     applyTheme,
     currentTheme,
+    initInteractiveClickGrid,
     initNeuralInspector,
     initSampleLoader,
     initDashboardFilters,
