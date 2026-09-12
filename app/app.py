@@ -11,7 +11,6 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.utils import secure_filename
-from werkzeug.security import secure_filename as secure_filename_check
 from flask import send_file
 from wtforms import StringField, FileField, validators
 from reportlab.pdfgen import canvas
@@ -34,7 +33,11 @@ CONFIDENCE_REDUCTION_FACTOR = 0.9
 CONFIDENCE_MIN_THRESHOLD = 50
 
 # File locking for concurrent access
-import fcntl
+import platform
+if platform.system() != "Windows":
+    import fcntl
+else:
+    fcntl = None
 
 def load_data():
     """Load patient data from JSON with file locking for thread safety."""
@@ -45,12 +48,14 @@ def load_data():
 
     try:
         with open(DATA_FILE, "r") as f:
-            # Acquire shared lock for reading
-            fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+            # Acquire shared lock for reading (Unix only)
+            if fcntl:
+                fcntl.flock(f.fileno(), fcntl.LOCK_SH)
             try:
                 data = json.load(f)
             finally:
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                if fcntl:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
         return data
     except (json.JSONDecodeError, IOError) as e:
         logger.error(f"Error loading patient data: {e}")
@@ -63,12 +68,14 @@ def save_data(data):
 
     try:
         with open(temp_file, "w") as f:
-            # Acquire exclusive lock for writing
-            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            # Acquire exclusive lock for writing (Unix only)
+            if fcntl:
+                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
             try:
                 json.dump(data, f, indent=2)
             finally:
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                if fcntl:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
         # Atomic rename
         os.replace(temp_file, DATA_FILE)
     except IOError as e:
