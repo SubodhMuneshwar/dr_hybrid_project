@@ -17,8 +17,8 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 # ---------- Feature extractor ----------
 # Options: 'mobilenetv2', 'densenet121', 'inceptionresnetv2', 'vgg16'
 FEATURE_EXTRACTOR_MODEL = "vgg16"
-TARGET_SIZE = (224, 224)  # unified for training and inference
-# Derived feature dimensions: VGG16 GAP=512, DenseNet121=1024, MobileNetV2=1280, InceptionResNetV2=1536; + LBP 26 + Haralick 24
+TARGET_SIZE = (256, 256)  # 256x256 maps to 8x8x512=32768 deep features for scaler.pkl (32818 total) and 16x16 Grad-CAM
+# Derived feature dimensions: VGG16 GAP=512, flattened 8x8x512=32768; + LBP 26 + Haralick 24 = 32818
 
 # ---------- Classes ----------
 # Diabetic Retinopathy Classification Levels

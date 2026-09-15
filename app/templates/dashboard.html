@@ -40,15 +40,20 @@
       }
     };
   </script>
-  <!-- Immediate Theme Initializer: Strictly follows system/OS configuration -->
+  <!-- Immediate Theme Initializer: Preserves user choice, defaults to system OS preference -->
   <script>
     (function () {
-      try { localStorage.removeItem("theme"); } catch (e) {}
-      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+      try {
+        const savedTheme = localStorage.getItem("theme");
+        const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (savedTheme === "dark" || (!savedTheme && systemDark)) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (e) {}
     })();
   </script>
   <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
@@ -486,8 +491,6 @@
   <!-- Global Unified Footer -->
   {% include '_footer.html' %}
 
-  <script src="{{ url_for('static', filename='theme.js') }}"></script>
-  
   <!-- Chart Rendering -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -596,5 +599,7 @@
       }
     });
   </script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='grid-background.js') }}"></script>
 </body>
 </html>

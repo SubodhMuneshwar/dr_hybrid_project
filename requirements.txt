@@ -5,8 +5,10 @@ imbalanced-learn
 opencv-python
 matplotlib
 seaborn
-tensorflow>=2.12
-keras
+tensorflow>=2.12; python_version < "3.12"
+torch>=2.0
+torchvision>=0.15
+keras; python_version < "3.12"
 joblib
 scikit-image
 flask

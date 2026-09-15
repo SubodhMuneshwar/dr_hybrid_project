@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta name="csrf-token" content="{{ csrf_token() }}"/>
   <title>RetinaScan AI | Clinical Diagnostic Scanner</title>
   
   <!-- Favicon -->
@@ -37,15 +38,20 @@
       }
     };
   </script>
-  <!-- Immediate Theme Initializer: Strictly follows system/OS configuration -->
+  <!-- Immediate Theme Initializer: Preserves user choice, defaults to system OS preference -->
   <script>
     (function () {
-      try { localStorage.removeItem("theme"); } catch (e) {}
-      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+      try {
+        const savedTheme = localStorage.getItem("theme");
+        const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (savedTheme === "dark" || (!savedTheme && systemDark)) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (e) {}
     })();
   </script>
   <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
@@ -106,58 +112,77 @@
             </div>
 
             <!-- Quick Clinical Presets Selector (Compact 1-Click Test) -->
-            <div class="mb-3 p-2.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-white/10">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                  <i class="fas fa-bolt text-amber-500 text-[10px]"></i>
+            <div class="mb-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-white/10 shadow-xs">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <i class="fas fa-bolt text-amber-500 text-xs"></i>
                   <span>Quick Presets</span>
                 </span>
                 <div class="flex items-center gap-2">
-                  <button type="button" id="previewHudBtn" onclick="window.previewHudLoading()" class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors flex items-center gap-1 cursor-pointer">
-                    <i class="fas fa-play-circle text-[10px]"></i>
+                  <button type="button" id="previewHudBtn" onclick="window.previewHudLoading()" class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors flex items-center gap-1 cursor-pointer">
+                    <i class="fas fa-play-circle text-xs"></i>
                     <span>Preview HUD</span>
                   </button>
                   <span class="text-slate-300 dark:text-slate-600">&bull;</span>
-                  <span class="text-[10px] font-semibold text-slate-400">1-Click Demo</span>
+                  <span class="text-[10px] font-semibold text-slate-400">1-Click Test</span>
                 </div>
               </div>
-              <div class="grid grid-cols-3 gap-1.5">
+              <div class="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  data-sample-url="/uploads/0.jpg"
-                  data-sample-patient="Sample Case: Healthy Retina"
+                  data-sample-url="/uploads/healthy_retina_sample.jpg"
+                  data-sample-patient="Sample Case - Healthy Retina"
                   data-sample-filename="healthy_retina_sample.jpg"
-                  class="preset-accent-green p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-emerald-500 bg-white dark:bg-slate-800 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/40 text-left transition-all group"
+                  data-sample-label="Normal"
+                  class="sample-preset-btn preset-accent-green p-2 rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-slate-800/80 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/30 text-left transition-all group relative cursor-pointer"
                 >
-                  <div class="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">Normal</div>
-                  <div class="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium">Stage 0</div>
+                  <div class="flex items-center justify-between">
+                    <span class="preset-title text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Normal</span>
+                    <span class="preset-status inline-flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 text-[9px]">
+                      <i class="fas fa-circle text-[5px]"></i>
+                    </span>
+                  </div>
+                  <div class="preset-subtitle text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Stage 0</div>
                 </button>
 
                 <button
                   type="button"
                   data-sample-url="/outputs/Fundus_-_diabetic_retinopathy_input.png"
-                  data-sample-patient="Sample Case: Moderate NPDR"
+                  data-sample-patient="Sample Case - Moderate NPDR"
                   data-sample-filename="moderate_dr_sample.png"
-                  class="preset-accent-amber p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-amber-500 bg-white dark:bg-slate-800 hover:bg-amber-50/60 dark:hover:bg-amber-950/40 text-left transition-all group"
+                  data-sample-label="Moderate"
+                  class="sample-preset-btn preset-accent-amber p-2 rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-slate-800/80 hover:bg-amber-50/40 dark:hover:bg-amber-950/30 text-left transition-all group relative cursor-pointer"
                 >
-                  <div class="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400">Moderate</div>
-                  <div class="text-[9px] text-amber-600 dark:text-amber-400 font-medium">Stage 2</div>
+                  <div class="flex items-center justify-between">
+                    <span class="preset-title text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Moderate</span>
+                    <span class="preset-status inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 text-[9px]">
+                      <i class="fas fa-circle text-[5px]"></i>
+                    </span>
+                  </div>
+                  <div class="preset-subtitle text-[9px] text-amber-600 dark:text-amber-400 font-semibold mt-0.5">Stage 2</div>
                 </button>
 
                 <button
                   type="button"
-                  data-sample-url="/uploads/4.jpg"
-                  data-sample-patient="Sample Case: Proliferative DR"
+                  data-sample-url="/uploads/proliferative_dr_sample.jpg"
+                  data-sample-patient="Sample Case - Proliferative DR"
                   data-sample-filename="proliferative_dr_sample.jpg"
-                  class="preset-accent-rose p-1.5 px-2 rounded-lg border border-slate-200/80 dark:border-white/10 hover:border-rose-500 bg-white dark:bg-slate-800 hover:bg-rose-50/60 dark:hover:bg-rose-950/40 text-left transition-all group"
+                  data-sample-label="Severe"
+                  class="sample-preset-btn preset-accent-rose p-2 rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-slate-800/80 hover:bg-rose-50/40 dark:hover:bg-rose-950/30 text-left transition-all group relative cursor-pointer"
                 >
-                  <div class="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-rose-600 dark:group-hover:text-rose-400">Severe</div>
-                  <div class="text-[9px] text-rose-600 dark:text-rose-400 font-medium">Stage 4</div>
+                  <div class="flex items-center justify-between">
+                    <span class="preset-title text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">Severe</span>
+                    <span class="preset-status inline-flex items-center justify-center w-4 h-4 rounded-full bg-rose-100 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 text-[9px]">
+                      <i class="fas fa-circle text-[5px]"></i>
+                    </span>
+                  </div>
+                  <div class="preset-subtitle text-[9px] text-rose-600 dark:text-rose-400 font-semibold mt-0.5">Stage 4</div>
                 </button>
               </div>
             </div>
 
             <form id="uploadForm" action="{{ url_for('scanner') }}" method="post" enctype="multipart/form-data" class="space-y-2.5 sm:space-y-3">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <!-- Patient Name -->
               <div>
                 <label for="patient_name" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
@@ -200,15 +225,21 @@
                   </div>
 
                   <!-- Client-Side Image Preview Thumbnail -->
-                  <div id="previewContainer" class="hidden flex flex-col items-center w-full">
-                    <div class="w-24 h-24 rounded-lg overflow-hidden shadow-sm border border-indigo-200 dark:border-indigo-800 mb-1.5 bg-black flex items-center justify-center">
-                      <img id="previewImg" src="#" alt="Selected scan preview" class="w-full h-full object-cover"/>
+                  <div id="previewContainer" class="hidden flex flex-col items-center w-full py-1">
+                    <div class="relative group/thumb mb-2">
+                      <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shadow-md border-2 border-indigo-400/50 dark:border-indigo-500/40 bg-slate-950 flex items-center justify-center">
+                        <img id="previewImg" src="#" alt="Selected scan preview" class="w-full h-full object-cover"/>
+                      </div>
+                      <button type="button" id="clearPreviewBtn" title="Remove image" class="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center text-xs shadow-md transition-all cursor-pointer">
+                        <i class="fas fa-times text-[10px]"></i>
+                      </button>
                     </div>
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold truncate max-w-[200px]">
-                      <i class="fas fa-check text-emerald-500 text-[10px]"></i>
-                      <span id="previewFilename" class="truncate">image.png</span>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/70 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold max-w-[260px]">
+                      <i class="fas fa-check-circle text-emerald-500 shrink-0 text-[11px]"></i>
+                      <span id="previewFilename" class="truncate font-mono text-[11px]">image.png</span>
+                      <span id="previewFilesize" class="text-[10px] text-slate-400 dark:text-slate-500 font-normal shrink-0"></span>
                     </div>
-                    <span class="text-[10px] text-slate-400 mt-1 underline">Change image</span>
+                    <span class="text-[11px] text-indigo-600 dark:text-indigo-400 mt-1 hover:underline font-medium">Click or drag new scan to replace</span>
                   </div>
 
                   <input
@@ -529,7 +560,6 @@
   <!-- Global Unified Footer -->
   {% include '_footer.html' %}
 
-  <script src="{{ url_for('static', filename='theme.js') }}"></script>
   <script>
     const fileInp = document.getElementById('image-upload');
     const dropLabel = document.getElementById('dropLabel');
@@ -566,7 +596,9 @@
 
     function handleFile(file) {
       if (!file) return;
-      if (previewFilename) previewFilename.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+      if (previewFilename) previewFilename.textContent = file.name;
+      const previewFilesize = document.getElementById('previewFilesize');
+      if (previewFilesize) previewFilesize.textContent = (file.size / 1024).toFixed(1) + ' KB';
       
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -575,6 +607,23 @@
         if (previewContainer) previewContainer.classList.remove('hidden');
       };
       reader.readAsDataURL(file);
+    }
+
+    const clearPreviewBtn = document.getElementById('clearPreviewBtn');
+    if (clearPreviewBtn) {
+      clearPreviewBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (fileInp) fileInp.value = '';
+        if (previewImg) previewImg.src = '#';
+        if (previewContainer) previewContainer.classList.add('hidden');
+        if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+        document.querySelectorAll('.sample-preset-btn').forEach((b) => {
+          b.classList.remove('is-selected');
+          const status = b.querySelector('.preset-status');
+          if (status) status.innerHTML = '<i class="fas fa-circle text-[5px]"></i>';
+        });
+      });
     }
 
     if (fileInp) {
@@ -727,5 +776,7 @@
       });
     }
   </script>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='grid-background.js') }}"></script>
 </body>
 </html>

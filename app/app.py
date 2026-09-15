@@ -108,7 +108,7 @@ app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-# CRITICAL: Enable CSRF protection
+# Initialize CSRF protection
 csrf = CSRFProtect(app)
 
 
@@ -162,10 +162,12 @@ def scanner():
         uploaded_file.save(save_path)
 
         try:
+            logger.info(f"[SCANNER] Starting inference for: {save_path}")
             pred, proba, heatmap_path, *_ = infer_image(save_path)
+            logger.info(f"[SCANNER] Inference successful: pred={pred}, heatmap={heatmap_path}")
 
             import numpy as np
-            
+
             proba = np.array(proba)
             
             pred_index = int(np.argmax(proba))
@@ -267,7 +269,9 @@ def scanner():
                 "scan_done": True,
             })
         except Exception as e:
-            logger.error(f"Inference error: {e}", exc_info=True)
+            logger.error(f"[SCANNER] INFERENCE FAILED: {type(e).__name__}: {e}", exc_info=True)
+            import traceback
+            logger.error(f"[SCANNER] Full traceback:\n{traceback.format_exc()}")
             flash(f"Inference error: {str(e)[:100]}")
             return redirect(url_for("scanner"))
             
@@ -616,4 +620,4 @@ def contact_us():
 if __name__ == "__main__":
     # For direct python app/app.py runs
     port = int(os.environ.get("PORT", 5001))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(debug=False, host="127.0.0.1", port=port, use_reloader=False)

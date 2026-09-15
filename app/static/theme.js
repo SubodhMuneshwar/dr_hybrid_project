@@ -10,31 +10,43 @@
 (function () {
   const html = document.documentElement;
 
-  // Clear any existing stored theme preference so system configuration always takes precedence
-  try {
-    localStorage.removeItem("theme");
-  } catch (e) {}
-
   function getSystemTheme() {
     return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
       ? "dark"
       : "light";
   }
 
-  function applyTheme(theme) {
+  function getPreferredTheme() {
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "dark" || saved === "light") {
+        return saved;
+      }
+    } catch (e) {}
+    return getSystemTheme();
+  }
+
+  function applyTheme(theme, persist = false) {
     const isDark = theme === "dark";
     html.classList.toggle("dark", isDark);
+    html.setAttribute("data-theme", isDark ? "dark" : "light");
+
+    if (persist) {
+      try {
+        localStorage.setItem("theme", theme);
+      } catch (e) {}
+    }
 
     // Sync all ocular toggle buttons on page
     document.querySelectorAll("[data-theme-toggle], #themeToggle").forEach((toggle) => {
       toggle.setAttribute("aria-pressed", String(isDark));
       toggle.setAttribute(
         "title",
-        isDark ? "System dark mode active (click to preview daylight mode)" : "System daylight mode active (click to preview night mode)"
+        isDark ? "Dark mode active (click to switch to daylight mode)" : "Daylight mode active (click to switch to night mode)"
       );
       toggle.setAttribute(
         "aria-label",
-        isDark ? "System dark mode active" : "System light mode active"
+        isDark ? "Dark mode active" : "Light mode active"
       );
     });
   }
@@ -43,14 +55,20 @@
     return html.classList.contains("dark") ? "dark" : "light";
   }
 
-  // Strictly apply theme according to system configuration
-  applyTheme(getSystemTheme());
+  // Apply theme according to saved user choice or system configuration
+  applyTheme(getPreferredTheme());
 
-  // Listen in real-time to OS/system dark/light mode preference changes
+  // Listen in real-time to OS/system preference changes only if user hasn't set a manual override
   if (window.matchMedia) {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const onSystemThemeChange = (e) => {
-      applyTheme(e.matches ? "dark" : "light");
+      try {
+        if (!localStorage.getItem("theme")) {
+          applyTheme(e.matches ? "dark" : "light");
+        }
+      } catch (err) {
+        applyTheme(e.matches ? "dark" : "light");
+      }
     };
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener("change", onSystemThemeChange);
@@ -424,7 +442,7 @@
     const previewImg = document.getElementById("previewImg");
     const previewFilename = document.getElementById("previewFilename");
     const previewFilesize = document.getElementById("previewFilesize");
-    const diagnoseBtn = document.getElementById("diagnoseBtn");
+    const scanSubmitBtn = document.getElementById("scanSubmitBtn");
 
     if (!sampleButtons.length || !fileInput) return;
 
@@ -432,12 +450,26 @@
       btn.addEventListener("click", async (e) => {
         e.preventDefault();
         const url = btn.getAttribute("data-sample-url");
-        const name = btn.getAttribute("data-sample-name") || btn.getAttribute("data-sample-filename") || "sample_retina.jpg";
-        const patientName = btn.getAttribute("data-patient-default") || btn.getAttribute("data-sample-patient") || "Jane Doe";
+        const name = btn.getAttribute("data-sample-filename") || btn.getAttribute("data-sample-name") || "sample_retina.jpg";
+        const patientName = btn.getAttribute("data-sample-patient") || btn.getAttribute("data-patient-default") || "Jane Doe";
+
+        // Reset visual state on other preset buttons
+        sampleButtons.forEach((b) => {
+          b.classList.remove("is-selected");
+          const s = b.querySelector(".preset-status");
+          if (s) s.innerHTML = '<i class="fas fa-circle text-[5px]"></i>';
+        });
+
+        // Set active selection state on clicked button
+        btn.classList.add("is-selected");
+        const statusEl = btn.querySelector(".preset-status");
+        if (statusEl) {
+          statusEl.innerHTML = '<i class="fas fa-circle-notch fa-spin text-[10px]"></i>';
+        }
 
         try {
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Loading...';
           const res = await fetch(url);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const blob = await res.blob();
           const file = new File([blob], name, { type: blob.type || "image/jpeg" });
 
@@ -446,8 +478,11 @@
           dt.items.add(file);
           fileInput.files = dt.files;
 
-          if (patientInput && !patientInput.value) {
+          if (patientInput) {
             patientInput.value = patientName;
+            try {
+              localStorage.setItem("last_patient", patientName);
+            } catch (err) {}
           }
 
           // Trigger preview
@@ -459,18 +494,26 @@
               uploadPrompt.classList.add("hidden");
               if (previewFilename) previewFilename.textContent = name;
               if (previewFilesize) previewFilesize.textContent = (file.size / 1024).toFixed(1) + " KB";
-              if (diagnoseBtn) diagnoseBtn.disabled = false;
             };
             reader.readAsDataURL(file);
           }
 
-          btn.innerHTML = '<i class="fas fa-check text-xs text-emerald-500"></i> Loaded';
-          setTimeout(() => {
-            btn.innerHTML = `<i class="fas fa-magic text-xs text-indigo-500"></i> ${name.replace('.jpg', '')}`;
-          }, 1800);
+          // Update status indicator to success checkmark (preserves button markup!)
+          if (statusEl) {
+            statusEl.innerHTML = '<i class="fas fa-check text-[10px] text-emerald-500"></i>';
+          }
+
+          // Pulse submit button to guide user
+          if (scanSubmitBtn) {
+            scanSubmitBtn.classList.remove("btn-attention-pulse");
+            void scanSubmitBtn.offsetWidth;
+            scanSubmitBtn.classList.add("btn-attention-pulse");
+          }
         } catch (err) {
           console.error("Failed to load sample retina:", err);
-          btn.innerHTML = '<i class="fas fa-exclamation-triangle text-xs text-rose-500"></i> Error';
+          if (statusEl) {
+            statusEl.innerHTML = '<i class="fas fa-exclamation-triangle text-[10px] text-rose-500"></i>';
+          }
         }
       });
     });
@@ -636,36 +679,57 @@
     render();
   }
 
-  // Global DOM Loaded Handler
-  document.addEventListener("DOMContentLoaded", () => {
+  // Delegated Theme Toggle Event Handler (Guaranteed to work regardless of DOM ready state or navigation)
+  function handleThemeToggle(e) {
+    const toggle = e.target.closest("#themeToggle, [data-theme-toggle]");
+    if (!toggle) return;
+    // Prevent double toggle when both direct + delegated handlers fire for same click,
+    // or when script is loaded twice (scanner.html duplicate include). The same
+    // Event object bubbles from target to document, so a flag on the event dedupes.
+    if (e.__themeToggleHandled) return;
+    e.__themeToggleHandled = true;
+    e.preventDefault();
+    // Stop further propagation so second handler for same click does not re-toggle
+    try { e.stopPropagation(); } catch (_) {}
+
+    // Trigger organic ocular blink animation
+    const eyeWrapper = toggle.querySelector("#themeEyeWrapper, .theme-eye-wrapper, #themeIconBox, .theme-icon-box");
+    if (eyeWrapper) {
+      eyeWrapper.classList.remove("eye-blink-anim", "theme-spin-burst");
+      void eyeWrapper.offsetWidth; // Force reflow
+      eyeWrapper.classList.add("eye-blink-anim");
+    }
+
+    // Trigger dynamic ripple burst
+    const ripple = document.createElement("span");
+    ripple.className = "theme-ripple";
+    toggle.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 550);
+
+    const isCurrentlyDark = html.classList.contains("dark") || html.getAttribute("data-theme") === "dark";
+    const next = isCurrentlyDark ? "light" : "dark";
+    applyTheme(next, true);
+  }
+
+  // Attach immediate document delegation
+  document.addEventListener("click", handleThemeToggle);
+
+  // Core Application Initializer
+  function initApp() {
     applyTheme(currentTheme());
 
-    // Theme toggle buttons (Interactive Ocular Eye: Open vs Closed Eye)
+    // Direct binding for theme toggle buttons
     document.querySelectorAll("[data-theme-toggle], #themeToggle").forEach((toggle) => {
-      toggle.addEventListener("click", () => {
-        // Trigger organic ocular blink animation
-        const eyeWrapper = toggle.querySelector("#themeEyeWrapper, .theme-eye-wrapper, #themeIconBox, .theme-icon-box");
-        if (eyeWrapper) {
-          eyeWrapper.classList.remove("eye-blink-anim", "theme-spin-burst");
-          void eyeWrapper.offsetWidth; // Force reflow
-          eyeWrapper.classList.add("eye-blink-anim");
-        }
-
-        // Trigger dynamic ripple burst
-        const ripple = document.createElement("span");
-        ripple.className = "theme-ripple";
-        toggle.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 550);
-
-        const next = currentTheme() === "dark" ? "light" : "dark";
-        applyTheme(next);
-      });
+      if (toggle.__themeBound) return;
+      toggle.__themeBound = true;
+      toggle.addEventListener("click", handleThemeToggle);
     });
 
     // Mobile nav toggle handler
     const mobileBtn = document.getElementById("mobileMenuBtn");
     const mobileMenu = document.getElementById("mobileNavMenu");
-    if (mobileBtn && mobileMenu) {
+    if (mobileBtn && mobileMenu && !mobileBtn.__navBound) {
+      mobileBtn.__navBound = true;
       mobileBtn.addEventListener("click", () => {
         mobileMenu.classList.toggle("hidden");
       });
@@ -679,7 +743,13 @@
     initScrollReveal();
     initAnimatedCounters();
     initPresetPulse();
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initApp);
+  } else {
+    initApp();
+  }
 
   // ==========================================================================
   // Scroll-Reveal Observer (IntersectionObserver-based)
@@ -778,211 +848,11 @@
 
   // ==========================================================================
   // ==========================================================================
-  // Interactive Grid Background: Glows Radiantly on Click
+  // Interactive Grid Background Delegation
   // ==========================================================================
   function initInteractiveClickGrid() {
-    // 1. Clean up any previous background elements
-    document.querySelectorAll("#neuralCanvasBg, #cursorSpotlightGlow, .ambient-neural-orb").forEach((el) => el.remove());
-
-    // 2. Inject or locate the interactive grid canvas
-    let canvas = document.getElementById("interactiveGridCanvas");
-    if (!canvas) {
-      canvas = document.createElement("canvas");
-      canvas.id = "interactiveGridCanvas";
-      document.body.prepend(canvas);
-    }
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let width = 0;
-    let height = 0;
-    let dpr = window.devicePixelRatio || 1;
-    let animationFrameId = null;
-    let isAnimating = false;
-
-    // Grid size aligned with CSS background (36px)
-    const GRID_SIZE = 36;
-
-    // List of active click glow pulses
-    const pulses = [];
-
-    function resize() {
-      dpr = window.devicePixelRatio || 1;
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = Math.floor(width * dpr);
-      canvas.height = Math.floor(height * dpr);
-      canvas.style.width = width + "px";
-      canvas.style.height = height + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      // Trigger redraw if pulses exist
-      if (pulses.length > 0 && !isAnimating) {
-        isAnimating = true;
-        animationFrameId = requestAnimationFrame(render);
-      }
-    }
-    resize();
-    window.addEventListener("resize", resize, { passive: true });
-
-    // Listen for clicks across the window (pointerdown is faster and covers touch/mouse)
-    window.addEventListener("pointerdown", (e) => {
-      // Create a radiant grid glow pulse at the exact click location
-      const maxRad = Math.min(340, Math.max(220, Math.min(width, height) * 0.42));
-      pulses.push({
-        x: e.clientX,
-        y: e.clientY,
-        radius: 0,
-        maxRadius: maxRad,
-        speed: 14,
-        alpha: 1.0,
-        decay: 0.028
-      });
-
-      if (!isAnimating) {
-        isAnimating = true;
-        animationFrameId = requestAnimationFrame(render);
-      }
-    }, { passive: true });
-
-    function render() {
-      if (pulses.length === 0) {
-        ctx.clearRect(0, 0, width, height);
-        isAnimating = false;
-        animationFrameId = null;
-        return;
-      }
-
-      animationFrameId = requestAnimationFrame(render);
-      const isDark = document.documentElement.classList.contains("dark");
-
-      ctx.clearRect(0, 0, width, height);
-
-      // Color scheme for glowing grid
-      // Dark mode: Vivid Cyan & Indigo glow | Light mode: Vibrant Clinical Indigo & Cyan
-      const glowColor = isDark ? "#06b6d4" : "#4f46e5";
-      const secondaryColor = isDark ? "#818cf8" : "#0284c7";
-
-      for (let pIdx = pulses.length - 1; pIdx >= 0; pIdx--) {
-        const pulse = pulses[pIdx];
-
-        // Animate pulse wave expansion and decay
-        pulse.radius += pulse.speed;
-        pulse.speed = Math.max(4.5, pulse.speed * 0.95);
-        pulse.alpha -= pulse.decay;
-
-        if (pulse.alpha <= 0.01 || pulse.radius >= pulse.maxRadius) {
-          pulses.splice(pIdx, 1);
-          continue;
-        }
-
-        const r = pulse.radius;
-        const currentAlpha = Math.max(0, pulse.alpha);
-
-        // 1. Soft radial background illumination through the grid squares
-        const radialGrad = ctx.createRadialGradient(pulse.x, pulse.y, 0, pulse.x, pulse.y, r);
-        if (isDark) {
-          radialGrad.addColorStop(0, `rgba(6, 182, 212, ${currentAlpha * 0.18})`);
-          radialGrad.addColorStop(0.45, `rgba(99, 102, 241, ${currentAlpha * 0.11})`);
-          radialGrad.addColorStop(1, "rgba(6, 182, 212, 0)");
-        } else {
-          radialGrad.addColorStop(0, `rgba(79, 70, 229, ${currentAlpha * 0.15})`);
-          radialGrad.addColorStop(0.5, `rgba(2, 132, 199, ${currentAlpha * 0.08})`);
-          radialGrad.addColorStop(1, "rgba(79, 70, 229, 0)");
-        }
-
-        ctx.save();
-        ctx.fillStyle = radialGrad;
-        ctx.beginPath();
-        ctx.arc(pulse.x, pulse.y, r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // 2. Identify and draw glowing vertical & horizontal grid lines within the pulse radius
-        const minX = Math.max(0, Math.floor((pulse.x - r) / GRID_SIZE) * GRID_SIZE);
-        const maxX = Math.min(width, Math.ceil((pulse.x + r) / GRID_SIZE) * GRID_SIZE);
-        const minY = Math.max(0, Math.floor((pulse.y - r) / GRID_SIZE) * GRID_SIZE);
-        const maxY = Math.min(height, Math.ceil((pulse.y + r) / GRID_SIZE) * GRID_SIZE);
-
-        ctx.save();
-        ctx.lineWidth = isDark ? 2.0 : 1.6;
-        ctx.shadowBlur = isDark ? 14 : 9;
-        ctx.shadowColor = glowColor;
-
-        // Draw glowing vertical grid lines
-        for (let x = minX; x <= maxX; x += GRID_SIZE) {
-          const dx = Math.abs(x - pulse.x);
-          if (dx <= r) {
-            const dy = Math.sqrt(r * r - dx * dx);
-            const y1 = Math.max(0, pulse.y - dy);
-            const y2 = Math.min(height, pulse.y + dy);
-
-            // Proximity to wave front
-            const lineProximity = 1 - (dx / r);
-            const lineAlpha = currentAlpha * lineProximity * (isDark ? 0.92 : 0.78);
-
-            ctx.strokeStyle = isDark
-              ? `rgba(6, 182, 212, ${lineAlpha})`
-              : `rgba(79, 70, 229, ${lineAlpha})`;
-
-            ctx.beginPath();
-            ctx.moveTo(x, y1);
-            ctx.lineTo(x, y2);
-            ctx.stroke();
-          }
-        }
-
-        // Draw glowing horizontal grid lines
-        for (let y = minY; y <= maxY; y += GRID_SIZE) {
-          const dy = Math.abs(y - pulse.y);
-          if (dy <= r) {
-            const dx = Math.sqrt(r * r - dy * dy);
-            const x1 = Math.max(0, pulse.x - dx);
-            const x2 = Math.min(width, pulse.x + dx);
-
-            // Proximity to wave front
-            const lineProximity = 1 - (dy / r);
-            const lineAlpha = currentAlpha * lineProximity * (isDark ? 0.92 : 0.78);
-
-            ctx.strokeStyle = isDark
-              ? `rgba(6, 182, 212, ${lineAlpha})`
-              : `rgba(79, 70, 229, ${lineAlpha})`;
-
-            ctx.beginPath();
-            ctx.moveTo(x1, y);
-            ctx.lineTo(x2, y);
-            ctx.stroke();
-          }
-        }
-        ctx.restore();
-
-        // 3. Draw illuminated glowing intersection points (crosshair dots)
-        ctx.save();
-        ctx.fillStyle = secondaryColor;
-        ctx.shadowBlur = isDark ? 14 : 9;
-        ctx.shadowColor = secondaryColor;
-
-        for (let x = minX; x <= maxX; x += GRID_SIZE) {
-          for (let y = minY; y <= maxY; y += GRID_SIZE) {
-            const dist = Math.hypot(x - pulse.x, y - pulse.y);
-            if (dist <= r && dist >= Math.max(0, r - 60)) {
-              // Intersection node is right along the expanding wave front
-              const nodeAlpha = currentAlpha * (1 - Math.abs(dist - (r - 20)) / 45);
-              if (nodeAlpha > 0.08) {
-                ctx.fillStyle = isDark
-                  ? `rgba(129, 140, 248, ${nodeAlpha})`
-                  : `rgba(2, 132, 199, ${nodeAlpha})`;
-
-                ctx.beginPath();
-                ctx.arc(x, y, isDark ? 2.8 : 2.2, 0, Math.PI * 2);
-                ctx.fill();
-              }
-            }
-          }
-        }
-        ctx.restore();
-      }
+    if (typeof InteractiveGridBackground !== "undefined" && !window.__gridBackgroundInstance) {
+      window.__gridBackgroundInstance = new InteractiveGridBackground();
     }
   }
 

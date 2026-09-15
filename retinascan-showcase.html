@@ -1,0 +1,787 @@
+<title>RetinaScan AI - Clinical Diabetic Retinopathy Detection Platform</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="RetinaScan AI: AI-powered diabetic retinopathy detection using hybrid deep learning and Grad-CAM explainability">
+
+<style>
+  :root {
+    --color-primary: #4f46e5;
+    --color-primary-dark: #4338ca;
+    --color-accent: #06b6d4;
+    --color-text: #0f172a;
+    --color-text-light: #475569;
+    --color-bg: #ffffff;
+    --color-bg-alt: #f8fafc;
+    --color-border: #e2e8f0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-text: #f1f5f9;
+      --color-text-light: #cbd5e1;
+      --color-bg: #0f172a;
+      --color-bg-alt: #1e293b;
+      --color-border: #334155;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --color-text: #f1f5f9;
+    --color-text-light: #cbd5e1;
+    --color-bg: #0f172a;
+    --color-bg-alt: #1e293b;
+    --color-border: #334155;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--color-text);
+    background: var(--color-bg);
+    line-height: 1.6;
+    padding: 0 16px;
+    animation: fadeInBody 0.6s ease-out;
+  }
+
+  /* Universal fade transitions */
+  * {
+    transition: opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  @keyframes fadeInBody {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Grid Background: Fixed in bottom layer behind all content */
+  canvas#grid-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Website elements layered cleanly above the background grid */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.7);
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 2rem;
+  }
+
+  .hero,
+  .features,
+  .section,
+  footer {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    nav {
+      background: rgba(15, 23, 42, 0.7);
+    }
+  }
+
+  :root[data-theme="dark"] nav {
+    background: rgba(15, 23, 42, 0.7);
+  }
+
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .nav-brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    color: var(--color-text-light);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--color-primary);
+    background: rgba(79, 70, 229, 0.1);
+  }
+
+  .cta-button {
+    background: var(--color-primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .cta-button:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+  }
+
+  /* Hero */
+  .hero {
+    max-width: 1200px;
+    margin: 4rem auto 2rem;
+    text-align: center;
+    padding: 2rem;
+    animation: fadeInHero 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fadeInHero {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInTitle 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  }
+
+  @keyframes fadeInTitle {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero p {
+    font-size: 1.125rem;
+    color: var(--color-text-light);
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: fadeInSubtitle 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  }
+
+  @keyframes fadeInSubtitle {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .primary-btn {
+    background: var(--color-primary);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+  }
+
+  .primary-btn:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+  }
+
+  .secondary-btn {
+    background: transparent;
+    color: var(--color-primary);
+    padding: 0.75rem 2rem;
+    border: 2px solid var(--color-primary);
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+  }
+
+  .secondary-btn:hover {
+    background: rgba(79, 70, 229, 0.1);
+  }
+
+  /* Features */
+  .features {
+    max-width: 1200px;
+    margin: 4rem auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-alt);
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeInFeatureCard 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  .feature-card:nth-child(1) { animation-delay: 0.1s; }
+  .feature-card:nth-child(2) { animation-delay: 0.2s; }
+  .feature-card:nth-child(3) { animation-delay: 0.3s; }
+  .feature-card:nth-child(4) { animation-delay: 0.4s; }
+  .feature-card:nth-child(5) { animation-delay: 0.5s; }
+  .feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+  @keyframes fadeInFeatureCard {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .feature-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.1);
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    animation: fadeInIcon 0.5s ease-out;
+  }
+
+  @keyframes fadeInIcon {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .feature-card h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--color-primary);
+  }
+
+  .feature-card p {
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* Section */
+  .section {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 2rem;
+    animation: fadeInSection 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fadeInSection {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--color-primary);
+    animation: fadeInSectionTitle 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  }
+
+  @keyframes fadeInSectionTitle {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .section p {
+    color: var(--color-text-light);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+    animation: fadeInSectionText 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  }
+
+  @keyframes fadeInSectionText {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Grid Info */
+  .info-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .info-item {
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg-alt);
+    text-align: center;
+    animation: fadeInInfoItem 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  .info-item:nth-child(1) { animation-delay: 0.1s; }
+  .info-item:nth-child(2) { animation-delay: 0.2s; }
+  .info-item:nth-child(3) { animation-delay: 0.3s; }
+  .info-item:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes fadeInInfoItem {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .info-item strong {
+    display: block;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-item span {
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+  }
+
+  /* Footer */
+  footer {
+    max-width: 1200px;
+    margin: 4rem auto 0;
+    padding: 2rem;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-light);
+    font-size: 0.875rem;
+    text-align: center;
+    animation: fadeInFooter 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+  }
+
+  @keyframes fadeInFooter {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    animation: fadeInFooterLinks 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+  }
+
+  @keyframes fadeInFooterLinks {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .footer-links a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-primary-dark);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .nav-container {
+      gap: 1rem;
+      padding: 0;
+    }
+
+    .nav-links {
+      display: none;
+    }
+
+    .hero {
+      margin-top: 2rem;
+      padding: 1rem;
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+    }
+
+    .hero-buttons {
+      gap: 0.5rem;
+    }
+
+    .primary-btn, .secondary-btn {
+      padding: 0.5rem 1.5rem;
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+<!-- Grid Background Canvas -->
+<canvas id="grid-bg"></canvas>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-container">
+    <a href="#" class="nav-brand">
+      <div class="nav-brand-icon">👁️</div>
+      <span>RetinaScan AI</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#tech">Technology</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="cta-button">Get Started</button>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <h1>Diabetic Retinopathy Detection</h1>
+  <p>AI-powered early detection of diabetic retinopathy using hybrid deep learning and Grad-CAM explainability. Classify retinal images across 5 clinical severity stages with instant visual interpretability.</p>
+  <div class="hero-buttons">
+    <button class="primary-btn">Launch Scanner</button>
+    <button class="secondary-btn">Learn More</button>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features">
+  <div class="feature-card">
+    <div class="feature-icon">🔬</div>
+    <h3>5-Tier Classification</h3>
+    <p>Classify retinal images into No DR, Mild, Moderate, Severe, and Proliferative stages with high accuracy.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🧠</div>
+    <h3>Hybrid Deep Learning</h3>
+    <p>Combines VGG16/DenseNet embeddings with LBP texture descriptors and GLCM Haralick features for robust detection.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🎨</div>
+    <h3>Grad-CAM Visualization</h3>
+    <p>Real-time heatmaps showing exactly where the AI focuses, enabling clinical explainability and trust.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">⚡</div>
+    <h3>Fast Inference</h3>
+    <p>Instant analysis in under 2.5 seconds per image for rapid clinical screening and decision support.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">📊</div>
+    <h3>Patient Dashboard</h3>
+    <p>Track scan history for multiple patients with comprehensive analytics and trend monitoring.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🔒</div>
+    <h3>Secure & Private</h3>
+    <p>Enterprise-grade security for medical data with local processing and encrypted storage.</p>
+  </div>
+</section>
+
+<!-- Technology Section -->
+<section id="tech" class="section">
+  <h2>Technology Stack</h2>
+  <p>RetinaScan AI combines state-of-the-art machine learning with clinical best practices:</p>
+
+  <div class="info-box">
+    <div class="info-item">
+      <strong>Deep Learning</strong>
+      <span>VGG16 + DenseNet121 + Ensemble Methods</span>
+    </div>
+    <div class="info-item">
+      <strong>Feature Fusion</strong>
+      <span>512-D Hybrid Features</span>
+    </div>
+    <div class="info-item">
+      <strong>Explainability</strong>
+      <span>Grad-CAM Attention Maps</span>
+    </div>
+    <div class="info-item">
+      <strong>Inference Speed</strong>
+      <span>&lt;2.5 seconds per image</span>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 2rem; color: var(--color-primary);">Backend Architecture</h3>
+  <p>Built with Flask, Python, TensorFlow/Keras, OpenCV, and scikit-learn. Deployed on Waitress WSGI server with multi-page application structure optimized for SEO.</p>
+</section>
+
+<!-- About Section -->
+<section id="about" class="section">
+  <h2>Why Early Detection Matters</h2>
+  <p><strong>Over 80% of vision loss from Diabetic Retinopathy can be prevented</strong> through timely screening and early intervention.</p>
+  <p>Yet screening systems face critical challenges:</p>
+  <ul style="margin-left: 1.5rem; color: var(--color-text-light);">
+    <li>👤 <strong>Diagnostic Fatigue:</strong> Manual review of hundreds of fundus images daily increases human error</li>
+    <li>📊 <strong>Observer Variability:</strong> Inconsistent specialist grading leads to missed diagnoses</li>
+    <li>⏱️ <strong>Screening Delays:</strong> Days or weeks between capture and review risk irreversible progression</li>
+  </ul>
+  <p style="margin-top: 1.5rem;"><strong>RetinaScan AI solves this:</strong> 24/7 reproducible, standardized classification with instant Grad-CAM localization.</p>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="section">
+  <h2>Get Started Today</h2>
+  <p>Transform your diabetic retinopathy screening workflow with AI-powered diagnostic support.</p>
+  <div class="hero-buttons" style="margin-top: 1.5rem;">
+    <button class="primary-btn">Launch Diagnostic Scanner</button>
+    <button class="secondary-btn">Read Documentation</button>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#tech">Technology</a>
+    <a href="#about">About</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms & Conditions</a>
+  </div>
+  <p>© 2026 RetinaScan AI. Educational & Research Platform.</p>
+  <p style="font-size: 0.75rem; margin-top: 1rem; color: var(--color-text-light);">⚠️ This tool is for educational and demonstration purposes only. It is NOT a substitute for professional medical diagnosis. Always consult a qualified healthcare provider.</p>
+</footer>
+
+<!-- Grid Background Script -->
+<script>
+  class InteractiveGridBackground {
+    constructor() {
+      this.canvas = document.getElementById('grid-bg');
+      this.ctx = this.canvas.getContext('2d');
+      this.gridSize = 40;
+      this.clickPositions = [];
+      this.maxClickPositions = 5;
+      this.glowDecay = 0.02;
+      this.isDarkMode = this.checkDarkMode();
+
+      this.resizeCanvas();
+      this.setupEventListeners();
+      this.animate();
+    }
+
+    resizeCanvas() {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
+
+    checkDarkMode() {
+      return document.documentElement.getAttribute('data-theme') === 'dark' ||
+             (!document.documentElement.hasAttribute('data-theme') &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+
+    setupEventListeners() {
+      window.addEventListener('resize', () => this.resizeCanvas());
+
+      const observer = new MutationObserver(() => {
+        this.isDarkMode = this.checkDarkMode();
+      });
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+      });
+
+      document.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BODY' || e.target === this.canvas) {
+          this.triggerGlow(e.clientX, e.clientY);
+        }
+      });
+    }
+
+    triggerGlow(x, y) {
+      this.clickPositions.push({ x, y, intensity: 1 });
+      if (this.clickPositions.length > this.maxClickPositions) {
+        this.clickPositions.shift();
+      }
+    }
+
+    drawGrid() {
+      const gridColor = this.isDarkMode
+        ? 'rgba(148, 163, 184, 0.08)'
+        : 'rgba(203, 213, 225, 0.12)';
+
+      this.ctx.strokeStyle = gridColor;
+      this.ctx.lineWidth = 1;
+
+      for (let x = 0; x < this.canvas.width; x += this.gridSize) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, 0);
+        this.ctx.lineTo(x, this.canvas.height);
+        this.ctx.stroke();
+      }
+
+      for (let y = 0; y < this.canvas.height; y += this.gridSize) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, y);
+        this.ctx.lineTo(this.canvas.width, y);
+        this.ctx.stroke();
+      }
+    }
+
+    drawGlowEffect() {
+      this.clickPositions = this.clickPositions.filter(pos => pos.intensity > 0.01);
+
+      this.clickPositions.forEach((pos) => {
+        const glowRadius = 150 * (1 - pos.intensity);
+        const glowOpacity = pos.intensity * 0.15;
+
+        const gradient = this.ctx.createRadialGradient(
+          pos.x, pos.y, 0,
+          pos.x, pos.y, glowRadius
+        );
+
+        const glowColor = this.isDarkMode
+          ? `rgba(99, 102, 241, ${glowOpacity})`
+          : `rgba(79, 70, 229, ${glowOpacity})`;
+
+        gradient.addColorStop(0, glowColor);
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(
+          pos.x - glowRadius,
+          pos.y - glowRadius,
+          glowRadius * 2,
+          glowRadius * 2
+        );
+
+        pos.intensity -= this.glowDecay;
+      });
+    }
+
+    animate() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.drawGrid();
+      this.drawGlowEffect();
+      requestAnimationFrame(() => this.animate());
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      new InteractiveGridBackground();
+    });
+  } else {
+    new InteractiveGridBackground();
+  }
+</script>

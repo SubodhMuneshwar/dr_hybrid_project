@@ -1,162 +1,278 @@
-// Minimal Interactive Grid Background
-// Grid glows subtly when clicked, visible in both dark and light modes
+// ==========================================================================
+// Minimal Interactive Grid Background for RetinaScan AI
+// - Fixed grid structure visible in both dark and light modes
+// - Positioned in the bottom layer of all website elements (z-index: 0, pointer-events: none)
+// - Glows only in a subtle, minimal way when clicked
+// ==========================================================================
 
 class InteractiveGridBackground {
   constructor() {
     this.canvas = null;
     this.ctx = null;
-    this.gridSize = 40;
-    this.glowIntensity = 0;
-    this.glowDecay = 0.02;
+    this.gridSize = 36;
+    this.pulses = [];
+    this.isAnimating = false;
     this.isDarkMode = this.checkDarkMode();
-    this.clickPositions = [];
-    this.maxClickPositions = 5;
 
     this.init();
     this.setupEventListeners();
-    this.animate();
+    this.draw();
   }
 
   init() {
-    // Create canvas element
-    this.canvas = document.createElement('canvas');
-    this.canvas.id = 'grid-background-canvas';
-    this.canvas.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      pointer-events: none;
-    `;
-    document.body.insertBefore(this.canvas, document.body.firstChild);
+    let existing = document.getElementById('grid-background-canvas');
+    if (existing) {
+      this.canvas = existing;
+    } else {
+      this.canvas = document.createElement('canvas');
+      this.canvas.id = 'grid-background-canvas';
+      this.canvas.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 0;
+        pointer-events: none;
+      `;
+      document.body.prepend(this.canvas);
+    }
 
     this.ctx = this.canvas.getContext('2d');
     this.resizeCanvas();
   }
 
-  resizeCanvas() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-  }
-
   checkDarkMode() {
-    return document.documentElement.getAttribute('data-theme') === 'dark' ||
+    try {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') return true;
+      if (savedTheme === 'light') return false;
+    } catch (e) {}
+    return document.documentElement.classList.contains('dark') ||
+           document.documentElement.getAttribute('data-theme') === 'dark' ||
            (!document.documentElement.hasAttribute('data-theme') &&
             window.matchMedia('(prefers-color-scheme: dark)').matches);
   }
 
+  getGridColor() {
+    // Subtly visible minimal grid lines for both dark and light modes
+    return this.isDarkMode
+      ? 'rgba(129, 140, 248, 0.085)'
+      : 'rgba(99, 102, 241, 0.065)';
+  }
+
+  resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.canvas.width = Math.floor(this.width * dpr);
+    this.canvas.height = Math.floor(this.height * dpr);
+    this.canvas.style.width = this.width + 'px';
+    this.canvas.style.height = this.height + 'px';
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    if (!this.isAnimating) {
+      this.draw();
+    }
+  }
+
   setupEventListeners() {
-    // Handle window resize
-    window.addEventListener('resize', () => this.resizeCanvas());
+    window.addEventListener('resize', () => this.resizeCanvas(), { passive: true });
 
-    // Handle theme changes
+    // Handle theme changes (Tailwind dark class or data-theme)
     const observer = new MutationObserver(() => {
+      const wasDark = this.isDarkMode;
       this.isDarkMode = this.checkDarkMode();
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
-    // Handle click anywhere on page to trigger grid glow
-    document.addEventListener('click', (e) => {
-      // Only trigger for meaningful clicks (not on buttons/links that handle their own events)
-      if (e.target.tagName === 'BODY' || e.target === this.canvas) {
-        this.triggerGlow(e.clientX, e.clientY);
+      if (wasDark !== this.isDarkMode) {
+        this.draw();
       }
     });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
 
-    // Listen for theme toggle button clicks
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-      themeToggle.addEventListener('click', (e) => {
-        setTimeout(() => {
-          this.isDarkMode = this.checkDarkMode();
-          this.triggerGlow(e.clientX, e.clientY);
-        }, 100);
-      });
+    if (window.matchMedia) {
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const onThemeChange = () => {
+        this.isDarkMode = this.checkDarkMode();
+        this.draw();
+      };
+      if (mql.addEventListener) {
+        mql.addEventListener('change', onThemeChange);
+      } else if (mql.addListener) {
+        mql.addListener(onThemeChange);
+      }
     }
+
+    // Glow triggers ONLY when clicked (anywhere on the page)
+    window.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      this.triggerGlow(e.clientX, e.clientY);
+    }, { passive: true });
   }
 
   triggerGlow(x, y) {
-    this.clickPositions.push({ x, y, intensity: 1 });
-    if (this.clickPositions.length > this.maxClickPositions) {
-      this.clickPositions.shift();
+    this.pulses.push({
+      x,
+      y,
+      radius: 6,
+      maxRadius: 170, // Contained subtle radius
+      alpha: 1.0,
+      speed: 5.5,
+      decay: 0.034    // Smooth ~550ms decay
+    });
+
+    if (this.pulses.length > 4) {
+      this.pulses.shift();
     }
-    this.glowIntensity = Math.min(this.glowIntensity + 0.5, 1);
+
+    if (!this.isAnimating) {
+      this.isAnimating = true;
+      requestAnimationFrame(() => this.animate());
+    }
   }
 
-  drawGrid() {
-    const gridColor = this.isDarkMode
-      ? 'rgba(148, 163, 184, 0.08)' // slate-400 with low opacity for dark mode
-      : 'rgba(203, 213, 225, 0.12)'; // slate-300 with low opacity for light mode
-
-    this.ctx.strokeStyle = gridColor;
+  drawBaseGrid() {
+    const color = this.getGridColor();
+    this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 1;
 
-    // Draw vertical lines
-    for (let x = 0; x < this.canvas.width; x += this.gridSize) {
-      this.ctx.beginPath();
+    this.ctx.beginPath();
+    for (let x = 0; x <= this.width; x += this.gridSize) {
       this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.canvas.height);
-      this.ctx.stroke();
+      this.ctx.lineTo(x, this.height);
     }
-
-    // Draw horizontal lines
-    for (let y = 0; y < this.canvas.height; y += this.gridSize) {
-      this.ctx.beginPath();
+    for (let y = 0; y <= this.height; y += this.gridSize) {
       this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.canvas.width, y);
-      this.ctx.stroke();
+      this.ctx.lineTo(this.width, y);
     }
+    this.ctx.stroke();
   }
 
-  drawGlowEffect() {
-    if (this.clickPositions.length === 0) return;
-
-    this.clickPositions = this.clickPositions.filter(pos => pos.intensity > 0.01);
-
-    this.clickPositions.forEach((pos, index) => {
-      const glowRadius = 150 * (1 - pos.intensity);
-      const glowOpacity = pos.intensity * 0.15;
-
-      // Create radial gradient for subtle glow
-      const gradient = this.ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowRadius);
-
-      const glowColor = this.isDarkMode
-        ? `rgba(99, 102, 241, ${glowOpacity})` // indigo glow for dark mode
-        : `rgba(79, 70, 229, ${glowOpacity})`; // darker indigo for light mode
-
-      gradient.addColorStop(0, glowColor);
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-      this.ctx.fillStyle = gradient;
-      this.ctx.fillRect(pos.x - glowRadius, pos.y - glowRadius, glowRadius * 2, glowRadius * 2);
-
-      // Decay the glow
-      pos.intensity -= this.glowDecay;
-    });
+  draw() {
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.drawBaseGrid();
   }
 
   animate() {
-    // Clear canvas with transparent background (preserves page content)
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.pulses.length === 0) {
+      this.draw();
+      this.isAnimating = false;
+      return;
+    }
 
-    // Draw grid
-    this.drawGrid();
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.drawBaseGrid();
 
-    // Draw glow effects
-    this.drawGlowEffect();
+    // Render subtle glowing wave on grid lines around each click point
+    for (let i = this.pulses.length - 1; i >= 0; i--) {
+      const pulse = this.pulses[i];
+      pulse.radius += pulse.speed;
+      pulse.speed = Math.max(3.0, pulse.speed * 0.96);
+      pulse.alpha -= pulse.decay;
 
-    // Continue animation loop
+      if (pulse.alpha <= 0.01 || pulse.radius >= pulse.maxRadius) {
+        this.pulses.splice(i, 1);
+        continue;
+      }
+
+      const r = pulse.radius;
+      const currentAlpha = Math.max(0, pulse.alpha);
+
+      // 1. Soft, very subtle radial illumination wash
+      const grad = this.ctx.createRadialGradient(pulse.x, pulse.y, 0, pulse.x, pulse.y, r);
+      if (this.isDarkMode) {
+        grad.addColorStop(0, `rgba(99, 102, 241, ${currentAlpha * 0.12})`);
+        grad.addColorStop(0.55, `rgba(6, 182, 212, ${currentAlpha * 0.05})`);
+        grad.addColorStop(1, 'rgba(99, 102, 241, 0)');
+      } else {
+        grad.addColorStop(0, `rgba(79, 70, 229, ${currentAlpha * 0.09})`);
+        grad.addColorStop(0.55, `rgba(99, 102, 241, ${currentAlpha * 0.04})`);
+        grad.addColorStop(1, 'rgba(79, 70, 229, 0)');
+      }
+
+      this.ctx.fillStyle = grad;
+      this.ctx.beginPath();
+      this.ctx.arc(pulse.x, pulse.y, r, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // 2. Glow along intersecting grid lines within pulse radius
+      const minX = Math.max(0, Math.floor((pulse.x - r) / this.gridSize) * this.gridSize);
+      const maxX = Math.min(this.width, Math.ceil((pulse.x + r) / this.gridSize) * this.gridSize);
+      const minY = Math.max(0, Math.floor((pulse.y - r) / this.gridSize) * this.gridSize);
+      const maxY = Math.min(this.height, Math.ceil((pulse.y + r) / this.gridSize) * this.gridSize);
+
+      this.ctx.lineWidth = 1.1;
+
+      // Vertical glowing line segments
+      for (let x = minX; x <= maxX; x += this.gridSize) {
+        const dx = Math.abs(x - pulse.x);
+        if (dx <= r) {
+          const dy = Math.sqrt(r * r - dx * dx);
+          const y1 = Math.max(0, pulse.y - dy);
+          const y2 = Math.min(this.height, pulse.y + dy);
+          const lineAlpha = currentAlpha * (1 - dx / r) * (this.isDarkMode ? 0.32 : 0.26);
+
+          this.ctx.strokeStyle = this.isDarkMode
+            ? `rgba(129, 140, 248, ${lineAlpha})`
+            : `rgba(79, 70, 229, ${lineAlpha})`;
+
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, y1);
+          this.ctx.lineTo(x, y2);
+          this.ctx.stroke();
+        }
+      }
+
+      // Horizontal glowing line segments
+      for (let y = minY; y <= maxY; y += this.gridSize) {
+        const dy = Math.abs(y - pulse.y);
+        if (dy <= r) {
+          const dx = Math.sqrt(r * r - dy * dy);
+          const x1 = Math.max(0, pulse.x - dx);
+          const x2 = Math.min(this.width, pulse.x + dx);
+          const lineAlpha = currentAlpha * (1 - dy / r) * (this.isDarkMode ? 0.32 : 0.26);
+
+          this.ctx.strokeStyle = this.isDarkMode
+            ? `rgba(129, 140, 248, ${lineAlpha})`
+            : `rgba(79, 70, 229, ${lineAlpha})`;
+
+          this.ctx.beginPath();
+          this.ctx.moveTo(x1, y);
+          this.ctx.lineTo(x2, y);
+          this.ctx.stroke();
+        }
+      }
+
+      // 3. Delicate intersection node accents
+      for (let x = minX; x <= maxX; x += this.gridSize) {
+        for (let y = minY; y <= maxY; y += this.gridSize) {
+          const dist = Math.hypot(x - pulse.x, y - pulse.y);
+          if (dist <= r) {
+            const nodeAlpha = currentAlpha * (1 - dist / r) * (this.isDarkMode ? 0.38 : 0.30);
+            if (nodeAlpha > 0.04) {
+              this.ctx.fillStyle = this.isDarkMode
+                ? `rgba(165, 180, 252, ${nodeAlpha})`
+                : `rgba(79, 70, 229, ${nodeAlpha})`;
+              this.ctx.beginPath();
+              this.ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+              this.ctx.fill();
+            }
+          }
+        }
+      }
+    }
+
     requestAnimationFrame(() => this.animate());
   }
 }
 
-// Initialize grid background when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+// Global initialization
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => new InteractiveGridBackground());
+  } else {
     new InteractiveGridBackground();
-  });
-} else {
-  new InteractiveGridBackground();
+  }
 }

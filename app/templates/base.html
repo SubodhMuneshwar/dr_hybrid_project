@@ -49,15 +49,20 @@
     };
   </script>
 
-  <!-- Immediate Theme Initializer: Strictly follows system/OS configuration -->
+  <!-- Immediate Theme Initializer: Preserves user choice, defaults to system OS preference -->
   <script>
     (function () {
-      try { localStorage.removeItem("theme"); } catch (e) {}
-      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+      try {
+        const savedTheme = localStorage.getItem("theme");
+        const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (savedTheme === "dark" || (!savedTheme && systemDark)) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (e) {}
     })();
   </script>
 

@@ -37,15 +37,20 @@
       }
     };
   </script>
-  <!-- Immediate Theme Initializer: Strictly follows system/OS configuration -->
+  <!-- Immediate Theme Initializer: Preserves user choice, defaults to system OS preference -->
   <script>
     (function () {
-      try { localStorage.removeItem("theme"); } catch (e) {}
-      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+      try {
+        const savedTheme = localStorage.getItem("theme");
+        const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (savedTheme === "dark" || (!savedTheme && systemDark)) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (e) {}
     })();
   </script>
   <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
@@ -57,7 +62,7 @@
   {% include '_navbar.html' %}
 
   <!-- Hero Section -->
-  <header class="relative pt-36 pb-20 lg:pt-44 lg:pb-32 overflow-hidden flex-1 flex items-center">
+  <header class="relative pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pt-24 lg:pb-20 overflow-hidden">
     <!-- Ambient Radial Blurs -->
     <div class="absolute -top-20 right-0 w-96 h-96 bg-indigo-400/20 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
     <div class="absolute top-1/2 -left-20 w-80 h-80 bg-cyan-400/20 dark:bg-cyan-600/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" style="animation-delay: 2s;"></div>
@@ -517,5 +522,6 @@
   {% include '_footer.html' %}
 
   <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='grid-background.js') }}"></script>
 </body>
 </html>

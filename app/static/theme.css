@@ -1036,29 +1036,71 @@ html.dark .eval-artifact-img {
 }
 
 /* ==========================================================================
-   Preset Button Severity Accent Borders
+   Quick Presets Clinical Buttons & Selection States
    ========================================================================== */
-.preset-accent-green {
-  border-left: 3px solid #10b981 !important;
+.sample-preset-btn {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
 
-.preset-accent-amber {
-  border-left: 3px solid #f59e0b !important;
+.sample-preset-btn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.preset-accent-rose {
-  border-left: 3px solid #f43f5e !important;
+.sample-preset-btn.preset-accent-green {
+  border-left: 3.5px solid #10b981 !important;
+}
+
+.sample-preset-btn.preset-accent-amber {
+  border-left: 3.5px solid #f59e0b !important;
+}
+
+.sample-preset-btn.preset-accent-rose {
+  border-left: 3.5px solid #f43f5e !important;
+}
+
+.sample-preset-btn.is-selected.preset-accent-green {
+  border-color: #10b981 !important;
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4), 0 4px 12px rgba(16, 185, 129, 0.12) !important;
+}
+
+.sample-preset-btn.is-selected.preset-accent-amber {
+  border-color: #f59e0b !important;
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4), 0 4px 12px rgba(245, 158, 11, 0.12) !important;
+}
+
+.sample-preset-btn.is-selected.preset-accent-rose {
+  border-color: #f43f5e !important;
+  background-color: rgba(244, 63, 94, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.4), 0 4px 12px rgba(244, 63, 94, 0.12) !important;
+}
+
+.sample-preset-btn.is-selected .preset-status {
+  background-color: rgba(79, 70, 229, 0.15) !important;
 }
 
 /* Preset click micro-animation */
 @keyframes presetPulse {
   0% { transform: scale(1); }
-  50% { transform: scale(0.96); }
+  50% { transform: scale(0.97); }
   100% { transform: scale(1); }
 }
 
 .preset-pulse {
   animation: presetPulse 0.2s ease-out;
+}
+
+@keyframes attentionPulse {
+  0% { transform: scale(1); box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3); }
+  50% { transform: scale(1.02); box-shadow: 0 6px 22px rgba(79, 70, 229, 0.6); }
+  100% { transform: scale(1); box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3); }
+}
+
+.btn-attention-pulse {
+  animation: attentionPulse 0.6s ease-in-out 2;
 }
 
 /* ==========================================================================
