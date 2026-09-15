@@ -1116,3 +1116,105 @@ html.dark .eval-artifact-img {
   animation: bounceIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* ==========================================================================
+   Modern UI & Micro-Interaction Enhancements
+   ========================================================================== */
+
+/* Custom Sleek Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.65);
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(129, 140, 248, 0.65);
+}
+
+/* Tactile Interactive Micro-Interactions */
+.btn-tactile {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.btn-tactile:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.25);
+}
+.btn-tactile:active {
+  transform: scale(0.97) translateY(0);
+}
+
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2.5px);
+  box-shadow: 0 14px 32px -6px rgba(0, 0, 0, 0.08), 0 0 20px rgba(99, 102, 241, 0.08);
+}
+html.dark .hover-lift:hover {
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6), 0 0 24px rgba(99, 102, 241, 0.15);
+}
+
+/* One-Click Copy Badge with Feedback Tooltip */
+.copy-badge {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+.copy-badge::after {
+  content: "Copied! ✓";
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #10b981;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  white-space: nowrap;
+  z-index: 60;
+}
+.copy-badge.is-copied::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Dropzone Drag-over Active State */
+.dropzone-dragover {
+  border-color: #6366f1 !important;
+  background-color: rgba(99, 102, 241, 0.08) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35), 0 8px 24px rgba(99, 102, 241, 0.12) !important;
+  transform: scale(1.01);
+}
+
+/* Theme Toggle Rotation */
+#themeToggle i, #themeToggle svg {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#themeToggle:hover i, #themeToggle:hover svg {
+  transform: rotate(25deg) scale(1.1);
+}
+
+/* Mobile Nav Drawer Polish */
+#mobileNavMenu {
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+

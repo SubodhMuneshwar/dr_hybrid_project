@@ -725,13 +725,40 @@
       toggle.addEventListener("click", handleThemeToggle);
     });
 
-    // Mobile nav toggle handler
+    // Mobile nav toggle handler with smooth icon flip and outside-click close
     const mobileBtn = document.getElementById("mobileMenuBtn");
     const mobileMenu = document.getElementById("mobileNavMenu");
     if (mobileBtn && mobileMenu && !mobileBtn.__navBound) {
       mobileBtn.__navBound = true;
-      mobileBtn.addEventListener("click", () => {
-        mobileMenu.classList.toggle("hidden");
+      mobileBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isHidden = mobileMenu.classList.toggle("hidden");
+        const icon = mobileBtn.querySelector("i");
+        if (icon) {
+          if (isHidden) {
+            icon.className = "fas fa-bars text-lg";
+          } else {
+            icon.className = "fas fa-times text-lg text-indigo-600 dark:text-indigo-400";
+          }
+        }
+      });
+
+      // Close mobile menu on click outside
+      document.addEventListener("click", (e) => {
+        if (!mobileMenu.classList.contains("hidden") && !mobileMenu.contains(e.target) && !mobileBtn.contains(e.target)) {
+          mobileMenu.classList.add("hidden");
+          const icon = mobileBtn.querySelector("i");
+          if (icon) icon.className = "fas fa-bars text-lg";
+        }
+      });
+
+      // Close mobile menu on link click
+      mobileMenu.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+          mobileMenu.classList.add("hidden");
+          const icon = mobileBtn.querySelector("i");
+          if (icon) icon.className = "fas fa-bars text-lg";
+        });
       });
     }
 
@@ -743,6 +770,7 @@
     initScrollReveal();
     initAnimatedCounters();
     initPresetPulse();
+    initCopyBadges();
   }
 
   if (document.readyState === "loading") {
@@ -842,6 +870,37 @@
         btn.classList.remove('preset-pulse');
         void btn.offsetWidth; // Force reflow to restart animation
         btn.classList.add('preset-pulse');
+      });
+    });
+  }
+
+  // ==========================================================================
+  // One-Click Copy-to-Clipboard with Feedback Tooltip
+  // ==========================================================================
+  function initCopyBadges() {
+    document.querySelectorAll('[data-copy]').forEach((btn) => {
+      if (btn.__copyBound) return;
+      btn.__copyBound = true;
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const textToCopy = btn.getAttribute('data-copy');
+        if (!textToCopy) return;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(textToCopy);
+          } else {
+            const temp = document.createElement('input');
+            temp.value = textToCopy;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+          }
+          btn.classList.add('is-copied');
+          setTimeout(() => btn.classList.remove('is-copied'), 2000);
+        } catch (err) {
+          console.warn('Copy failed:', err);
+        }
       });
     });
   }

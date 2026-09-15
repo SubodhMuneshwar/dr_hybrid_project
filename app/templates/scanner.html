@@ -257,7 +257,7 @@
               <button
                 type="submit"
                 id="scanSubmitBtn"
-                class="w-full py-2.5 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/25 hover:shadow-lg hover:shadow-indigo-600/35 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                class="btn-tactile w-full py-3 px-5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-cyan-600 hover:from-indigo-500 hover:via-indigo-500 hover:to-cyan-500 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/30 hover:shadow-lg hover:shadow-indigo-600/40 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <i class="fas fa-microscope text-xs"></i>
                 <span id="btnText">Execute Hybrid Analysis</span>
@@ -577,13 +577,13 @@
       ['dragenter', 'dragover'].forEach(ev => {
         dropLabel.addEventListener(ev, (e) => {
           e.preventDefault();
-          dropLabel.classList.add('drag-active');
+          dropLabel.classList.add('drag-active', 'dropzone-dragover');
         });
       });
       ['dragleave', 'drop'].forEach(ev => {
         dropLabel.addEventListener(ev, (e) => {
           e.preventDefault();
-          dropLabel.classList.remove('drag-active');
+          dropLabel.classList.remove('drag-active', 'dropzone-dragover');
         });
       });
       dropLabel.addEventListener('drop', (e) => {
